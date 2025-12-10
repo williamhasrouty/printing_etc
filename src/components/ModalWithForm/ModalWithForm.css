@@ -1,0 +1,138 @@
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal__content {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 32px;
+  max-width: 480px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+.modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 32px;
+  line-height: 1;
+  cursor: pointer;
+  color: #999;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s;
+}
+
+.modal__close:hover {
+  color: #333;
+}
+
+.modal__title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 24px;
+  font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+}
+
+.modal__form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal__label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.modal__input {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.2s;
+}
+
+.modal__input:focus {
+  outline: none;
+  border-color: #0066cc;
+}
+
+.modal__input_error {
+  border-color: #ff4444;
+}
+
+.modal__error {
+  display: block;
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.modal__submit {
+  padding: 14px;
+  background-color: #0066cc;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin-top: 8px;
+}
+
+.modal__submit:hover:not(:disabled) {
+  background-color: #0052a3;
+}
+
+.modal__submit:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.modal__redirect {
+  background: none;
+  border: none;
+  color: #0066cc;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 8px 0;
+  font-weight: 500;
+}
+
+.modal__redirect:hover {
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 576px) {
+  .modal__content {
+    padding: 24px;
+  }
+
+  .modal__title {
+    font-size: 20px;
+  }
+}

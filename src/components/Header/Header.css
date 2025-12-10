@@ -1,0 +1,111 @@
+.header {
+  background-color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header__logo {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0066cc;
+  text-decoration: none;
+  font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+}
+
+.header__logo:hover {
+  color: #0052a3;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.header__link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  transition: color 0.2s;
+  position: relative;
+}
+
+.header__link:hover {
+  color: #0066cc;
+}
+
+.header__cart {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header__cart-badge {
+  background-color: #ff4444;
+  color: #fff;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.header__button {
+  background-color: transparent;
+  border: 2px solid #0066cc;
+  color: #0066cc;
+  padding: 8px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.header__button:hover {
+  background-color: #0066cc;
+  color: #fff;
+}
+
+.header__button_type_signup {
+  background-color: #0066cc;
+  color: #fff;
+}
+
+.header__button_type_signup:hover {
+  background-color: #0052a3;
+  border-color: #0052a3;
+}
+
+@media screen and (max-width: 768px) {
+  .header__nav {
+    gap: 12px;
+  }
+
+  .header__logo {
+    font-size: 24px;
+  }
+
+  .header__link {
+    font-size: 14px;
+  }
+
+  .header__button {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}

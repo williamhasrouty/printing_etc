@@ -1,0 +1,73 @@
+.main {
+  flex: 1;
+}
+
+.main__hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.main__hero-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.main__hero-title {
+  font-size: 48px;
+  font-weight: 700;
+  margin: 0 0 20px;
+  font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+}
+
+.main__hero-text {
+  font-size: 20px;
+  line-height: 1.6;
+  margin: 0;
+  opacity: 0.95;
+}
+
+.main__products {
+  padding: 60px 0;
+  background-color: #f8f9fa;
+}
+
+.main__container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.main__section-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 40px;
+  text-align: center;
+  font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+}
+
+.main__loading {
+  text-align: center;
+  font-size: 18px;
+  color: #666;
+  padding: 40px 0;
+}
+
+@media screen and (max-width: 768px) {
+  .main__hero {
+    padding: 60px 20px;
+  }
+
+  .main__hero-title {
+    font-size: 36px;
+  }
+
+  .main__hero-text {
+    font-size: 18px;
+  }
+
+  .main__section-title {
+    font-size: 28px;
+  }
+}

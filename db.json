@@ -1,0 +1,116 @@
+{
+  "products": [
+    {
+      "_id": "1",
+      "name": "Business Cards",
+      "description": "Professional business cards printed on premium cardstock. Perfect for networking and making a lasting impression.",
+      "basePrice": 0.15,
+      "imageUrl": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=500",
+      "category": "business-cards",
+      "id": "f524"
+    },
+    {
+      "_id": "2",
+      "name": "Flyers",
+      "description": "Eye-catching flyers for events, promotions, and announcements. Available in multiple sizes.",
+      "basePrice": 0.25,
+      "imageUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500",
+      "category": "flyers",
+      "id": "ed73"
+    },
+    {
+      "_id": "3",
+      "name": "Brochures",
+      "description": "Tri-fold brochures perfect for showcasing your products and services in detail.",
+      "basePrice": 0.45,
+      "imageUrl": "https://images.unsplash.com/photo-1586892478025-2b5472316f22?w=500",
+      "category": "brochures",
+      "id": "48b9"
+    },
+    {
+      "_id": "4",
+      "name": "Posters",
+      "description": "Large format posters for maximum visibility. Great for events, promotions, and advertising.",
+      "basePrice": 2.5,
+      "imageUrl": "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=500",
+      "category": "posters",
+      "id": "06c5"
+    },
+    {
+      "_id": "5",
+      "name": "Banners",
+      "description": "Durable vinyl banners for indoor and outdoor use. Weather-resistant and long-lasting.",
+      "basePrice": 5,
+      "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500",
+      "category": "banners",
+      "id": "ea50"
+    },
+    {
+      "_id": "6",
+      "name": "Stickers",
+      "description": "Custom stickers in any shape or size. Perfect for branding, packaging, and promotions.",
+      "basePrice": 0.2,
+      "imageUrl": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500",
+      "category": "stickers",
+      "id": "a9cd"
+    },
+    {
+      "_id": "7",
+      "name": "Postcards",
+      "description": "High-quality postcards for direct mail campaigns, event invitations, or thank you cards.",
+      "basePrice": 0.3,
+      "imageUrl": "https://images.unsplash.com/photo-1516534775068-ba3e7458af70?w=500",
+      "category": "postcards",
+      "id": "c323"
+    },
+    {
+      "_id": "8",
+      "name": "Booklets",
+      "description": "Multi-page booklets bound professionally. Ideal for catalogs, programs, and manuals.",
+      "basePrice": 1.5,
+      "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500",
+      "category": "booklets",
+      "id": "8cf4"
+    }
+  ],
+  "users": [
+    {
+      "id": "9b3b",
+      "email": "test@test.com",
+      "name": "Test",
+      "password": "testtest",
+      "createdAt": "2025-12-10T03:16:10.327Z"
+    }
+  ],
+  "orders": [
+    {
+      "id": "0789",
+      "items": [
+        {
+          "productId": "3",
+          "name": "Brochures",
+          "imageUrl": "https://images.unsplash.com/photo-1586892478025-2b5472316f22?w=500",
+          "options": {
+            "paperType": "Standard (100 lb)",
+            "quantity": 250,
+            "turnaround": "Standard (5-7 days)"
+          },
+          "quantity": 1,
+          "price": 112.5,
+          "id": 1765336598932
+        }
+      ],
+      "total": "112.50",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "John Doe",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "zipCode": "10001"
+      }
+    }
+  ]
+}
