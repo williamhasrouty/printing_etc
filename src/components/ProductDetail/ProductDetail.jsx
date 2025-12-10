@@ -21,6 +21,18 @@ function ProductDetail({ products }) {
     turnaround: TURNAROUND_TIMES[0].id,
   });
 
+  const [uploadedFile, setUploadedFile] = useState(null);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files[0];
+    if (file && file.type === "application/pdf") {
+      setUploadedFile(file);
+    } else if (file) {
+      alert("Please upload a PDF file");
+      e.target.value = "";
+    }
+  };
+
   if (!product) {
     return (
       <div className="product-detail">
@@ -56,6 +68,7 @@ function ProductDetail({ products }) {
         quantity: selectedOptions.quantity,
         turnaround: turnaround.name,
       },
+      uploadedFile: uploadedFile ? uploadedFile.name : null,
       quantity: 1,
       price: parseFloat(calculatePrice()),
     });
@@ -155,6 +168,24 @@ function ProductDetail({ products }) {
                     </option>
                   ))}
                 </select>
+              </div>
+
+              <div className="product-detail__option">
+                <label htmlFor="pdfUpload" className="product-detail__label">
+                  Upload Design (PDF)
+                </label>
+                <input
+                  type="file"
+                  id="pdfUpload"
+                  className="product-detail__file-input"
+                  accept=".pdf"
+                  onChange={handleFileUpload}
+                />
+                {uploadedFile && (
+                  <p className="product-detail__file-name">
+                    ✓ {uploadedFile.name}
+                  </p>
+                )}
               </div>
             </div>
 

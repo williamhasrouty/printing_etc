@@ -7,6 +7,7 @@ import ProductDetail from "../ProductDetail/ProductDetail";
 import Cart from "../Cart/Cart";
 import Checkout from "../Checkout/Checkout";
 import Profile from "../Profile/Profile";
+import Contact from "../Contact/Contact";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import LoginModal from "../LoginModal/LoginModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
@@ -171,6 +172,7 @@ function App() {
               element={<ProductDetail products={products} />}
             />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/contact" element={<Contact />} />
             <Route
               path="/checkout"
               element={

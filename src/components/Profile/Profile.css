@@ -84,7 +84,7 @@
 }
 
 .profile__order:hover {
-  border-color: #0066cc;
+  border-color: #dc143c;
 }
 
 .profile__order-header {
@@ -134,7 +134,7 @@
 .profile__order-total {
   font-size: 20px;
   font-weight: 700;
-  color: #0066cc;
+  color: #dc143c;
 }
 
 @media screen and (max-width: 768px) {

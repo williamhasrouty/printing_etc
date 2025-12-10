@@ -16,20 +16,20 @@ function Footer() {
 
         <div className="footer__column">
           <h3 className="footer__title">Contact</h3>
-          <p className="footer__text">Email: info@printshop.com</p>
-          <p className="footer__text">Phone: (555) 123-4567</p>
+          <p className="footer__text">Phone: (661) 272-2869</p>
+          <p className="footer__text">1747 E Ave Q Ste B2</p>
+          <p className="footer__text">Palmdale, CA 93550</p>
         </div>
 
         <div className="footer__column">
           <h3 className="footer__title">Hours</h3>
-          <p className="footer__text">Mon-Fri: 9am - 6pm</p>
-          <p className="footer__text">Sat: 10am - 4pm</p>
-          <p className="footer__text">Sun: Closed</p>
+          <p className="footer__text">Mon-Fri: 9am - 5pm</p>
+          <p className="footer__text">Sat-Sun: Closed</p>
         </div>
       </div>
 
       <div className="footer__copyright">
-        © {currentYear} PrintShop. All rights reserved.
+        © {currentYear} Printing Etc. All rights reserved.
       </div>
     </footer>
   );

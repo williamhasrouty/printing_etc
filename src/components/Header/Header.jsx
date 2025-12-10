@@ -14,12 +14,15 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
     <header className="header">
       <div className="header__container">
         <Link to="/" className="header__logo">
-          PrintShop
+          Printing Etc.
         </Link>
 
         <nav className="header__nav">
           <Link to="/" className="header__link">
             Products
+          </Link>
+          <Link to="/contact" className="header__link">
+            Contact
           </Link>
           <Link to="/cart" className="header__link header__cart">
             Cart

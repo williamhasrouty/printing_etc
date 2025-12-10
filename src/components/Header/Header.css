@@ -17,15 +17,18 @@
 }
 
 .header__logo {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0066cc;
+  font-size: 32px;
+  font-weight: 900;
+  color: #000000;
   text-decoration: none;
-  font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+  font-family: "Impact", "Arial Black", "Cabinet Grotesk", Arial, sans-serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-style: italic;
 }
 
 .header__logo:hover {
-  color: #0052a3;
+  color: #dc143c;
 }
 
 .header__nav {
@@ -43,7 +46,7 @@
 }
 
 .header__link:hover {
-  color: #0066cc;
+  color: #dc143c;
 }
 
 .header__cart {
@@ -67,8 +70,8 @@
 
 .header__button {
   background-color: transparent;
-  border: 2px solid #0066cc;
-  color: #0066cc;
+  border: 2px solid #000000;
+  color: #000000;
   padding: 8px 20px;
   border-radius: 4px;
   cursor: pointer;
@@ -77,18 +80,20 @@
 }
 
 .header__button:hover {
-  background-color: #0066cc;
+  background-color: #dc143c;
   color: #fff;
+  border-color: #dc143c;
 }
 
 .header__button_type_signup {
-  background-color: #0066cc;
+  background-color: #dc143c;
   color: #fff;
+  border-color: #dc143c;
 }
 
 .header__button_type_signup:hover {
-  background-color: #0052a3;
-  border-color: #0052a3;
+  background-color: #b8112e;
+  border-color: #b8112e;
 }
 
 @media screen and (max-width: 768px) {
