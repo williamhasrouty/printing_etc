@@ -1,4 +1,4 @@
-# Printing Etc - Professional Printing Services Website
+# Printing Etc - Professional Printing Services 
 
 A modern, full-featured e-commerce website for a printing shop built with React and Vite. Customers can browse products, customize print options, add items to cart, and complete orders with credit card payment.
 

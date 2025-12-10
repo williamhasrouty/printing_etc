@@ -51,14 +51,14 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
                 className="header__button"
                 type="button"
               >
-                Login
+                Customer Login
               </button>
               <button
                 onClick={onRegisterClick}
                 className="header__button header__button_type_signup"
                 type="button"
               >
-                Sign Up
+                New Customer
               </button>
             </>
           )}
