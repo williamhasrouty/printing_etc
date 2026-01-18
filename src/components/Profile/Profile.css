@@ -1,7 +1,7 @@
 .profile {
   flex: 1;
   padding: 40px 0;
-  background-color: #f8f9fa;
+  background-color: #2c2c2c;
 }
 
 .profile__container {
@@ -20,9 +20,10 @@
 
 .profile__title {
   font-size: 36px;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 0 24px;
   font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+  color: #333;
 }
 
 .profile__details {
@@ -35,6 +36,13 @@
   margin: 0;
   font-size: 16px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.profile__detail-content {
+  display: flex;
+  align-items: center;
   gap: 12px;
 }
 
@@ -47,6 +55,101 @@
   color: #333;
 }
 
+.profile__message {
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.profile__message_success {
+  background-color: #d1f4e0;
+  color: #0f7a3d;
+  border: 1px solid #0f7a3d;
+}
+
+.profile__message_error {
+  background-color: #ffe0e0;
+  color: #c41e3a;
+  border: 1px solid #c41e3a;
+}
+
+.profile__edit-btn {
+  padding: 6px 12px;
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.profile__edit-btn:hover {
+  background-color: #0096c7;
+}
+
+.profile__edit-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile__password-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.profile__input {
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  flex: 1;
+}
+
+.profile__input:focus {
+  outline: none;
+  border-color: #00b4d8;
+}
+
+.profile__form-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.profile__save-btn {
+  padding: 8px 16px;
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.profile__save-btn:hover {
+  background-color: #0096c7;
+}
+
+.profile__cancel-btn {
+  padding: 8px 16px;
+  background-color: #666;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.profile__cancel-btn:hover {
+  background-color: #555;
+}
+
 .profile__orders {
   background-color: #fff;
   padding: 32px;
@@ -56,7 +159,7 @@
 
 .profile__subtitle {
   font-size: 28px;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 0 24px;
   font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
 }
@@ -84,7 +187,7 @@
 }
 
 .profile__order:hover {
-  border-color: #dc143c;
+  border-color: #00b4d8;
 }
 
 .profile__order-header {
@@ -97,7 +200,7 @@
 }
 
 .profile__order-id {
-  font-weight: 700;
+  font-weight: 400;
   font-size: 16px;
   color: #333;
 }
@@ -133,8 +236,8 @@
 
 .profile__order-total {
   font-size: 20px;
-  font-weight: 700;
-  color: #dc143c;
+  font-weight: 400;
+  color: #00b4d8;
 }
 
 @media screen and (max-width: 768px) {

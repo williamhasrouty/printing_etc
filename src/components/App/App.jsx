@@ -110,7 +110,7 @@ function App() {
     const existingItem = cartItems.find(
       (cartItem) =>
         cartItem.productId === item.productId &&
-        JSON.stringify(cartItem.options) === JSON.stringify(item.options)
+        JSON.stringify(cartItem.options) === JSON.stringify(item.options),
     );
 
     if (existingItem) {
@@ -119,8 +119,8 @@ function App() {
           cartItem.productId === item.productId &&
           JSON.stringify(cartItem.options) === JSON.stringify(item.options)
             ? { ...cartItem, quantity: cartItem.quantity + item.quantity }
-            : cartItem
-        )
+            : cartItem,
+        ),
       );
     } else {
       setCartItems([...cartItems, { ...item, id: Date.now() }]);
@@ -136,7 +136,9 @@ function App() {
       removeFromCart(id);
     } else {
       setCartItems(
-        cartItems.map((item) => (item.id === id ? { ...item, quantity } : item))
+        cartItems.map((item) =>
+          item.id === id ? { ...item, quantity } : item,
+        ),
       );
     }
   };
@@ -146,7 +148,9 @@ function App() {
   };
 
   return (
-    <CurrentUserContext.Provider value={{ currentUser, isLoggedIn }}>
+    <CurrentUserContext.Provider
+      value={{ currentUser, setCurrentUser, isLoggedIn }}
+    >
       <CartContext.Provider
         value={{
           cartItems,
@@ -171,7 +175,15 @@ function App() {
               path="/products/:id"
               element={<ProductDetail products={products} />}
             />
-            <Route path="/cart" element={<Cart />} />
+            <Route
+              path="/cart"
+              element={
+                <Cart
+                  onLoginClick={handleOpenLoginModal}
+                  onRegisterClick={handleOpenRegisterModal}
+                />
+              }
+            />
             <Route path="/contact" element={<Contact />} />
             <Route
               path="/checkout"

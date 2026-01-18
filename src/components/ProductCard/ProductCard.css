@@ -3,7 +3,9 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   text-decoration: none;
   color: inherit;
   display: flex;
@@ -42,7 +44,7 @@
 
 .product-card__title {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0;
   color: #333;
 }
@@ -66,14 +68,14 @@
 
 .product-card__price {
   font-size: 18px;
-  font-weight: 700;
-  color: #dc143c;
+  font-weight: 400;
+  color: #00b4d8;
 }
 
 .product-card__link-text {
   font-size: 14px;
   font-weight: 500;
-  color: #dc143c;
+  color: #00b4d8;
 }
 
 @media screen and (max-width: 768px) {

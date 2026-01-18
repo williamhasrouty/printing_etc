@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import CartContext from "../../contexts/CartContext";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import { createOrder } from "../../utils/api";
-import { CARD_PATTERNS } from "../../utils/constants";
+import { CARD_PATTERNS, ANTELOPE_VALLEY_ZIPS } from "../../utils/constants";
 import "./Checkout.css";
 
 function Checkout() {
@@ -20,19 +20,107 @@ function Checkout() {
     city: "",
     state: "",
     zipCode: "",
+    shippingAddress: "",
+    shippingCity: "",
+    shippingState: "",
+    shippingZipCode: "",
   });
+
+  const [sameAsBilling, setSameAsBilling] = useState(true);
 
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [shippingCost, setShippingCost] = useState(null);
+  const taxRate = 0.1125; // Fixed 11.25% tax rate
+
+  const calculateSubtotal = () => {
+    return cartItems.reduce((sum, item) => sum + item.price, 0);
+  };
+
+  const calculateTax = () => {
+    return calculateSubtotal() * taxRate;
+  };
 
   const calculateTotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price, 0).toFixed(2);
+    const subtotal = calculateSubtotal();
+    const tax = calculateTax();
+    const shipping = shippingCost || 0;
+    return (subtotal + tax + shipping).toFixed(2);
+  };
+
+  // Estimate weight based on product type and quantity
+  const calculateTotalWeight = () => {
+    return cartItems.reduce((totalWeight, item) => {
+      const quantity = item.options?.quantity || 1;
+      let weightPerUnit = 0; // in pounds
+
+      // Weight estimates based on product category
+      if (item.category === "business-cards") {
+        weightPerUnit = 0.002; // ~2 lbs per 1000 cards
+      } else if (
+        item.category === "flyers" ||
+        item.category === "door-hangers"
+      ) {
+        weightPerUnit = 0.05; // ~5 lbs per 100 flyers
+      } else if (item.category === "brochures") {
+        weightPerUnit = 0.08; // ~8 lbs per 100 brochures
+      } else if (item.category === "postcards") {
+        weightPerUnit = 0.03; // ~3 lbs per 100 postcards
+      } else if (item.category === "posters") {
+        weightPerUnit = 0.15; // ~15 lbs per 100 posters
+      } else if (item.category === "banners") {
+        weightPerUnit = 0.5; // ~0.5 lbs per banner
+      } else if (item.category === "stickers" || item.category === "decals") {
+        weightPerUnit = 0.02; // ~2 lbs per 100 stickers
+      } else if (item.category === "booklets") {
+        weightPerUnit = 0.1; // ~10 lbs per 100 booklets
+      } else if (item.category === "tshirts") {
+        weightPerUnit = 0.35; // ~0.35 lbs per shirt
+      } else if (item.category === "blueprints") {
+        weightPerUnit = 0.1; // ~10 lbs per 100 prints
+      } else {
+        weightPerUnit = 0.05; // default weight
+      }
+
+      return totalWeight + weightPerUnit * quantity;
+    }, 0);
+  };
+
+  // Calculate shipping when zip code changes
+  const updateShippingAndTax = (zipCode) => {
+    if (zipCode.length >= 5) {
+      // Check if it's Antelope Valley for local delivery
+      if (ANTELOPE_VALLEY_ZIPS.includes(zipCode)) {
+        setShippingCost(10); // Flat rate local delivery
+      } else {
+        // National shipping based on package weight (USPS/UPS/FedEx style)
+        const totalWeight = calculateTotalWeight();
+
+        // Shipping tiers based on weight (in pounds)
+        let shipping = 8; // Minimum shipping cost
+        if (totalWeight > 1 && totalWeight <= 3) {
+          shipping = 12;
+        } else if (totalWeight > 3 && totalWeight <= 5) {
+          shipping = 18;
+        } else if (totalWeight > 5 && totalWeight <= 10) {
+          shipping = 28;
+        } else if (totalWeight > 10 && totalWeight <= 20) {
+          shipping = 42;
+        } else if (totalWeight > 20 && totalWeight <= 40) {
+          shipping = 60;
+        } else if (totalWeight > 40) {
+          shipping = 85;
+        }
+
+        setShippingCost(shipping);
+      }
+    }
   };
 
   const validateCardNumber = (number) => {
     const cleanNumber = number.replace(/\s/g, "");
     return Object.values(CARD_PATTERNS).some((pattern) =>
-      pattern.test(cleanNumber)
+      pattern.test(cleanNumber),
     );
   };
 
@@ -78,6 +166,22 @@ function Checkout() {
     // Format CVV
     if (name === "cvv") {
       formattedValue = value.replace(/\D/g, "").slice(0, 4);
+    }
+
+    // Format ZIP code
+    if (name === "zipCode") {
+      formattedValue = value.replace(/\D/g, "").slice(0, 5);
+      if (formattedValue.length === 5) {
+        updateShippingAndTax(formattedValue);
+      }
+    }
+
+    // Format shipping ZIP code
+    if (name === "shippingZipCode") {
+      formattedValue = value.replace(/\D/g, "").slice(0, 5);
+      if (formattedValue.length === 5 && !sameAsBilling) {
+        updateShippingAndTax(formattedValue);
+      }
     }
 
     setFormData({ ...formData, [name]: formattedValue });
@@ -138,9 +242,11 @@ function Checkout() {
 
     const token = localStorage.getItem("jwt");
     const orderData = {
+      userId: currentUser?.id,
       items: cartItems,
       total: calculateTotal(),
       billingInfo: formData,
+      createdAt: new Date().toISOString(),
     };
 
     createOrder(orderData, token)
@@ -344,6 +450,105 @@ function Checkout() {
               </div>
             </section>
 
+            <section className="checkout__section">
+              <h2 className="checkout__section-title">Shipping Address</h2>
+
+              <div className="checkout__field">
+                <label className="checkout__checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={sameAsBilling}
+                    onChange={(e) => {
+                      setSameAsBilling(e.target.checked);
+                      if (e.target.checked) {
+                        // Use billing zip for shipping calculation
+                        if (formData.zipCode.length === 5) {
+                          updateShippingAndTax(formData.zipCode);
+                        }
+                      }
+                    }}
+                    className="checkout__checkbox"
+                  />
+                  Same as Billing Address
+                </label>
+              </div>
+
+              {!sameAsBilling && (
+                <>
+                  <div className="checkout__field">
+                    <label
+                      htmlFor="shippingAddress"
+                      className="checkout__label"
+                    >
+                      Street Address
+                    </label>
+                    <input
+                      type="text"
+                      id="shippingAddress"
+                      name="shippingAddress"
+                      value={formData.shippingAddress}
+                      onChange={handleInputChange}
+                      className="checkout__input"
+                      placeholder="123 Main St"
+                    />
+                  </div>
+
+                  <div className="checkout__row">
+                    <div className="checkout__field">
+                      <label htmlFor="shippingCity" className="checkout__label">
+                        City
+                      </label>
+                      <input
+                        type="text"
+                        id="shippingCity"
+                        name="shippingCity"
+                        value={formData.shippingCity}
+                        onChange={handleInputChange}
+                        className="checkout__input"
+                        placeholder="New York"
+                      />
+                    </div>
+
+                    <div className="checkout__field">
+                      <label
+                        htmlFor="shippingState"
+                        className="checkout__label"
+                      >
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        id="shippingState"
+                        name="shippingState"
+                        value={formData.shippingState}
+                        onChange={handleInputChange}
+                        className="checkout__input"
+                        placeholder="NY"
+                      />
+                    </div>
+
+                    <div className="checkout__field">
+                      <label
+                        htmlFor="shippingZipCode"
+                        className="checkout__label"
+                      >
+                        ZIP Code
+                      </label>
+                      <input
+                        type="text"
+                        id="shippingZipCode"
+                        name="shippingZipCode"
+                        value={formData.shippingZipCode}
+                        onChange={handleInputChange}
+                        className="checkout__input"
+                        placeholder="10001"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </section>
+
             <button
               type="submit"
               className="checkout__submit"
@@ -377,9 +582,54 @@ function Checkout() {
               ))}
             </div>
 
-            <div className="checkout__total">
-              <span className="checkout__total-label">Total:</span>
-              <span className="checkout__total-value">${calculateTotal()}</span>
+            <div className="checkout__totals">
+              <div className="checkout__total-row">
+                <span className="checkout__total-label">Subtotal:</span>
+                <span className="checkout__total-value">
+                  ${calculateSubtotal().toFixed(2)}
+                </span>
+              </div>
+              {taxRate > 0 && (
+                <div className="checkout__total-row">
+                  <span className="checkout__total-label">
+                    Tax ({(taxRate * 100).toFixed(2)}%):
+                  </span>
+                  <span className="checkout__total-value">
+                    ${calculateTax().toFixed(2)}
+                  </span>
+                </div>
+              )}
+              <div className="checkout__total-row">
+                <span className="checkout__total-label">Shipping:</span>
+                <span className="checkout__total-value">
+                  {shippingCost !== null
+                    ? shippingCost === 10
+                      ? "$10.00 (Local Delivery)"
+                      : `$${shippingCost.toFixed(2)}`
+                    : "TBD"}
+                </span>
+              </div>
+              <div
+                className="checkout__total"
+                style={{
+                  borderTop: "2px solid #00b4d8",
+                  paddingTop: "10px",
+                  marginTop: "10px",
+                }}
+              >
+                <span
+                  className="checkout__total-label"
+                  style={{ fontWeight: "600", fontSize: "18px" }}
+                >
+                  Total:
+                </span>
+                <span
+                  className="checkout__total-value"
+                  style={{ fontWeight: "600", fontSize: "18px" }}
+                >
+                  ${calculateTotal()}
+                </span>
+              </div>
             </div>
           </aside>
         </div>

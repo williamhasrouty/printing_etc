@@ -1,7 +1,7 @@
 .cart {
   flex: 1;
   padding: 40px 0;
-  background-color: #f8f9fa;
+  background-color: #2c2c2c;
 }
 
 .cart__container {
@@ -12,9 +12,10 @@
 
 .cart__title {
   font-size: 36px;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 0 40px;
   font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+  color: #fff;
 }
 
 .cart__empty {
@@ -33,7 +34,7 @@
 
 .cart__continue-button {
   padding: 12px 32px;
-  background-color: #dc143c;
+  background-color: #00b4d8;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -44,7 +45,7 @@
 }
 
 .cart__continue-button:hover {
-  background-color: #b8112e;
+  background-color: #0096c7;
 }
 
 .cart__content {
@@ -111,15 +112,15 @@
 
 .cart__item-price {
   font-size: 24px;
-  font-weight: 700;
-  color: #dc143c;
+  font-weight: 400;
+  color: #00b4d8;
   margin: 0;
 }
 
 .cart__item-remove {
   background: none;
   border: none;
-  color: #ff4444;
+  color: #e91e63;
   font-size: 14px;
   cursor: pointer;
   padding: 0;
@@ -142,7 +143,7 @@
 
 .cart__summary-title {
   font-size: 24px;
-  font-weight: 700;
+  font-weight: 400;
   margin: 0 0 20px;
   font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
 }
@@ -168,7 +169,7 @@
 
 .cart__summary-row_type_total .cart__summary-label {
   font-size: 20px;
-  font-weight: 700;
+  font-weight: 400;
   color: #333;
 }
 
@@ -180,14 +181,14 @@
 
 .cart__summary-row_type_total .cart__summary-value {
   font-size: 28px;
-  font-weight: 700;
-  color: #dc143c;
+  font-weight: 400;
+  color: #00b4d8;
 }
 
 .cart__checkout-button {
   width: 100%;
   padding: 16px;
-  background-color: #dc143c;
+  background-color: #00b4d8;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -199,7 +200,7 @@
 }
 
 .cart__checkout-button:hover {
-  background-color: #b8112e;
+  background-color: #0096c7;
 }
 
 .cart__continue-shopping {
@@ -217,9 +218,9 @@
 }
 
 .cart__continue-shopping:hover {
-  background-color: #dc143c;
+  background-color: #00b4d8;
   color: #fff;
-  border-color: #dc143c;
+  border-color: #00b4d8;
 }
 
 @media screen and (max-width: 968px) {

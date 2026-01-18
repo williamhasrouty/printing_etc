@@ -68,3 +68,33 @@ export const checkToken = (token) => {
     return Promise.reject("Invalid token");
   }
 };
+
+// Update user profile (name)
+export const updateUser = (userId, name) => {
+  return request(`${BASE_URL}/users/${userId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name }),
+  });
+};
+
+// Update user password
+export const updatePassword = (userId, currentPassword, newPassword) => {
+  // First verify the current password
+  return request(`${BASE_URL}/users/${userId}`).then((user) => {
+    if (user.password !== currentPassword) {
+      return Promise.reject("Current password is incorrect");
+    }
+
+    // Update the password
+    return request(`${BASE_URL}/users/${userId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ password: newPassword }),
+    });
+  });
+};

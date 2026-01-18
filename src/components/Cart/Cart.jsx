@@ -1,11 +1,13 @@
 import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import CartContext from "../../contexts/CartContext";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 import "./Cart.css";
 
-function Cart() {
+function Cart({ onLoginClick, onRegisterClick }) {
   const { cartItems, removeFromCart, updateCartItemQuantity } =
     useContext(CartContext);
+  const { isLoggedIn } = useContext(CurrentUserContext);
   const navigate = useNavigate();
 
   const calculateTotal = () => {
@@ -13,6 +15,10 @@ function Cart() {
   };
 
   const handleCheckout = () => {
+    if (!isLoggedIn) {
+      onLoginClick();
+      return;
+    }
     navigate("/checkout");
   };
 

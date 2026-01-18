@@ -34,11 +34,17 @@ export const createOrder = (orderData, token) => {
 
 // Get user orders
 export const getUserOrders = (token) => {
-  return request(`${BASE_URL}/orders`, {
-    headers: {
-      authorization: `Bearer ${token}`,
-    },
-  });
+  // Decode token to get userId
+  try {
+    const decoded = JSON.parse(atob(token));
+    return request(`${BASE_URL}/orders?userId=${decoded.userId}`, {
+      headers: {
+        authorization: `Bearer ${token}`,
+      },
+    });
+  } catch (err) {
+    return Promise.reject("Invalid token");
+  }
 };
 
 // Update user profile

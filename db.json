@@ -4,8 +4,8 @@
       "_id": "1",
       "name": "Business Cards",
       "description": "Professional business cards printed on premium cardstock. Perfect for networking and making a lasting impression.",
-      "basePrice": 0.15,
-      "imageUrl": "https://images.unsplash.com/photo-1589939705384-5185137a7f0f?w=500",
+      "basePrice": 35,
+      "imageUrl": "/src/assets/images/business card stock.jpg",
       "category": "business-cards",
       "id": "f524"
     },
@@ -14,27 +14,27 @@
       "name": "Flyers",
       "description": "Eye-catching flyers for events, promotions, and announcements. Available in multiple sizes.",
       "basePrice": 0.25,
-      "imageUrl": "https://images.unsplash.com/photo-1561070791-2526d30994b5?w=500",
+      "imageUrl": "/src/assets/images/flyer photo.jpg",
       "category": "flyers",
       "id": "ed73"
     },
     {
-      "_id": "3",
-      "name": "Brochures",
-      "description": "Tri-fold brochures perfect for showcasing your products and services in detail.",
-      "basePrice": 0.45,
-      "imageUrl": "https://images.unsplash.com/photo-1586892478025-2b5472316f22?w=500",
-      "category": "brochures",
-      "id": "48b9"
+      "_id": "6",
+      "name": "Stickers",
+      "description": "Custom stickers in any shape or size. Perfect for branding, packaging, and promotions.",
+      "basePrice": 0.2,
+      "imageUrl": "https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?w=500",
+      "category": "stickers",
+      "id": "a9cd"
     },
     {
-      "_id": "4",
-      "name": "Posters",
-      "description": "Large format posters for maximum visibility. Great for events, promotions, and advertising.",
-      "basePrice": 2.5,
-      "imageUrl": "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?w=500",
-      "category": "posters",
-      "id": "06c5"
+      "_id": "7",
+      "name": "Postcards",
+      "description": "High-quality postcards for direct mail campaigns, event invitations, or thank you cards.",
+      "basePrice": 0.3,
+      "imageUrl": "https://images.unsplash.com/photo-1608598688270-c3fa0bca1ac9?w=500",
+      "category": "postcards",
+      "id": "c323"
     },
     {
       "_id": "5",
@@ -46,31 +46,67 @@
       "id": "ea50"
     },
     {
-      "_id": "6",
-      "name": "Stickers",
-      "description": "Custom stickers in any shape or size. Perfect for branding, packaging, and promotions.",
-      "basePrice": 0.2,
-      "imageUrl": "https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=500",
-      "category": "stickers",
-      "id": "a9cd"
+      "_id": "9",
+      "name": "Decals (Vinyl)",
+      "description": "Durable vinyl decals for vehicles, windows, and equipment. Weather-resistant and long-lasting.",
+      "basePrice": 0.5,
+      "imageUrl": "https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=500",
+      "category": "decals",
+      "id": "d9e1"
     },
     {
-      "_id": "7",
-      "name": "Postcards",
-      "description": "High-quality postcards for direct mail campaigns, event invitations, or thank you cards.",
-      "basePrice": 0.3,
-      "imageUrl": "https://images.unsplash.com/photo-1516534775068-ba3e7458af70?w=500",
-      "category": "postcards",
-      "id": "c323"
+      "_id": "10",
+      "name": "T-shirts",
+      "description": "Custom printed t-shirts with high-quality graphics. Perfect for events, teams, and promotions.",
+      "basePrice": 12,
+      "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
+      "category": "tshirts",
+      "id": "t5a2"
+    },
+    {
+      "_id": "11",
+      "name": "Blueprints/Floor Plans",
+      "description": "Large format architectural blueprints and floor plans. Professional printing for construction and design.",
+      "basePrice": 3,
+      "imageUrl": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500",
+      "category": "blueprints",
+      "id": "b7f3"
+    },
+    {
+      "_id": "12",
+      "name": "Door Hangers",
+      "description": "Eye-catching door hangers for direct marketing. Perfect for promotions, announcements, and advertising.",
+      "basePrice": 0.35,
+      "imageUrl": "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=500",
+      "category": "door-hangers",
+      "id": "d4h6"
+    },
+    {
+      "_id": "4",
+      "name": "Posters",
+      "description": "Large format posters for maximum visibility. Great for events, promotions, and advertising.",
+      "basePrice": 2.5,
+      "imageUrl": "https://images.unsplash.com/photo-1611348586804-61bf6c080437?w=500",
+      "category": "posters",
+      "id": "06c5"
     },
     {
       "_id": "8",
       "name": "Booklets",
       "description": "Multi-page booklets bound professionally. Ideal for catalogs, programs, and manuals.",
       "basePrice": 1.5,
-      "imageUrl": "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=500",
+      "imageUrl": "https://images.unsplash.com/photo-1589998059171-988d887df646?w=500",
       "category": "booklets",
       "id": "8cf4"
+    },
+    {
+      "_id": "3",
+      "name": "Brochures",
+      "description": "Tri-fold brochures perfect for showcasing your products and services in detail.",
+      "basePrice": 0.45,
+      "imageUrl": "https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?w=500",
+      "category": "brochures",
+      "id": "48b9"
     }
   ],
   "users": [
@@ -80,37 +116,122 @@
       "name": "Test",
       "password": "testtest",
       "createdAt": "2025-12-10T03:16:10.327Z"
+    },
+    {
+      "id": "f3c2",
+      "email": "test@test.com",
+      "name": "Test Test",
+      "password": "testtest",
+      "createdAt": "2026-01-18T01:07:06.321Z"
+    },
+    {
+      "id": "8d40",
+      "email": "nora@nora.com",
+      "name": "Nora",
+      "password": "noranora",
+      "createdAt": "2026-01-18T04:40:09.942Z"
+    },
+    {
+      "id": "8bce",
+      "email": "david@david.com",
+      "name": "Beshara",
+      "password": "noranora",
+      "createdAt": "2026-01-18T04:41:40.246Z"
+    },
+    {
+      "id": "6dfb",
+      "email": "beshara@beshara.com",
+      "name": "Printing ETC",
+      "password": "beshara",
+      "createdAt": "2026-01-18T05:01:28.898Z"
     }
   ],
   "orders": [
     {
-      "id": "0789",
+      "id": "eabc",
+      "userId": "8bce",
       "items": [
         {
           "productId": "3",
           "name": "Brochures",
-          "imageUrl": "https://images.unsplash.com/photo-1586892478025-2b5472316f22?w=500",
+          "imageUrl": "https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?w=500",
           "options": {
             "paperType": "Standard (100 lb)",
             "quantity": 250,
             "turnaround": "Standard (5-7 days)"
           },
+          "uploadedFile": null,
           "quantity": 1,
           "price": 112.5,
-          "id": 1765336598932
+          "id": 1768711355725
         }
       ],
-      "total": "112.50",
+      "total": "167.16",
       "billingInfo": {
         "cardNumber": "4111 1111 1111 1111",
-        "cardName": "John Doe",
-        "expiryDate": "02/29",
+        "cardName": "david",
+        "expiryDate": "12/26",
+        "cvv": "1243",
+        "billingAddress": "1915 S Manchester Ave",
+        "city": "Anaheim",
+        "state": "CA",
+        "zipCode": "92802",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-01-18T04:42:55.749Z"
+    },
+    {
+      "id": "23a9",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500,
+            "turnaround": "Standard (5-7 days)"
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 35,
+          "id": 1768712266695
+        },
+        {
+          "productId": "2",
+          "name": "Flyers",
+          "imageUrl": "https://images.unsplash.com/photo-1586243271710-d61ebaf10d4f?w=500",
+          "options": {
+            "paperType": "Standard (100 lb)",
+            "quantity": 250,
+            "turnaround": "Standard (5-7 days)"
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 62.5,
+          "id": 1768712299678
+        }
+      ],
+      "total": "118.47",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "Nora",
+        "expiryDate": "12/26",
         "cvv": "123",
-        "billingAddress": "123 Main St",
-        "city": "New York",
-        "state": "NY",
-        "zipCode": "10001"
-      }
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "36802 Auburn Ct",
+        "shippingCity": "Palmdale",
+        "shippingState": "CA",
+        "shippingZipCode": "93552"
+      },
+      "createdAt": "2026-01-18T04:59:54.003Z"
     }
   ]
 }
