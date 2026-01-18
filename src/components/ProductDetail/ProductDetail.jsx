@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import CartContext from "../../contexts/CartContext";
 import {
@@ -63,6 +63,47 @@ function ProductDetail({ products }) {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [shippingCost, setShippingCost] = useState(null);
   const [shippingCalculated, setShippingCalculated] = useState(false);
+
+  // Reset options when product changes or loads
+  useEffect(() => {
+    if (product) {
+      const isBC = product.category === "business-cards";
+      const isFly = product.category === "flyers";
+
+      const getQty = () => {
+        if (isBC) {
+          const firstPaper = BUSINESS_CARD_PAPER[0];
+          if (firstPaper.pricing) {
+            return parseInt(Object.keys(firstPaper.pricing)[0]);
+          }
+          return BUSINESS_CARD_QUANTITIES[0];
+        }
+        return QUANTITIES[2];
+      };
+
+      setSelectedOptions({
+        paperType: isBC
+          ? BUSINESS_CARD_PAPER[0].id
+          : isFly
+            ? FLYER_PAPER[0].id
+            : PAPER_TYPES[0].id,
+        quantity: getQty(),
+        size: isBC ? "2x3.5" : isFly ? FLYER_SIZES[0].id : "",
+        orientation: "horizontal",
+        color: isBC
+          ? BUSINESS_CARD_COLORS[0].id
+          : isFly
+            ? FLYER_COLORS[0].id
+            : "",
+        roundedCorner: "none",
+        coating: isBC ? BUSINESS_CARD_COATING[0].id : "",
+        raisedPrint: isBC ? BUSINESS_CARD_RAISED[0].id : "",
+        velvetFinish: isBC ? BUSINESS_CARD_VELVET[0].id : "",
+        zipCode: "",
+        addressType: "residential",
+      });
+    }
+  }, [product]);
 
   // Get available coating options based on selected color and paper type
   const getAvailableCoating = () => {

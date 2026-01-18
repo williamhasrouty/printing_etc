@@ -47,7 +47,7 @@
     },
     {
       "_id": "9",
-      "name": "Decals (Vinyl)",
+      "name": "Decals",
       "description": "Durable vinyl decals for vehicles, windows, and equipment. Weather-resistant and long-lasting.",
       "basePrice": 0.5,
       "imageUrl": "https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=500",
@@ -232,6 +232,54 @@
         "shippingZipCode": "93552"
       },
       "createdAt": "2026-01-18T04:59:54.003Z"
+    },
+    {
+      "id": "4b98",
+      "userId": "6dfb",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 35,
+          "id": 1768756555434
+        },
+        {
+          "productId": "2",
+          "name": "Flyers",
+          "imageUrl": "/src/assets/images/flyer photo.jpg",
+          "options": {
+            "paperType": "Standard",
+            "quantity": 250
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 62.5,
+          "id": 1768756559551
+        }
+      ],
+      "total": "168.47",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "john",
+        "expiryDate": "12/26",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-01-18T17:16:29.686Z"
     }
   ]
 }
