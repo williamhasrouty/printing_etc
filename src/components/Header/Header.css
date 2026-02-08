@@ -25,10 +25,19 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   font-style: italic;
+  display: flex;
+  align-items: center;
+}
+
+.header__logo-image {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  border-radius: 8px;
 }
 
 .header__logo:hover {
-  color: #00b4d8;
+  opacity: 0.8;
 }
 
 .header__nav {

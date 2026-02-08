@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import CartContext from "../../contexts/CartContext";
+import logo from "../../assets/images/printingetclogoold.jpg";
 import "./Header.css";
 
 function Header({ onLoginClick, onRegisterClick, onLogout }) {
@@ -23,7 +24,11 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
     <header className="header">
       <div className="header__container">
         <Link to="/" className="header__logo">
-          Printing Etc, LLC
+          <img
+            src={logo}
+            alt="Printing Etc Logo"
+            className="header__logo-image"
+          />
         </Link>
 
         <button

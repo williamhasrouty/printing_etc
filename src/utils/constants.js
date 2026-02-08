@@ -24,17 +24,16 @@ export const PAPER_TYPES = [
 
 // Flyer specific options
 export const FLYER_PAPER = [
-  { id: "100lb-gloss-book", name: "100 lb. Gloss Book" },
-  { id: "100lb-gloss-cover", name: "100 lb. Gloss Cover" },
-  { id: "100lb-matte-cover", name: "100 lb. Matte Cover" },
-  { id: "14pt-gloss", name: "14 pt. Gloss" },
-  { id: "14pt-uncoated", name: "14 pt. Uncoated" },
-  { id: "80lb-gloss-book", name: "80 lb. Gloss Book" },
-  { id: "80lb-matte-text", name: "80 lb. Matte Text" },
-  { id: "13pt-premium-linen", name: "13 pt. Premium Linen" },
-  { id: "18pt-premium-kraft", name: "18 pt. Premium Kraft" },
-  { id: "18pt-ultra-pearl", name: "18 pt. Ultra Premium Pearl" },
-  { id: "18pt-ultra-smooth", name: "18 pt. Ultra Premium Smooth White" },
+  { id: "80lb-gloss-book", name: "80 lb. Gloss Book", thickness: "Thin" },
+  { id: "100lb-gloss-book", name: "100 lb. Gloss Book", thickness: "Medium" },
+  { id: "100lb-gloss-cover", name: "100 lb. Gloss Cover", thickness: "Medium" },
+  { id: "14pt-gloss-cover", name: "14 pt. Gloss Cover", thickness: "Thick" },
+  { id: "14pt-uncoated-cover", name: "14 pt. Uncoated Cover", thickness: "Thick" },
+  { id: "13pt-premium-linen", name: "13 pt. Premium Linen", thickness: "Thick" },
+  { id: "18pt-ultra-pearl", name: "18 pt. Ultra Premium Pearl", thickness: "Extra Thick" },
+  { id: "18pt-premium-kraft", name: "18 pt. Premium Kraft", thickness: "Extra Thick" },
+  { id: "18pt-ultra-smooth", name: "18 pt. Ultra Premium Smooth White", thickness: "Extra Thick" },
+  { id: "70lb-opaque", name: "70 lb. Opaque Smooth White", thickness: "Thin" },
 ];
 
 export const FLYER_SIZES = [
@@ -59,9 +58,76 @@ export const FLYER_SIZES = [
 ];
 
 export const FLYER_COLORS = [
-  { id: "full-front-no-back", name: "Full Color Front, No Back" },
+  { id: "full-front-blank-back", name: "Full Color Front, Blank Back" },
   { id: "full-both", name: "Full Color Both Sides" },
 ];
+
+export const FLYER_COATING = [
+  { id: "none", name: "No Coating" },
+  { id: "aqueous", name: "Aqueous Coating (Both Sides)" },
+  { id: "uv-front", name: "High Gloss UV Coating Front Only" },
+  { id: "uv-both", name: "High Gloss UV Coating Both Sides" },
+];
+
+export const FLYER_QUANTITIES = [
+  25, 50, 100, 250, 500, 1000, 2500, 5000, 10000, 15000, 25000
+];
+
+// Flyer pricing structure (base prices for 8.5x11 size)
+export const FLYER_PRICING = {
+  "80lb-gloss-book": {
+    25: 15, 50: 22, 100: 35, 250: 65, 500: 95, 1000: 160, 2500: 325, 5000: 575, 10000: 1050, 15000: 1500, 25000: 2350
+  },
+  "100lb-gloss-book": {
+    25: 18, 50: 26, 100: 42, 250: 78, 500: 115, 1000: 195, 2500: 395, 5000: 695, 10000: 1275, 15000: 1825, 25000: 2850
+  },
+  "100lb-gloss-cover": {
+    25: 20, 50: 30, 100: 48, 250: 90, 500: 135, 1000: 230, 2500: 465, 5000: 820, 10000: 1500, 15000: 2150, 25000: 3350
+  },
+  "14pt-gloss-cover": {
+    25: 24, 50: 36, 100: 58, 250: 110, 500: 165, 1000: 280, 2500: 565, 5000: 995, 10000: 1825, 15000: 2625, 25000: 4100
+  },
+  "14pt-uncoated-cover": {
+    25: 24, 50: 36, 100: 58, 250: 110, 500: 165, 1000: 280, 2500: 565, 5000: 995, 10000: 1825, 15000: 2625, 25000: 4100
+  },
+  "13pt-premium-linen": {
+    25: 28, 50: 42, 100: 68, 250: 130, 500: 195, 1000: 330, 2500: 665, 5000: 1175, 10000: 2150, 15000: 3100, 25000: 4850
+  },
+  "18pt-ultra-pearl": {
+    25: 35, 50: 52, 100: 85, 250: 162, 500: 245, 1000: 415, 2500: 835, 5000: 1475, 10000: 2700, 15000: 3900, 25000: 6100
+  },
+  "18pt-premium-kraft": {
+    25: 32, 50: 48, 100: 78, 250: 148, 500: 225, 1000: 380, 2500: 765, 5000: 1350, 10000: 2475, 15000: 3575, 25000: 5600
+  },
+  "18pt-ultra-smooth": {
+    25: 35, 50: 52, 100: 85, 250: 162, 500: 245, 1000: 415, 2500: 835, 5000: 1475, 10000: 2700, 15000: 3900, 25000: 6100
+  },
+  "70lb-opaque": {
+    25: 14, 50: 20, 100: 32, 250: 60, 500: 88, 1000: 150, 2500: 305, 5000: 540, 10000: 990, 15000: 1420, 25000: 2225
+  }
+};
+
+// Size multipliers for flyers (relative to 8.5x11)
+export const FLYER_SIZE_MULTIPLIERS = {
+  "2.5x4": 0.35,
+  "3.5x8.5": 0.55,
+  "3.75x8.25": 0.55,
+  "4x6": 0.45,
+  "4x9": 0.60,
+  "4.25x5.5": 0.50,
+  "4.25x11": 0.75,
+  "5x7": 0.65,
+  "5.5x8.5": 0.80,
+  "6x6": 0.70,
+  "6x9": 0.85,
+  "8x8": 0.90,
+  "8x10": 0.95,
+  "8.5x11": 1.00,
+  "8.5x14": 1.15,
+  "9x12": 1.20,
+  "11x17": 1.40,
+  "12x12": 1.35
+};
 
 // Business Card specific options
 export const BUSINESS_CARD_QUANTITIES = [

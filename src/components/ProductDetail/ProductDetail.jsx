@@ -1,13 +1,13 @@
 import { useState, useContext, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Document, Page, pdfjs } from "react-pdf";
-import 'react-pdf/dist/Page/AnnotationLayer.css';
-import 'react-pdf/dist/Page/TextLayer.css';
+import "react-pdf/dist/Page/AnnotationLayer.css";
+import "react-pdf/dist/Page/TextLayer.css";
 import CartContext from "../../contexts/CartContext";
 import NotificationModal from "../NotificationModal/NotificationModal";
 
 // Set up PDF.js worker from public directory
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
+pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
 import {
   PAPER_TYPES,
   QUANTITIES,
@@ -69,6 +69,7 @@ function ProductDetail({ products }) {
 
   const [uploadedFile, setUploadedFile] = useState(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState(null);
+  const [fileType, setFileType] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [shippingCost, setShippingCost] = useState(null);
@@ -177,14 +178,28 @@ function ProductDetail({ products }) {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    if (file && file.type === "application/pdf") {
+    const validTypes = [
+      "application/pdf",
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/svg+xml",
+    ];
+
+    if (file && validTypes.includes(file.type)) {
       setUploadedFile(file);
-      // Create preview URL for the PDF
+      setFileType(file.type);
+      // Create preview URL
       const url = URL.createObjectURL(file);
       setFilePreviewUrl(url);
-      setPageNumber(1);
+      if (file.type === "application/pdf") {
+        setPageNumber(1);
+      }
     } else if (file) {
-      setNotification({ message: "Please upload a PDF file", type: "warning" });
+      setNotification({
+        message: "Please upload a PDF, JPG, PNG, or SVG file",
+        type: "warning",
+      });
       e.target.value = "";
     }
   };
@@ -200,6 +215,50 @@ function ProductDetail({ products }) {
   const goToNextPage = () => {
     setPageNumber((prev) => Math.min(prev + 1, numPages || 1));
   };
+
+  // Calculate preview dimensions based on product size and orientation
+  const getPreviewDimensions = () => {
+    let width, height;
+
+    if (isBusinessCard) {
+      // Business cards are 2" x 3.5"
+      width = 2;
+      height = 3.5;
+    } else if (isFlyer && selectedOptions.size) {
+      // Parse flyer size (e.g., "8.5x11" -> width: 8.5, height: 11)
+      const [w, h] = selectedOptions.size.split("x").map(parseFloat);
+      width = w;
+      height = h;
+    } else {
+      // Default fallback
+      width = 8.5;
+      height = 11;
+    }
+
+    // Apply orientation
+    if (selectedOptions.orientation === "vertical") {
+      // For vertical, ensure height > width
+      if (width > height) {
+        [width, height] = [height, width];
+      }
+    } else {
+      // For horizontal, ensure width > height
+      if (height > width) {
+        [width, height] = [height, width];
+      }
+    }
+
+    // Scale to fit in preview (max 400px for longest side)
+    const maxSize = 400;
+    const scale = Math.min(maxSize / Math.max(width, height), 50); // 50px per inch
+
+    return {
+      width: Math.round(width * scale),
+      height: Math.round(height * scale),
+    };
+  };
+
+  const previewDimensions = getPreviewDimensions();
 
   // Cleanup preview URL when component unmounts
   useEffect(() => {
@@ -633,6 +692,42 @@ function ProductDetail({ products }) {
                   </div>
 
                   <div className="product-detail__option">
+                    <label className="product-detail__label">Orientation</label>
+                    <div className="product-detail__radio-group">
+                      <label className="product-detail__radio-label">
+                        <input
+                          type="radio"
+                          name="orientation"
+                          value="horizontal"
+                          checked={selectedOptions.orientation === "horizontal"}
+                          onChange={(e) =>
+                            setSelectedOptions({
+                              ...selectedOptions,
+                              orientation: e.target.value,
+                            })
+                          }
+                        />
+                        Horizontal
+                      </label>
+                      <label className="product-detail__radio-label">
+                        <input
+                          type="radio"
+                          name="orientation"
+                          value="vertical"
+                          checked={selectedOptions.orientation === "vertical"}
+                          onChange={(e) =>
+                            setSelectedOptions({
+                              ...selectedOptions,
+                              orientation: e.target.value,
+                            })
+                          }
+                        />
+                        Vertical
+                      </label>
+                    </div>
+                  </div>
+
+                  <div className="product-detail__option">
                     <label htmlFor="color" className="product-detail__label">
                       Color Options
                     </label>
@@ -733,13 +828,13 @@ function ProductDetail({ products }) {
 
               <div className="product-detail__option">
                 <label htmlFor="pdfUpload" className="product-detail__label">
-                  Upload Design (PDF)
+                  Upload Design (PDF, JPG, PNG, SVG)
                 </label>
                 <input
                   type="file"
                   id="pdfUpload"
                   className="product-detail__file-input"
-                  accept=".pdf"
+                  accept=".pdf,.jpg,.jpeg,.png,.svg"
                   onChange={handleFileUpload}
                 />
                 {uploadedFile && (
@@ -753,51 +848,89 @@ function ProductDetail({ products }) {
                 <div className="product-detail__pdf-preview">
                   <h3 className="product-detail__preview-title">Preview</h3>
                   <div className="product-detail__pdf-container">
-                    <Document
-                      file={filePreviewUrl}
-                      onLoadSuccess={onDocumentLoadSuccess}
-                      loading={
-                        <div className="product-detail__pdf-loading">
-                          Loading PDF...
-                        </div>
-                      }
-                      error={
-                        <div className="product-detail__pdf-error">
-                          Failed to load PDF
-                        </div>
-                      }
-                    >
-                      <Page
-                        pageNumber={pageNumber}
-                        width={400}
-                        renderTextLayer={false}
-                        renderAnnotationLayer={false}
-                      />
-                    </Document>
-                  </div>
-                  {numPages && numPages > 1 && (
-                    <div className="product-detail__pdf-controls">
-                      <button
-                        onClick={goToPrevPage}
-                        disabled={pageNumber <= 1}
-                        className="product-detail__pdf-button"
-                        type="button"
+                    <div className="product-detail__preview-wrapper">
+                      <div
+                        className="product-detail__content-area"
+                        style={{
+                          width: `${previewDimensions.width}px`,
+                          height: `${previewDimensions.height}px`,
+                        }}
                       >
-                        ← Previous
-                      </button>
-                      <span className="product-detail__pdf-page-info">
-                        Page {pageNumber} of {numPages}
-                      </span>
-                      <button
-                        onClick={goToNextPage}
-                        disabled={pageNumber >= numPages}
-                        className="product-detail__pdf-button"
-                        type="button"
-                      >
-                        Next →
-                      </button>
+                        {fileType === "application/pdf" ? (
+                          <Document
+                            file={filePreviewUrl}
+                            onLoadSuccess={onDocumentLoadSuccess}
+                            loading={
+                              <div className="product-detail__pdf-loading">
+                                Loading PDF...
+                              </div>
+                            }
+                            error={
+                              <div className="product-detail__pdf-error">
+                                Failed to load PDF
+                              </div>
+                            }
+                          >
+                            <Page
+                              pageNumber={pageNumber}
+                              height={previewDimensions.height}
+                              renderTextLayer={false}
+                              renderAnnotationLayer={false}
+                            />
+                          </Document>
+                        ) : (
+                          <img
+                            src={filePreviewUrl}
+                            alt="Uploaded design preview"
+                            className="product-detail__image-preview"
+                          />
+                        )}
+                      </div>
+                      <div className="product-detail__guide-overlay">
+                        <div className="product-detail__bleed-line"></div>
+                        <div className="product-detail__cut-line"></div>
+                      </div>
                     </div>
-                  )}
+                  </div>
+                  <div className="product-detail__guide-legend">
+                    <div className="product-detail__guide-item">
+                      <span className="product-detail__guide-indicator product-detail__guide-indicator_bleed"></span>
+                      <span className="product-detail__guide-text">
+                        Bleed line (1/16")
+                      </span>
+                    </div>
+                    <div className="product-detail__guide-item">
+                      <span className="product-detail__guide-indicator product-detail__guide-indicator_cut"></span>
+                      <span className="product-detail__guide-text">
+                        Cut line (trim)
+                      </span>
+                    </div>
+                  </div>
+                  {fileType === "application/pdf" &&
+                    numPages &&
+                    numPages > 1 && (
+                      <div className="product-detail__pdf-controls">
+                        <button
+                          onClick={goToPrevPage}
+                          disabled={pageNumber <= 1}
+                          className="product-detail__pdf-button"
+                          type="button"
+                        >
+                          ← Previous
+                        </button>
+                        <span className="product-detail__pdf-page-info">
+                          Page {pageNumber} of {numPages}
+                        </span>
+                        <button
+                          onClick={goToNextPage}
+                          disabled={pageNumber >= numPages}
+                          className="product-detail__pdf-button"
+                          type="button"
+                        >
+                          Next →
+                        </button>
+                      </div>
+                    )}
                 </div>
               )}
             </div>
