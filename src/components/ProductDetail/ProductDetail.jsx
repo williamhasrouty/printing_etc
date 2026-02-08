@@ -1,6 +1,13 @@
 import { useState, useContext, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { Document, Page, pdfjs } from "react-pdf";
+import 'react-pdf/dist/Page/AnnotationLayer.css';
+import 'react-pdf/dist/Page/TextLayer.css';
 import CartContext from "../../contexts/CartContext";
+import NotificationModal from "../NotificationModal/NotificationModal";
+
+// Set up PDF.js worker from public directory
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
 import {
   PAPER_TYPES,
   QUANTITIES,
@@ -61,8 +68,12 @@ function ProductDetail({ products }) {
   });
 
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [filePreviewUrl, setFilePreviewUrl] = useState(null);
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
   const [shippingCost, setShippingCost] = useState(null);
   const [shippingCalculated, setShippingCalculated] = useState(false);
+  const [notification, setNotification] = useState(null);
 
   // Reset options when product changes or loads
   useEffect(() => {
@@ -152,7 +163,7 @@ function ProductDetail({ products }) {
   const calculateShipping = () => {
     const zip = selectedOptions.zipCode.trim();
     if (!zip) {
-      alert("Please enter a zip code");
+      setNotification({ message: "Please enter a zip code", type: "warning" });
       return;
     }
 
@@ -168,11 +179,36 @@ function ProductDetail({ products }) {
     const file = e.target.files[0];
     if (file && file.type === "application/pdf") {
       setUploadedFile(file);
+      // Create preview URL for the PDF
+      const url = URL.createObjectURL(file);
+      setFilePreviewUrl(url);
+      setPageNumber(1);
     } else if (file) {
-      alert("Please upload a PDF file");
+      setNotification({ message: "Please upload a PDF file", type: "warning" });
       e.target.value = "";
     }
   };
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
+
+  const goToPrevPage = () => {
+    setPageNumber((prev) => Math.max(prev - 1, 1));
+  };
+
+  const goToNextPage = () => {
+    setPageNumber((prev) => Math.min(prev + 1, numPages || 1));
+  };
+
+  // Cleanup preview URL when component unmounts
+  useEffect(() => {
+    return () => {
+      if (filePreviewUrl) {
+        URL.revokeObjectURL(filePreviewUrl);
+      }
+    };
+  }, [filePreviewUrl]);
 
   if (!product) {
     return (
@@ -712,6 +748,58 @@ function ProductDetail({ products }) {
                   </p>
                 )}
               </div>
+
+              {filePreviewUrl && (
+                <div className="product-detail__pdf-preview">
+                  <h3 className="product-detail__preview-title">Preview</h3>
+                  <div className="product-detail__pdf-container">
+                    <Document
+                      file={filePreviewUrl}
+                      onLoadSuccess={onDocumentLoadSuccess}
+                      loading={
+                        <div className="product-detail__pdf-loading">
+                          Loading PDF...
+                        </div>
+                      }
+                      error={
+                        <div className="product-detail__pdf-error">
+                          Failed to load PDF
+                        </div>
+                      }
+                    >
+                      <Page
+                        pageNumber={pageNumber}
+                        width={400}
+                        renderTextLayer={false}
+                        renderAnnotationLayer={false}
+                      />
+                    </Document>
+                  </div>
+                  {numPages && numPages > 1 && (
+                    <div className="product-detail__pdf-controls">
+                      <button
+                        onClick={goToPrevPage}
+                        disabled={pageNumber <= 1}
+                        className="product-detail__pdf-button"
+                        type="button"
+                      >
+                        ← Previous
+                      </button>
+                      <span className="product-detail__pdf-page-info">
+                        Page {pageNumber} of {numPages}
+                      </span>
+                      <button
+                        onClick={goToNextPage}
+                        disabled={pageNumber >= numPages}
+                        className="product-detail__pdf-button"
+                        type="button"
+                      >
+                        Next →
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="product-detail__price-section">
@@ -763,6 +851,13 @@ function ProductDetail({ products }) {
           </div>
         </div>
       </div>
+      {notification && (
+        <NotificationModal
+          message={notification.message}
+          type={notification.type}
+          onClose={() => setNotification(null)}
+        />
+      )}
     </main>
   );
 }

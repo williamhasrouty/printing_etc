@@ -23,7 +23,7 @@
       "name": "Stickers",
       "description": "Custom stickers in any shape or size. Perfect for branding, packaging, and promotions.",
       "basePrice": 0.2,
-      "imageUrl": "https://images.unsplash.com/photo-1635776062127-d379bfcba9f8?w=500",
+      "imageUrl": "/src/assets/images/sticker stock photo.jpg",
       "category": "stickers",
       "id": "a9cd"
     },
@@ -32,7 +32,7 @@
       "name": "Postcards",
       "description": "High-quality postcards for direct mail campaigns, event invitations, or thank you cards.",
       "basePrice": 0.3,
-      "imageUrl": "https://images.unsplash.com/photo-1608598688270-c3fa0bca1ac9?w=500",
+      "imageUrl": "/src/assets/images/Postcard1.jpg",
       "category": "postcards",
       "id": "c323"
     },
@@ -41,16 +41,16 @@
       "name": "Banners",
       "description": "Durable vinyl banners for indoor and outdoor use. Weather-resistant and long-lasting.",
       "basePrice": 5,
-      "imageUrl": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=500",
+      "imageUrl": "/src/assets/images/vinyl-banners.jpg",
       "category": "banners",
       "id": "ea50"
     },
     {
       "_id": "9",
       "name": "Decals",
-      "description": "Durable vinyl decals for vehicles, windows, and equipment. Weather-resistant and long-lasting.",
+      "description": "Durable vinyl decals for windows, vehicles, and equipment. Weather-resistant and long-lasting.",
       "basePrice": 0.5,
-      "imageUrl": "https://images.unsplash.com/photo-1636953056323-9c09fdd74fa6?w=500",
+      "imageUrl": "/src/assets/images/windowdecal.jpg",
       "category": "decals",
       "id": "d9e1"
     },
@@ -59,7 +59,7 @@
       "name": "T-shirts",
       "description": "Custom printed t-shirts with high-quality graphics. Perfect for events, teams, and promotions.",
       "basePrice": 12,
-      "imageUrl": "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=500",
+      "imageUrl": "/src/assets/images/tshirt.jpg",
       "category": "tshirts",
       "id": "t5a2"
     },
@@ -68,7 +68,7 @@
       "name": "Blueprints/Floor Plans",
       "description": "Large format architectural blueprints and floor plans. Professional printing for construction and design.",
       "basePrice": 3,
-      "imageUrl": "https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=500",
+      "imageUrl": "/src/assets/images/blueprints.jpg",
       "category": "blueprints",
       "id": "b7f3"
     },
@@ -77,7 +77,7 @@
       "name": "Door Hangers",
       "description": "Eye-catching door hangers for direct marketing. Perfect for promotions, announcements, and advertising.",
       "basePrice": 0.35,
-      "imageUrl": "https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=500",
+      "imageUrl": "/src/assets/images/doorhanger.jpg",
       "category": "door-hangers",
       "id": "d4h6"
     },
@@ -86,7 +86,7 @@
       "name": "Posters",
       "description": "Large format posters for maximum visibility. Great for events, promotions, and advertising.",
       "basePrice": 2.5,
-      "imageUrl": "https://images.unsplash.com/photo-1611348586804-61bf6c080437?w=500",
+      "imageUrl": "/src/assets/images/poster.jpg",
       "category": "posters",
       "id": "06c5"
     },
@@ -95,7 +95,7 @@
       "name": "Booklets",
       "description": "Multi-page booklets bound professionally. Ideal for catalogs, programs, and manuals.",
       "basePrice": 1.5,
-      "imageUrl": "https://images.unsplash.com/photo-1589998059171-988d887df646?w=500",
+      "imageUrl": "/src/assets/images/booklets.jpg",
       "category": "booklets",
       "id": "8cf4"
     },
@@ -104,7 +104,7 @@
       "name": "Brochures",
       "description": "Tri-fold brochures perfect for showcasing your products and services in detail.",
       "basePrice": 0.45,
-      "imageUrl": "https://images.unsplash.com/photo-1590859808308-3d2d9c515b1a?w=500",
+      "imageUrl": "/src/assets/images/brochure.jpg",
       "category": "brochures",
       "id": "48b9"
     }
@@ -280,6 +280,391 @@
         "shippingZipCode": ""
       },
       "createdAt": "2026-01-18T17:16:29.686Z"
+    },
+    {
+      "id": "adae",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500
+          },
+          "uploadedFile": "Array Methods.pdf",
+          "quantity": 1,
+          "price": 35,
+          "id": 1770509484277
+        }
+      ],
+      "total": "98.94",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "nora",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:11:50.572Z"
+    },
+    {
+      "id": "b330",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500
+          },
+          "uploadedFile": "WiHaPDF.pdf",
+          "quantity": 1,
+          "price": 35,
+          "id": 1770509550792
+        }
+      ],
+      "total": "98.94",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "nora",
+        "expiryDate": "02/34",
+        "cvv": "123",
+        "billingAddress": "36802 auburn ct",
+        "city": "Palmdale",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:13:19.912Z"
+    },
+    {
+      "id": "0d56",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "7",
+          "name": "Postcards",
+          "imageUrl": "https://images.unsplash.com/photo-1608598688270-c3fa0bca1ac9?w=500",
+          "options": {
+            "paperType": "Standard (100 lb)",
+            "quantity": 250
+          },
+          "uploadedFile": "WiHaPDF.pdf",
+          "quantity": 1,
+          "price": 75,
+          "id": 1770509782778
+        }
+      ],
+      "total": "93.44",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "jon",
+        "expiryDate": "02/26",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "93552",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:16:59.351Z"
+    },
+    {
+      "id": "d336",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "2",
+          "name": "Flyers",
+          "imageUrl": "/src/assets/images/flyer photo.jpg",
+          "options": {
+            "paperType": "Standard",
+            "quantity": 250
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 62.5,
+          "id": 1770509836693
+        }
+      ],
+      "total": "111.53",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "jon",
+        "expiryDate": "02/36",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:17:31.231Z"
+    },
+    {
+      "id": "937b",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 35,
+          "id": 1770509909762
+        }
+      ],
+      "total": "98.94",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "fg",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:18:52.740Z"
+    },
+    {
+      "id": "53ac",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 35,
+          "id": 1770509952347
+        }
+      ],
+      "total": "98.94",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "dfd",
+        "expiryDate": "02/28",
+        "cvv": "123",
+        "billingAddress": "1915 S Manchester Ave",
+        "city": "Anaheim",
+        "state": "CA",
+        "zipCode": "92802",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:19:22.415Z"
+    },
+    {
+      "id": "036a",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "2",
+          "name": "Flyers",
+          "imageUrl": "/src/assets/images/flyer photo.jpg",
+          "options": {
+            "paperType": "Standard",
+            "quantity": 250
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 62.5,
+          "id": 1770510035560
+        }
+      ],
+      "total": "111.53",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "asas",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:20:47.315Z"
+    },
+    {
+      "id": "c85f",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "2",
+          "name": "Flyers",
+          "imageUrl": "/src/assets/images/flyer photo.jpg",
+          "options": {
+            "paperType": "Standard",
+            "quantity": 250
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 62.5,
+          "id": 1770510154944
+        }
+      ],
+      "total": "111.53",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "rtrt",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:22:54.966Z"
+    },
+    {
+      "id": "9e72",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "2",
+          "name": "Flyers",
+          "imageUrl": "/src/assets/images/flyer photo.jpg",
+          "options": {
+            "paperType": "Standard",
+            "quantity": 250
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 62.5,
+          "id": 1770510234997
+        }
+      ],
+      "total": "111.53",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "fg",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:24:13.915Z"
+    },
+    {
+      "id": "d514",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 35,
+          "id": 1770510316609
+        }
+      ],
+      "total": "98.94",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "gh",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "810 N Richman Ave",
+        "city": "Fullerton",
+        "state": "CA",
+        "zipCode": "92832",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:25:28.349Z"
+    },
+    {
+      "id": "0311",
+      "userId": "8d40",
+      "items": [
+        {
+          "productId": "1",
+          "name": "Business Cards",
+          "imageUrl": "/src/assets/images/business card stock.jpg",
+          "options": {
+            "paperType": "16pt Gloss",
+            "quantity": 500
+          },
+          "uploadedFile": null,
+          "quantity": 1,
+          "price": 35,
+          "id": 1770510408229
+        }
+      ],
+      "total": "98.94",
+      "billingInfo": {
+        "cardNumber": "4111 1111 1111 1111",
+        "cardName": "gthg",
+        "expiryDate": "02/29",
+        "cvv": "123",
+        "billingAddress": "1915 S Manchester Ave",
+        "city": "Anaheim",
+        "state": "CA",
+        "zipCode": "92802",
+        "shippingAddress": "",
+        "shippingCity": "",
+        "shippingState": "",
+        "shippingZipCode": ""
+      },
+      "createdAt": "2026-02-08T00:27:01.867Z"
     }
   ]
 }

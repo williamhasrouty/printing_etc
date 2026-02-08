@@ -156,6 +156,80 @@
   font-weight: 500;
 }
 
+.product-detail__pdf-preview {
+  margin-top: 20px;
+  padding: 20px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.product-detail__preview-title {
+  margin: 0 0 16px 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.product-detail__pdf-container {
+  display: flex;
+  justify-content: center;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+  overflow: auto;
+}
+
+.product-detail__pdf-loading,
+.product-detail__pdf-error {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.product-detail__pdf-error {
+  color: #dc3545;
+}
+
+.product-detail__pdf-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  gap: 12px;
+}
+
+.product-detail__pdf-button {
+  padding: 8px 16px;
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.product-detail__pdf-button:hover:not(:disabled) {
+  background-color: #0096c7;
+}
+
+.product-detail__pdf-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.product-detail__pdf-page-info {
+  font-size: 14px;
+  color: #666;
+  font-weight: 500;
+}
+
 .product-detail__price-section {
   display: flex;
   flex-direction: column;

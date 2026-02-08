@@ -1,7 +1,8 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import CartContext from "../../contexts/CartContext";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
+import NotificationModal from "../NotificationModal/NotificationModal";
 import { createOrder } from "../../utils/api";
 import { CARD_PATTERNS, ANTELOPE_VALLEY_ZIPS } from "../../utils/constants";
 import "./Checkout.css";
@@ -31,7 +32,15 @@ function Checkout() {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shippingCost, setShippingCost] = useState(null);
+  const [notification, setNotification] = useState(null);
   const taxRate = 0.1125; // Fixed 11.25% tax rate
+
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      navigate("/cart");
+    }
+  }, [cartItems.length, navigate]);
 
   const calculateSubtotal = () => {
     return cartItems.reduce((sum, item) => sum + item.price, 0);
@@ -235,6 +244,10 @@ function Checkout() {
     e.preventDefault();
 
     if (!validateForm()) {
+      setNotification({
+        message: "Please fill in all required fields correctly",
+        type: "error",
+      });
       return;
     }
 
@@ -250,24 +263,25 @@ function Checkout() {
     };
 
     createOrder(orderData, token)
-      .then(() => {
-        clearCart();
-        alert("Order placed successfully!");
-        navigate("/profile");
+      .then((result) => {
+        const successNotification = {
+          message: "Order placed successfully!",
+          type: "success",
+        };
+        setNotification(successNotification);
       })
       .catch((err) => {
         console.error(err);
-        alert("Failed to place order. Please try again.");
+        const errorNotification = {
+          message: "Failed to place order. Please try again.",
+          type: "error",
+        };
+        setNotification(errorNotification);
       })
       .finally(() => {
         setIsSubmitting(false);
       });
   };
-
-  if (cartItems.length === 0) {
-    navigate("/cart");
-    return null;
-  }
 
   return (
     <main className="checkout">
@@ -634,6 +648,19 @@ function Checkout() {
           </aside>
         </div>
       </div>
+      {notification && (
+        <NotificationModal
+          message={notification.message}
+          type={notification.type}
+          onClose={() => {
+            if (notification.type === "success") {
+              clearCart();
+              navigate("/profile");
+            }
+            setNotification(null);
+          }}
+        />
+      )}
     </main>
   );
 }
