@@ -29,7 +29,7 @@ function Footer() {
       </div>
 
       <div className="footer__copyright">
-        © {currentYear} printingetclogoold - All rights reserved.
+        © {currentYear} Printing Etc, LLC - All rights reserved.
       </div>
     </footer>
   );

@@ -23,11 +23,16 @@ function Profile() {
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
-    if (token) {
+    if (token && currentUser) {
       getUserOrders(token)
         .then((data) => {
+          // Filter to only show orders for the current user (exclude guest orders)
+          const userOrders = data.filter(
+            (order) => order.userId === currentUser.id,
+          );
+
           // Sort orders by creation date (newest first) or by id if no createdAt
-          const sortedOrders = data.sort((a, b) => {
+          const sortedOrders = userOrders.sort((a, b) => {
             if (a.createdAt && b.createdAt) {
               return new Date(b.createdAt) - new Date(a.createdAt);
             }
@@ -43,7 +48,7 @@ function Profile() {
           setIsLoading(false);
         });
     }
-  }, []);
+  }, [currentUser]);
 
   const handleUpdateName = (e) => {
     e.preventDefault();
@@ -108,7 +113,7 @@ function Profile() {
     <main className="profile">
       <div className="profile__container">
         <section className="profile__info">
-          <h1 className="profile__title">My Profile</h1>
+          <h1 className="profile__title">Customer Profile</h1>
 
           {message && (
             <p className="profile__message profile__message_success">

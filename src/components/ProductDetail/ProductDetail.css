@@ -2,6 +2,33 @@
   flex: 1;
   padding: 40px 0;
   background-color: #2c2c2c;
+  background-image:
+    radial-gradient(circle, rgba(0, 180, 216, 0.4) 2px, transparent 2px),
+    radial-gradient(circle, rgba(0, 255, 255, 0.3) 3px, transparent 3px),
+    radial-gradient(circle, rgba(255, 0, 255, 0.35) 2.5px, transparent 2.5px),
+    radial-gradient(circle, rgba(255, 255, 0, 0.35) 2.5px, transparent 2.5px),
+    radial-gradient(circle, rgba(0, 180, 216, 0.25) 1.5px, transparent 1.5px),
+    radial-gradient(circle, rgba(0, 255, 255, 0.2) 2px, transparent 2px),
+    radial-gradient(circle, rgba(255, 0, 255, 0.3) 1.5px, transparent 1.5px),
+    radial-gradient(circle, rgba(255, 255, 0, 0.3) 2px, transparent 2px);
+  background-size:
+    150px 150px,
+    200px 200px,
+    180px 180px,
+    170px 170px,
+    100px 100px,
+    220px 220px,
+    130px 130px,
+    140px 140px;
+  background-position:
+    0 0,
+    40px 40px,
+    80px 80px,
+    50px 50px,
+    20px 20px,
+    100px 100px,
+    60px 60px,
+    90px 90px;
 }
 
 .product-detail__container {
@@ -19,6 +46,7 @@
   padding: 0;
   margin-bottom: 30px;
   font-weight: 500;
+   font-family: "Bungee", "Roboto", Arial, sans-serif
 }
 
 .product-detail__back:hover {
@@ -56,7 +84,7 @@
   font-size: 36px;
   font-weight: 400;
   margin: 0;
-  font-family: "Cabinet Grotesk", "Roboto", Arial, sans-serif;
+  font-family: "Bungee", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__description {
@@ -64,6 +92,7 @@
   line-height: 1.6;
   color: #666;
   margin: 0;
+  font-family: "Roboto", Arial, sans-serif;
 }
 
 .product-detail__options {
@@ -87,6 +116,7 @@
   color: #333;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-family: "Bungee", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__select {
@@ -97,6 +127,7 @@
   background-color: #fff;
   cursor: pointer;
   transition: border-color 0.2s;
+  font-family: "Roboto", Arial, sans-serif;
 }
 
 .product-detail__select:hover {
@@ -349,12 +380,14 @@
   font-size: 18px;
   font-weight: 600;
   color: #333;
+  font-family: "Bungee", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__price-value {
   font-size: 32px;
   font-weight: 400;
   color: #00b4d8;
+   font-family: "Bungee", "Roboto", Arial, sans-serif
 }
 
 .product-detail__add-button {
@@ -367,6 +400,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
+  font-family: "Bungee", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__add-button:hover {

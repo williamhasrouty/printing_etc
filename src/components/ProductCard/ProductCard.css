@@ -47,6 +47,7 @@
   font-weight: 400;
   margin: 0;
   color: #333;
+  font-family: "Bungee", Arial, sans-serif;
 }
 
 .product-card__description {
@@ -55,6 +56,7 @@
   color: #666;
   margin: 0;
   flex: 1;
+  font-family: "Roboto", Arial, sans-serif;
 }
 
 .product-card__footer {
@@ -70,12 +72,14 @@
   font-size: 18px;
   font-weight: 400;
   color: #00b4d8;
+  
 }
 
 .product-card__link-text {
   font-size: 14px;
   font-weight: 500;
   color: #00b4d8;
+  font-family: "Roboto", Arial, sans-serif;
 }
 
 @media screen and (max-width: 768px) {

@@ -10,6 +10,8 @@ function ModalWithForm({
   isValid,
   redirectText,
   onRedirectClick,
+  guestCheckoutText,
+  onGuestCheckoutClick,
 }) {
   useEffect(() => {
     const handleEscape = (e) => {
@@ -52,6 +54,15 @@ function ModalWithForm({
               className="modal__redirect"
             >
               {redirectText}
+            </button>
+          )}
+          {guestCheckoutText && (
+            <button
+              type="button"
+              onClick={onGuestCheckoutClick}
+              className="modal__guest-checkout"
+            >
+              {guestCheckoutText}
             </button>
           )}
         </form>

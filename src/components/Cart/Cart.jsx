@@ -11,12 +11,14 @@ function Cart({ onLoginClick, onRegisterClick }) {
   const navigate = useNavigate();
 
   const calculateTotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price, 0).toFixed(2);
+    return cartItems
+      .reduce((sum, item) => sum + item.price * item.quantity, 0)
+      .toFixed(2);
   };
 
   const handleCheckout = () => {
     if (!isLoggedIn) {
-      onLoginClick();
+      onRegisterClick();
       return;
     }
     navigate("/checkout");
@@ -64,16 +66,26 @@ function Cart({ onLoginClick, onRegisterClick }) {
                       Paper: {item.options.paperType}
                     </p>
                     <p className="cart__item-option">
-                      Quantity: {item.options.quantity}
+                      Print Quantity: {item.options.quantity}
                     </p>
-                    <p className="cart__item-option">
-                      Turnaround: {item.options.turnaround}
-                    </p>
+                    {item.quantity > 1 && (
+                      <p className="cart__item-option">
+                        × {item.quantity} set{item.quantity !== 1 ? "s" : ""}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 <div className="cart__item-actions">
-                  <p className="cart__item-price">${item.price.toFixed(2)}</p>
+                  <p className="cart__item-price">
+                    ${(item.price * item.quantity).toFixed(2)}
+                    {item.quantity > 1 && (
+                      <span className="cart__item-price-unit">
+                        {" "}
+                        (${item.price.toFixed(2)} each)
+                      </span>
+                    )}
+                  </p>
                   <button
                     onClick={() => removeFromCart(item.id)}
                     className="cart__item-remove"
@@ -91,6 +103,22 @@ function Cart({ onLoginClick, onRegisterClick }) {
             <div className="cart__summary-row">
               <span className="cart__summary-label">Items:</span>
               <span className="cart__summary-value">{cartItems.length}</span>
+            </div>
+            <div className="cart__summary-row">
+              <span className="cart__summary-label">Subtotal:</span>
+              <span className="cart__summary-value">${calculateTotal()}</span>
+            </div>
+            <div className="cart__summary-row">
+              <span className="cart__summary-label">Tax:</span>
+              <span className="cart__summary-value cart__summary-value_pending">
+                Added at checkout
+              </span>
+            </div>
+            <div className="cart__summary-row">
+              <span className="cart__summary-label">Shipping:</span>
+              <span className="cart__summary-value cart__summary-value_pending">
+                Added at checkout
+              </span>
             </div>
             <div className="cart__summary-row cart__summary-row_type_total">
               <span className="cart__summary-label">Total:</span>

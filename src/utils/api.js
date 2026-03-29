@@ -41,6 +41,12 @@ export const getUserOrders = (token) => {
       headers: {
         authorization: `Bearer ${token}`,
       },
+    }).then((orders) => {
+      // Additional client-side filter to ensure only orders for this user are returned
+      // This handles cases where the backend filter might not work correctly
+      return orders.filter(
+        (order) => order.userId === decoded.userId && !order.customerInfo,
+      );
     });
   } catch (err) {
     return Promise.reject("Invalid token");

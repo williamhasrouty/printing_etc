@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
 
-function RegisterModal({ onClose, onRegister, onLoginClick }) {
+function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -54,6 +54,8 @@ function RegisterModal({ onClose, onRegister, onLoginClick }) {
       isValid={isValid && !isSubmitting}
       redirectText="or Log In"
       onRedirectClick={onLoginClick}
+      guestCheckoutText="- Checkout as Guest -"
+      onGuestCheckoutClick={onGuestCheckout}
     >
       <label htmlFor="register-email" className="modal__label">
         Email

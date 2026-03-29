@@ -13,6 +13,9 @@ function Checkout() {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    customerName: "",
+    customerEmail: "",
+    customerPhone: "",
     cardNumber: "",
     cardName: "",
     expiryDate: "",
@@ -193,6 +196,14 @@ function Checkout() {
       }
     }
 
+    // Format phone number
+    if (name === "customerPhone") {
+      formattedValue = value
+        .replace(/\D/g, "")
+        .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
+        .slice(0, 14);
+    }
+
     setFormData({ ...formData, [name]: formattedValue });
 
     // Clear error when user starts typing
@@ -203,6 +214,27 @@ function Checkout() {
 
   const validateForm = () => {
     const newErrors = {};
+
+    // Validate guest customer information if not logged in
+    if (!currentUser) {
+      if (!formData.customerName.trim()) {
+        newErrors.customerName = "Name is required";
+      }
+
+      if (
+        !formData.customerEmail.trim() ||
+        !formData.customerEmail.includes("@")
+      ) {
+        newErrors.customerEmail = "Please enter a valid email";
+      }
+
+      if (
+        !formData.customerPhone.trim() ||
+        formData.customerPhone.replace(/\D/g, "").length < 10
+      ) {
+        newErrors.customerPhone = "Please enter a valid phone number";
+      }
+    }
 
     if (!formData.cardNumber || !validateCardNumber(formData.cardNumber)) {
       newErrors.cardNumber = "Please enter a valid card number";
@@ -236,6 +268,28 @@ function Checkout() {
       newErrors.zipCode = "Please enter a valid ZIP code";
     }
 
+    // Validate shipping address if different from billing
+    if (!sameAsBilling) {
+      if (!formData.shippingAddress.trim()) {
+        newErrors.shippingAddress = "Shipping address is required";
+      }
+
+      if (!formData.shippingCity.trim()) {
+        newErrors.shippingCity = "City is required";
+      }
+
+      if (!formData.shippingState.trim()) {
+        newErrors.shippingState = "State is required";
+      }
+
+      if (
+        !formData.shippingZipCode.trim() ||
+        formData.shippingZipCode.length < 5
+      ) {
+        newErrors.shippingZipCode = "Please enter a valid ZIP code";
+      }
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -256,6 +310,13 @@ function Checkout() {
     const token = localStorage.getItem("jwt");
     const orderData = {
       userId: currentUser?.id,
+      customerInfo: !currentUser
+        ? {
+            name: formData.customerName,
+            email: formData.customerEmail,
+            phone: formData.customerPhone,
+          }
+        : null,
       items: cartItems,
       total: calculateTotal(),
       billingInfo: formData,
@@ -290,12 +351,86 @@ function Checkout() {
 
         <div className="checkout__content">
           <form onSubmit={handleSubmit} className="checkout__form">
+            {!currentUser && (
+              <section className="checkout__section">
+                <h2 className="checkout__section-title">
+                  Customer Information
+                </h2>
+
+                <div className="checkout__field">
+                  <label htmlFor="customerName" className="checkout__label">
+                    Full Name *
+                  </label>
+                  <input
+                    type="text"
+                    id="customerName"
+                    name="customerName"
+                    value={formData.customerName}
+                    onChange={handleInputChange}
+                    className={`checkout__input ${
+                      errors.customerName ? "checkout__input_error" : ""
+                    }`}
+                    placeholder="John Doe"
+                  />
+                  {errors.customerName && (
+                    <span className="checkout__error">
+                      {errors.customerName}
+                    </span>
+                  )}
+                </div>
+
+                <div className="checkout__field">
+                  <label htmlFor="customerEmail" className="checkout__label">
+                    Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    id="customerEmail"
+                    name="customerEmail"
+                    value={formData.customerEmail}
+                    onChange={handleInputChange}
+                    className={`checkout__input ${
+                      errors.customerEmail ? "checkout__input_error" : ""
+                    }`}
+                    placeholder="john@example.com"
+                  />
+                  {errors.customerEmail && (
+                    <span className="checkout__error">
+                      {errors.customerEmail}
+                    </span>
+                  )}
+                </div>
+
+                <div className="checkout__field">
+                  <label htmlFor="customerPhone" className="checkout__label">
+                    Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    id="customerPhone"
+                    name="customerPhone"
+                    value={formData.customerPhone}
+                    onChange={handleInputChange}
+                    className={`checkout__input ${
+                      errors.customerPhone ? "checkout__input_error" : ""
+                    }`}
+                    placeholder="(555) 123-4567"
+                  />
+                  {errors.customerPhone && (
+                    <span className="checkout__error">
+                      {errors.customerPhone}
+                    </span>
+                  )}
+                </div>
+              </section>
+            )}
+
             <section className="checkout__section">
               <h2 className="checkout__section-title">Payment Information</h2>
 
               <div className="checkout__field">
                 <label htmlFor="cardNumber" className="checkout__label">
-                  Card Number
+                  Card Number *
                 </label>
                 <input
                   type="text"
@@ -315,7 +450,7 @@ function Checkout() {
 
               <div className="checkout__field">
                 <label htmlFor="cardName" className="checkout__label">
-                  Cardholder Name
+                  Cardholder Name *
                 </label>
                 <input
                   type="text"
@@ -336,7 +471,7 @@ function Checkout() {
               <div className="checkout__row">
                 <div className="checkout__field">
                   <label htmlFor="expiryDate" className="checkout__label">
-                    Expiry Date
+                    Expiry Date *
                   </label>
                   <input
                     type="text"
@@ -356,7 +491,7 @@ function Checkout() {
 
                 <div className="checkout__field">
                   <label htmlFor="cvv" className="checkout__label">
-                    CVV
+                    CVV *
                   </label>
                   <input
                     type="text"
@@ -381,7 +516,7 @@ function Checkout() {
 
               <div className="checkout__field">
                 <label htmlFor="billingAddress" className="checkout__label">
-                  Street Address
+                  Street Address *
                 </label>
                 <input
                   type="text"
@@ -404,7 +539,7 @@ function Checkout() {
               <div className="checkout__row">
                 <div className="checkout__field">
                   <label htmlFor="city" className="checkout__label">
-                    City
+                    City *
                   </label>
                   <input
                     type="text"
@@ -424,7 +559,7 @@ function Checkout() {
 
                 <div className="checkout__field">
                   <label htmlFor="state" className="checkout__label">
-                    State
+                    State *
                   </label>
                   <input
                     type="text"
@@ -444,7 +579,7 @@ function Checkout() {
 
                 <div className="checkout__field">
                   <label htmlFor="zipCode" className="checkout__label">
-                    ZIP Code
+                    ZIP Code *
                   </label>
                   <input
                     type="text"
@@ -494,7 +629,7 @@ function Checkout() {
                       htmlFor="shippingAddress"
                       className="checkout__label"
                     >
-                      Street Address
+                      Street Address *
                     </label>
                     <input
                       type="text"
@@ -502,15 +637,22 @@ function Checkout() {
                       name="shippingAddress"
                       value={formData.shippingAddress}
                       onChange={handleInputChange}
-                      className="checkout__input"
+                      className={`checkout__input ${
+                        errors.shippingAddress ? "checkout__input_error" : ""
+                      }`}
                       placeholder="123 Main St"
                     />
+                    {errors.shippingAddress && (
+                      <span className="checkout__error">
+                        {errors.shippingAddress}
+                      </span>
+                    )}
                   </div>
 
                   <div className="checkout__row">
                     <div className="checkout__field">
                       <label htmlFor="shippingCity" className="checkout__label">
-                        City
+                        City *
                       </label>
                       <input
                         type="text"
@@ -518,9 +660,16 @@ function Checkout() {
                         name="shippingCity"
                         value={formData.shippingCity}
                         onChange={handleInputChange}
-                        className="checkout__input"
+                        className={`checkout__input ${
+                          errors.shippingCity ? "checkout__input_error" : ""
+                        }`}
                         placeholder="New York"
                       />
+                      {errors.shippingCity && (
+                        <span className="checkout__error">
+                          {errors.shippingCity}
+                        </span>
+                      )}
                     </div>
 
                     <div className="checkout__field">
@@ -528,7 +677,7 @@ function Checkout() {
                         htmlFor="shippingState"
                         className="checkout__label"
                       >
-                        State
+                        State *
                       </label>
                       <input
                         type="text"
@@ -536,9 +685,16 @@ function Checkout() {
                         name="shippingState"
                         value={formData.shippingState}
                         onChange={handleInputChange}
-                        className="checkout__input"
+                        className={`checkout__input ${
+                          errors.shippingState ? "checkout__input_error" : ""
+                        }`}
                         placeholder="NY"
                       />
+                      {errors.shippingState && (
+                        <span className="checkout__error">
+                          {errors.shippingState}
+                        </span>
+                      )}
                     </div>
 
                     <div className="checkout__field">
@@ -546,7 +702,7 @@ function Checkout() {
                         htmlFor="shippingZipCode"
                         className="checkout__label"
                       >
-                        ZIP Code
+                        ZIP Code *
                       </label>
                       <input
                         type="text"
@@ -554,9 +710,16 @@ function Checkout() {
                         name="shippingZipCode"
                         value={formData.shippingZipCode}
                         onChange={handleInputChange}
-                        className="checkout__input"
+                        className={`checkout__input ${
+                          errors.shippingZipCode ? "checkout__input_error" : ""
+                        }`}
                         placeholder="10001"
                       />
+                      {errors.shippingZipCode && (
+                        <span className="checkout__error">
+                          {errors.shippingZipCode}
+                        </span>
+                      )}
                     </div>
                   </div>
                 </>
@@ -655,7 +818,26 @@ function Checkout() {
           onClose={() => {
             if (notification.type === "success") {
               clearCart();
-              navigate("/profile");
+              if (currentUser) {
+                navigate("/profile");
+              } else {
+                // Navigate to order summary for guests
+                navigate("/order-summary", {
+                  state: {
+                    orderData: {
+                      customerInfo: {
+                        name: formData.customerName,
+                        email: formData.customerEmail,
+                        phone: formData.customerPhone,
+                      },
+                      items: cartItems,
+                      total: calculateTotal(),
+                      billingInfo: formData,
+                      createdAt: new Date().toISOString(),
+                    },
+                  },
+                });
+              }
             }
             setNotification(null);
           }}

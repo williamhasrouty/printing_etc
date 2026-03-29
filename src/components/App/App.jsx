@@ -6,6 +6,7 @@ import Main from "../Main/Main";
 import ProductDetail from "../ProductDetail/ProductDetail";
 import Cart from "../Cart/Cart";
 import Checkout from "../Checkout/Checkout";
+import OrderSummary from "../OrderSummary/OrderSummary";
 import Profile from "../Profile/Profile";
 import Contact from "../Contact/Contact";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
@@ -185,14 +186,8 @@ function App() {
               }
             />
             <Route path="/contact" element={<Contact />} />
-            <Route
-              path="/checkout"
-              element={
-                <ProtectedRoute>
-                  <Checkout />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-summary" element={<OrderSummary />} />
             <Route
               path="/profile"
               element={
@@ -218,6 +213,10 @@ function App() {
               onClose={closeActiveModal}
               onRegister={handleRegister}
               onLoginClick={handleOpenLoginModal}
+              onGuestCheckout={() => {
+                closeActiveModal();
+                navigate("/checkout");
+              }}
             />
           )}
         </div>

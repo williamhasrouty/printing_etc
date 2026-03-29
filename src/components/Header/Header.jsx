@@ -2,7 +2,6 @@ import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import CartContext from "../../contexts/CartContext";
-import logo from "../../assets/images/printingetclogoold.jpg";
 import "./Header.css";
 
 function Header({ onLoginClick, onRegisterClick, onLogout }) {
@@ -24,11 +23,7 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
     <header className="header">
       <div className="header__container">
         <Link to="/" className="header__logo">
-          <img
-            src={logo}
-            alt="Printing Etc Logo"
-            className="header__logo-image"
-          />
+          Printing Etc.
         </Link>
 
         <button
@@ -111,6 +106,9 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
             </>
           )}
         </nav>
+        <p className="header__tagline">
+          Serving the Antelope Valley since 2007
+        </p>
       </div>
     </header>
   );

@@ -18,30 +18,32 @@ function Main({ products, isLoading }) {
   return (
     <main className="main">
       <section className="main__hero">
-        <div className="main__hero-content">
-          <h1 className="main__hero-title">Professional Printing Services</h1>
-          <p className="main__hero-text">
-            Quality Printing & Affordable Prices
-          </p>
-        </div>
-        <div className="main__hero-ticker">
-          <div className="main__hero-ticker-track">
-            {images.map((img, index) => (
-              <img
-                key={`first-${index}`}
-                src={img}
-                alt="Printing press"
-                className="main__hero-ticker-image"
-              />
-            ))}
-            {images.map((img, index) => (
-              <img
-                key={`second-${index}`}
-                src={img}
-                alt="Printing press"
-                className="main__hero-ticker-image"
-              />
-            ))}
+        <div className="main__hero-container">
+          <div className="main__hero-content">
+            <h1 className="main__hero-title">Professional Printing Services</h1>
+            <p className="main__hero-text">
+              Quality Printing & Affordable Prices
+            </p>
+          </div>
+          <div className="main__hero-ticker">
+            <div className="main__hero-ticker-track">
+              {images.map((img, index) => (
+                <img
+                  key={`first-${index}`}
+                  src={img}
+                  alt="Printing press"
+                  className="main__hero-ticker-image"
+                />
+              ))}
+              {images.map((img, index) => (
+                <img
+                  key={`second-${index}`}
+                  src={img}
+                  alt="Printing press"
+                  className="main__hero-ticker-image"
+                />
+              ))}
+            </div>
           </div>
         </div>
       </section>
@@ -57,8 +59,8 @@ function Main({ products, isLoading }) {
           <p className="main__additional-products">
             We also offer a wide range of other printing services including:
             <br />
-            Copies, Labels, Invoices, Brochures, Menus, A-Frames, Yard Signs, Car Magnets,
-           Letterheads, Envelopes, Presentation Folders, etc.
+            Copies, Labels, Invoices, Brochures, Menus, A-Frames, Yard Signs,
+            Car Magnets, Letterheads, Envelopes, Presentation Folders, etc.
             <br />
             <br />
             Contact us for a custom quote on any printing project!

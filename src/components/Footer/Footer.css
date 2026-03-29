@@ -1,5 +1,32 @@
 .footer {
   background-color: #2c2c2c;
+  background-image:
+    radial-gradient(circle, rgba(0, 180, 216, 0.4) 2px, transparent 2px),
+    radial-gradient(circle, rgba(0, 255, 255, 0.3) 3px, transparent 3px),
+    radial-gradient(circle, rgba(255, 0, 255, 0.35) 2.5px, transparent 2.5px),
+    radial-gradient(circle, rgba(255, 255, 0, 0.35) 2.5px, transparent 2.5px),
+    radial-gradient(circle, rgba(0, 180, 216, 0.25) 1.5px, transparent 1.5px),
+    radial-gradient(circle, rgba(0, 255, 255, 0.2) 2px, transparent 2px),
+    radial-gradient(circle, rgba(255, 0, 255, 0.3) 1.5px, transparent 1.5px),
+    radial-gradient(circle, rgba(255, 255, 0, 0.3) 2px, transparent 2px);
+  background-size:
+    150px 150px,
+    200px 200px,
+    180px 180px,
+    170px 170px,
+    100px 100px,
+    220px 220px,
+    130px 130px,
+    140px 140px;
+  background-position:
+    0 0,
+    40px 40px,
+    80px 80px,
+    50px 50px,
+    20px 20px,
+    100px 100px,
+    60px 60px,
+    90px 90px;
   color: #fff;
   padding: 40px 0 20px;
   margin-top: auto;
@@ -23,16 +50,18 @@
 }
 
 .footer__title {
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 400;
   margin: 0 0 8px;
+  font-family: "Bungee", Arial, sans-serif;
 }
 
 .footer__text {
   margin: 0;
-  font-size: 14px;
+  font-size: 18px;
   line-height: 1.6;
   color: #ecf0f1;
+  font-family: "Roboto", Arial, sans-serif;
 }
 
 .footer__copyright {
@@ -43,6 +72,7 @@
   color: #95a5a6;
   max-width: 1200px;
   margin: 0 auto;
+  font-family: "Bungee", Arial, sans-serif;
 }
 
 @media screen and (max-width: 768px) {
