@@ -106,9 +106,7 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
             </>
           )}
         </nav>
-        <p className="header__tagline">
-          Serving the Antelope Valley since 2007
-        </p>
+      
       </div>
     </header>
   );

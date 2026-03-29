@@ -4,7 +4,6 @@
 
 .main__hero {
   padding: 40px 20px;
-  
 }
 
 .main__hero-container {
@@ -45,12 +44,12 @@
     60px 60px,
     90px 90px;
   border-radius: 8px;
- 
+
   overflow: hidden;
 }
 
 .main__hero-content {
-  max-width: 800px;
+  max-width: 1000px;
   margin: 0 auto 40px;
   text-align: center;
   color: #fff;
