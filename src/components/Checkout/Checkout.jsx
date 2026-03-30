@@ -749,7 +749,9 @@ function Checkout() {
                   <div className="checkout__item-info">
                     <p className="checkout__item-name">{item.name}</p>
                     <p className="checkout__item-details">
-                      Qty: {item.options.quantity}
+                      {item.options.paperType} • Qty: {item.options.quantity}
+                      {item.options.size && ` • ${item.options.size}`}
+                      {item.options.color && ` • ${item.options.color}`}
                     </p>
                   </div>
                   <p className="checkout__item-price">

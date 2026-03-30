@@ -68,6 +68,52 @@ function Cart({ onLoginClick, onRegisterClick }) {
                     <p className="cart__item-option">
                       Print Quantity: {item.options.quantity}
                     </p>
+                    {item.options.size && (
+                      <p className="cart__item-option">
+                        Size: {item.options.size}
+                      </p>
+                    )}
+                    {item.options.orientation && (
+                      <p className="cart__item-option">
+                        Orientation: {item.options.orientation}
+                      </p>
+                    )}
+                    {item.options.color && (
+                      <p className="cart__item-option">
+                        Color: {item.options.color}
+                      </p>
+                    )}
+                    {item.options.roundedCorner &&
+                      item.options.roundedCorner !== "none" && (
+                        <p className="cart__item-option">
+                          Rounded Corner: {item.options.roundedCorner}
+                        </p>
+                      )}
+                    {item.options.coating && (
+                      <p className="cart__item-option">
+                        Coating: {item.options.coating}
+                      </p>
+                    )}
+                    {item.options.raisedPrint && (
+                      <p className="cart__item-option">
+                        Raised Print: {item.options.raisedPrint}
+                      </p>
+                    )}
+                    {item.options.velvetFinish && (
+                      <p className="cart__item-option">
+                        Velvet Finish: {item.options.velvetFinish}
+                      </p>
+                    )}
+                    {item.uploadedFile && (
+                      <p className="cart__item-option">
+                        File: {item.uploadedFile}
+                      </p>
+                    )}
+                    {item.shippingCost > 0 && (
+                      <p className="cart__item-option">
+                        Shipping: ${item.shippingCost.toFixed(2)}
+                      </p>
+                    )}
                     {item.quantity > 1 && (
                       <p className="cart__item-option">
                         × {item.quantity} set{item.quantity !== 1 ? "s" : ""}

@@ -41,7 +41,7 @@
   background: none;
   border: none;
   color: #00b4d8;
-  font-size: 16px;
+  font-size: 20px;
   cursor: pointer;
   padding: 0;
   margin-bottom: 30px;
@@ -111,7 +111,7 @@
 }
 
 .product-detail__label {
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 600;
   color: #333;
   text-transform: uppercase;

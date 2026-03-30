@@ -35,7 +35,8 @@ function OrderSummary() {
         <div className="order-summary__success-icon">✓</div>
         <h1 className="order-summary__title">Order Placed Successfully!</h1>
         <p className="order-summary__subtitle">
-          Thank you for your order. We've received your request and sent an email confirmation to {orderData.customerInfo?.email}. 
+          Thank you for your order. We've received your request and sent an
+          email confirmation to {orderData.customerInfo?.email}.
         </p>
 
         <div className="order-summary__content">
@@ -96,7 +97,10 @@ function OrderSummary() {
                   <div className="order-summary__item-info">
                     <p className="order-summary__item-name">{item.name}</p>
                     <p className="order-summary__item-details">
-                      Quantity: {item.options?.quantity || 1}
+                      {item.options?.paperType} • Qty:{" "}
+                      {item.options?.quantity || 1}
+                      {item.options?.size && ` • ${item.options.size}`}
+                      {item.options?.color && ` • ${item.options.color}`}
                     </p>
                   </div>
                   <p className="order-summary__item-price">

@@ -329,17 +329,52 @@ function ProductDetail({ products }) {
   const handleAddToCart = () => {
     const paperType = isBusinessCard
       ? BUSINESS_CARD_PAPER.find((p) => p.id === selectedOptions.paperType)
-      : PAPER_TYPES.find((p) => p.id === selectedOptions.paperType);
+      : isFlyer
+        ? FLYER_PAPER.find((p) => p.id === selectedOptions.paperType)
+        : PAPER_TYPES.find((p) => p.id === selectedOptions.paperType);
+
+    const sizeOption = isFlyer
+      ? FLYER_SIZES.find((s) => s.id === selectedOptions.size)
+      : null;
+
+    const colorOption = isBusinessCard
+      ? BUSINESS_CARD_COLORS.find((c) => c.id === selectedOptions.color)
+      : isFlyer
+        ? FLYER_COLORS.find((c) => c.id === selectedOptions.color)
+        : null;
+
+    const coatingOption = isBusinessCard
+      ? BUSINESS_CARD_COATING.find((c) => c.id === selectedOptions.coating)
+      : null;
+
+    const raisedPrintOption = isBusinessCard
+      ? BUSINESS_CARD_RAISED.find((r) => r.id === selectedOptions.raisedPrint)
+      : null;
+
+    const velvetFinishOption = isBusinessCard
+      ? BUSINESS_CARD_VELVET.find((v) => v.id === selectedOptions.velvetFinish)
+      : null;
 
     addToCart({
       productId: product._id,
       name: product.name,
       imageUrl: product.imageUrl,
+      category: product.category,
       options: {
         paperType: paperType?.name || "Standard",
         quantity: selectedOptions.quantity,
+        size: sizeOption?.name || selectedOptions.size || "",
+        orientation: selectedOptions.orientation || "",
+        color: colorOption?.name || "",
+        roundedCorner: selectedOptions.roundedCorner || "none",
+        coating: coatingOption?.name || "",
+        raisedPrint: raisedPrintOption?.name || "",
+        velvetFinish: velvetFinishOption?.name || "",
+        zipCode: selectedOptions.zipCode || "",
+        addressType: selectedOptions.addressType || "",
       },
       uploadedFile: uploadedFile ? uploadedFile.name : null,
+      shippingCost: shippingCost || 0,
       quantity: 1,
       price: parseFloat(calculatePrice()),
     });
