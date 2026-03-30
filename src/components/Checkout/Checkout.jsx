@@ -1,25 +1,25 @@
 import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
 import CartContext from "../../contexts/CartContext";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import NotificationModal from "../NotificationModal/NotificationModal";
+import PaymentForm from "../PaymentForm/PaymentForm";
 import { createOrder } from "../../utils/api";
-import { CARD_PATTERNS, ANTELOPE_VALLEY_ZIPS } from "../../utils/constants";
+import { ANTELOPE_VALLEY_ZIPS } from "../../utils/constants";
 import "./Checkout.css";
 
 function Checkout() {
   const { cartItems, clearCart } = useContext(CartContext);
   const { currentUser } = useContext(CurrentUserContext);
   const navigate = useNavigate();
+  const stripe = useStripe();
+  const elements = useElements();
 
   const [formData, setFormData] = useState({
     customerName: "",
     customerEmail: "",
     customerPhone: "",
-    cardNumber: "",
-    cardName: "",
-    expiryDate: "",
-    cvv: "",
     billingAddress: "",
     city: "",
     state: "",
@@ -31,7 +31,7 @@ function Checkout() {
   });
 
   const [sameAsBilling, setSameAsBilling] = useState(true);
-
+  const [isCardReady, setIsCardReady] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [shippingCost, setShippingCost] = useState(null);
@@ -129,56 +129,9 @@ function Checkout() {
     }
   };
 
-  const validateCardNumber = (number) => {
-    const cleanNumber = number.replace(/\s/g, "");
-    return Object.values(CARD_PATTERNS).some((pattern) =>
-      pattern.test(cleanNumber),
-    );
-  };
-
-  const validateExpiryDate = (date) => {
-    const [month, year] = date.split("/");
-    if (!month || !year) return false;
-
-    const currentDate = new Date();
-    const currentYear = currentDate.getFullYear() % 100;
-    const currentMonth = currentDate.getMonth() + 1;
-
-    const expMonth = parseInt(month);
-    const expYear = parseInt(year);
-
-    if (expMonth < 1 || expMonth > 12) return false;
-    if (expYear < currentYear) return false;
-    if (expYear === currentYear && expMonth < currentMonth) return false;
-
-    return true;
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     let formattedValue = value;
-
-    // Format card number with spaces
-    if (name === "cardNumber") {
-      formattedValue = value
-        .replace(/\s/g, "")
-        .replace(/(\d{4})/g, "$1 ")
-        .trim()
-        .slice(0, 19);
-    }
-
-    // Format expiry date
-    if (name === "expiryDate") {
-      formattedValue = value
-        .replace(/\D/g, "")
-        .replace(/(\d{2})(\d)/, "$1/$2")
-        .slice(0, 5);
-    }
-
-    // Format CVV
-    if (name === "cvv") {
-      formattedValue = value.replace(/\D/g, "").slice(0, 4);
-    }
 
     // Format ZIP code
     if (name === "zipCode") {
@@ -236,20 +189,9 @@ function Checkout() {
       }
     }
 
-    if (!formData.cardNumber || !validateCardNumber(formData.cardNumber)) {
-      newErrors.cardNumber = "Please enter a valid card number";
-    }
-
-    if (!formData.cardName.trim()) {
-      newErrors.cardName = "Cardholder name is required";
-    }
-
-    if (!formData.expiryDate || !validateExpiryDate(formData.expiryDate)) {
-      newErrors.expiryDate = "Please enter a valid expiry date";
-    }
-
-    if (!formData.cvv || formData.cvv.length < 3) {
-      newErrors.cvv = "Please enter a valid CVV";
+    // Check if Stripe card is ready
+    if (!isCardReady) {
+      newErrors.payment = "Please complete your payment information";
     }
 
     if (!formData.billingAddress.trim()) {
@@ -294,7 +236,7 @@ function Checkout() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (!validateForm()) {
@@ -305,43 +247,91 @@ function Checkout() {
       return;
     }
 
+    if (!stripe || !elements) {
+      setNotification({
+        message: "Payment system not ready. Please refresh and try again.",
+        type: "error",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
-    const token = localStorage.getItem("jwt");
-    const orderData = {
-      userId: currentUser?.id,
-      customerInfo: !currentUser
-        ? {
-            name: formData.customerName,
-            email: formData.customerEmail,
-            phone: formData.customerPhone,
-          }
-        : null,
-      items: cartItems,
-      total: calculateTotal(),
-      billingInfo: formData,
-      createdAt: new Date().toISOString(),
-    };
-
-    createOrder(orderData, token)
-      .then((result) => {
-        const successNotification = {
-          message: "Order placed successfully!",
-          type: "success",
-        };
-        setNotification(successNotification);
-      })
-      .catch((err) => {
-        console.error(err);
-        const errorNotification = {
-          message: "Failed to place order. Please try again.",
-          type: "error",
-        };
-        setNotification(errorNotification);
-      })
-      .finally(() => {
-        setIsSubmitting(false);
+    try {
+      // Create payment method with Stripe
+      const cardElement = elements.getElement(CardElement);
+      const { error, paymentMethod } = await stripe.createPaymentMethod({
+        type: "card",
+        card: cardElement,
+        billing_details: {
+          name: formData.customerName || currentUser?.name,
+          email: formData.customerEmail || currentUser?.email,
+          phone: formData.customerPhone,
+          address: {
+            line1: formData.billingAddress,
+            city: formData.city,
+            state: formData.state,
+            postal_code: formData.zipCode,
+          },
+        },
       });
+
+      if (error) {
+        setNotification({
+          message: error.message || "Payment processing failed",
+          type: "error",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Create order with payment method ID (never send raw card data!)
+      const token = localStorage.getItem("jwt");
+      const orderData = {
+        userId: currentUser?.id,
+        customerInfo: !currentUser
+          ? {
+              name: formData.customerName,
+              email: formData.customerEmail,
+              phone: formData.customerPhone,
+            }
+          : null,
+        items: cartItems,
+        total: calculateTotal(),
+        paymentMethodId: paymentMethod.id, // Send only the Stripe payment method ID
+        billingInfo: {
+          billingAddress: formData.billingAddress,
+          city: formData.city,
+          state: formData.state,
+          zipCode: formData.zipCode,
+          shippingAddress: sameAsBilling
+            ? formData.billingAddress
+            : formData.shippingAddress,
+          shippingCity: sameAsBilling ? formData.city : formData.shippingCity,
+          shippingState: sameAsBilling
+            ? formData.state
+            : formData.shippingState,
+          shippingZipCode: sameAsBilling
+            ? formData.zipCode
+            : formData.shippingZipCode,
+        },
+        createdAt: new Date().toISOString(),
+      };
+
+      const result = await createOrder(orderData, token);
+
+      // Clear cart and redirect to order summary immediately
+      clearCart();
+      navigate("/order-summary", { state: { orderData: result } });
+    } catch (err) {
+      console.error(err);
+      setNotification({
+        message: "Failed to place order. Please try again.",
+        type: "error",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -427,88 +417,17 @@ function Checkout() {
 
             <section className="checkout__section">
               <h2 className="checkout__section-title">Payment Information</h2>
-
-              <div className="checkout__field">
-                <label htmlFor="cardNumber" className="checkout__label">
-                  Card Number *
-                </label>
-                <input
-                  type="text"
-                  id="cardNumber"
-                  name="cardNumber"
-                  value={formData.cardNumber}
-                  onChange={handleInputChange}
-                  className={`checkout__input ${
-                    errors.cardNumber ? "checkout__input_error" : ""
-                  }`}
-                  placeholder="1234 5678 9012 3456"
-                />
-                {errors.cardNumber && (
-                  <span className="checkout__error">{errors.cardNumber}</span>
-                )}
-              </div>
-
-              <div className="checkout__field">
-                <label htmlFor="cardName" className="checkout__label">
-                  Cardholder Name *
-                </label>
-                <input
-                  type="text"
-                  id="cardName"
-                  name="cardName"
-                  value={formData.cardName}
-                  onChange={handleInputChange}
-                  className={`checkout__input ${
-                    errors.cardName ? "checkout__input_error" : ""
-                  }`}
-                  placeholder="John Doe"
-                />
-                {errors.cardName && (
-                  <span className="checkout__error">{errors.cardName}</span>
-                )}
-              </div>
-
-              <div className="checkout__row">
-                <div className="checkout__field">
-                  <label htmlFor="expiryDate" className="checkout__label">
-                    Expiry Date *
-                  </label>
-                  <input
-                    type="text"
-                    id="expiryDate"
-                    name="expiryDate"
-                    value={formData.expiryDate}
-                    onChange={handleInputChange}
-                    className={`checkout__input ${
-                      errors.expiryDate ? "checkout__input_error" : ""
-                    }`}
-                    placeholder="MM/YY"
-                  />
-                  {errors.expiryDate && (
-                    <span className="checkout__error">{errors.expiryDate}</span>
-                  )}
-                </div>
-
-                <div className="checkout__field">
-                  <label htmlFor="cvv" className="checkout__label">
-                    CVV *
-                  </label>
-                  <input
-                    type="text"
-                    id="cvv"
-                    name="cvv"
-                    value={formData.cvv}
-                    onChange={handleInputChange}
-                    className={`checkout__input ${
-                      errors.cvv ? "checkout__input_error" : ""
-                    }`}
-                    placeholder="123"
-                  />
-                  {errors.cvv && (
-                    <span className="checkout__error">{errors.cvv}</span>
-                  )}
-                </div>
-              </div>
+              <p className="checkout__section-description">
+                Your payment is secured by Stripe. We never see or store your
+                card details.
+              </p>
+              <PaymentForm
+                onPaymentMethodReady={setIsCardReady}
+                isProcessing={isSubmitting}
+              />
+              {errors.payment && (
+                <span className="checkout__error">{errors.payment}</span>
+              )}
             </section>
 
             <section className="checkout__section">

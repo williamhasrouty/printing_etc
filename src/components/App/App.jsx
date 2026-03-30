@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import Header from "../Header/Header";
 import Footer from "../Footer/Footer";
 import Main from "../Main/Main";
@@ -21,6 +23,11 @@ import {
   register as registerUser,
 } from "../../utils/auth";
 import "./App.css";
+
+// Initialize Stripe with your publishable key
+// IMPORTANT: Replace this with your actual Stripe publishable key
+// Get your key from: https://dashboard.stripe.com/apikeys
+const stripePromise = loadStripe("pk_test_51TGTogEAmwu5KmQ8ONfqPvSccHHsL2vFxzrMwAox0E8XUqkwRyHztOgGYEEgS2wdIO4BeMv2iP4CRmF8ocVxvcEk001TxeRkBu");
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -186,7 +193,14 @@ function App() {
               }
             />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/checkout" element={<Checkout />} />
+            <Route
+              path="/checkout"
+              element={
+                <Elements stripe={stripePromise}>
+                  <Checkout />
+                </Elements>
+              }
+            />
             <Route path="/order-summary" element={<OrderSummary />} />
             <Route
               path="/profile"
