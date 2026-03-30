@@ -106,7 +106,7 @@ function Cart({ onLoginClick, onRegisterClick }) {
                     )}
                     {item.uploadedFile && (
                       <p className="cart__item-option">
-                        File: {item.uploadedFile}
+                        File: {item.uploadedFile.fileName || item.uploadedFile} ✓
                       </p>
                     )}
                     {item.shippingCost > 0 && (

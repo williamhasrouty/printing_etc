@@ -5,6 +5,7 @@ import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import CartContext from "../../contexts/CartContext";
 import NotificationModal from "../NotificationModal/NotificationModal";
+import FileUpload from "../FileUpload/FileUpload";
 
 // Set up PDF.js worker from public directory
 pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
@@ -68,8 +69,6 @@ function ProductDetail({ products }) {
   });
 
   const [uploadedFile, setUploadedFile] = useState(null);
-  const [filePreviewUrl, setFilePreviewUrl] = useState(null);
-  const [fileType, setFileType] = useState(null);
   const [numPages, setNumPages] = useState(null);
   const [pageNumber, setPageNumber] = useState(1);
   const [shippingCost, setShippingCost] = useState(null);
@@ -176,32 +175,18 @@ function ProductDetail({ products }) {
     setShippingCalculated(true);
   };
 
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0];
-    const validTypes = [
-      "application/pdf",
-      "image/jpeg",
-      "image/jpg",
-      "image/png",
-      "image/svg+xml",
-    ];
-
-    if (file && validTypes.includes(file.type)) {
-      setUploadedFile(file);
-      setFileType(file.type);
-      // Create preview URL
-      const url = URL.createObjectURL(file);
-      setFilePreviewUrl(url);
-      if (file.type === "application/pdf") {
-        setPageNumber(1);
-      }
-    } else if (file) {
-      setNotification({
-        message: "Please upload a PDF, JPG, PNG, or SVG file",
-        type: "warning",
-      });
-      e.target.value = "";
+  const handleFileUploaded = (fileData) => {
+    setUploadedFile(fileData);
+    if (fileData && fileData.fileType === "application/pdf") {
+      setPageNumber(1);
     }
+  };
+
+  const handleFileError = (errorMessage) => {
+    setNotification({
+      message: errorMessage,
+      type: "error",
+    });
   };
 
   const onDocumentLoadSuccess = ({ numPages }) => {
@@ -259,15 +244,6 @@ function ProductDetail({ products }) {
   };
 
   const previewDimensions = getPreviewDimensions();
-
-  // Cleanup preview URL when component unmounts
-  useEffect(() => {
-    return () => {
-      if (filePreviewUrl) {
-        URL.revokeObjectURL(filePreviewUrl);
-      }
-    };
-  }, [filePreviewUrl]);
 
   if (!product) {
     return (
@@ -373,7 +349,15 @@ function ProductDetail({ products }) {
         zipCode: selectedOptions.zipCode || "",
         addressType: selectedOptions.addressType || "",
       },
-      uploadedFile: uploadedFile ? uploadedFile.name : null,
+      uploadedFile: uploadedFile
+        ? {
+            url: uploadedFile.url,
+            publicId: uploadedFile.publicId,
+            fileName: uploadedFile.fileName,
+            fileSize: uploadedFile.fileSize,
+            fileType: uploadedFile.fileType,
+          }
+        : null,
       shippingCost: shippingCost || 0,
       quantity: 1,
       price: parseFloat(calculatePrice()),
@@ -862,24 +846,17 @@ function ProductDetail({ products }) {
               )}
 
               <div className="product-detail__option">
-                <label htmlFor="pdfUpload" className="product-detail__label">
+                <label className="product-detail__label">
                   Upload Design (PDF, JPG, PNG, SVG)
                 </label>
-                <input
-                  type="file"
-                  id="pdfUpload"
-                  className="product-detail__file-input"
-                  accept=".pdf,.jpg,.jpeg,.png,.svg"
-                  onChange={handleFileUpload}
+                <FileUpload
+                  onFileUploaded={handleFileUploaded}
+                  onError={handleFileError}
+                  currentFile={uploadedFile}
                 />
-                {uploadedFile && (
-                  <p className="product-detail__file-name">
-                    ✓ {uploadedFile.name}
-                  </p>
-                )}
               </div>
 
-              {filePreviewUrl && (
+              {uploadedFile && uploadedFile.previewUrl && (
                 <div className="product-detail__pdf-preview">
                   <h3 className="product-detail__preview-title">Preview</h3>
                   <div className="product-detail__pdf-container">
@@ -891,9 +868,9 @@ function ProductDetail({ products }) {
                           height: `${previewDimensions.height}px`,
                         }}
                       >
-                        {fileType === "application/pdf" ? (
+                        {uploadedFile.fileType === "application/pdf" ? (
                           <Document
-                            file={filePreviewUrl}
+                            file={uploadedFile.previewUrl}
                             onLoadSuccess={onDocumentLoadSuccess}
                             loading={
                               <div className="product-detail__pdf-loading">
@@ -915,7 +892,7 @@ function ProductDetail({ products }) {
                           </Document>
                         ) : (
                           <img
-                            src={filePreviewUrl}
+                            src={uploadedFile.previewUrl}
                             alt="Uploaded design preview"
                             className="product-detail__image-preview"
                           />
@@ -941,7 +918,7 @@ function ProductDetail({ products }) {
                       </span>
                     </div>
                   </div>
-                  {fileType === "application/pdf" &&
+                  {uploadedFile.fileType === "application/pdf" &&
                     numPages &&
                     numPages > 1 && (
                       <div className="product-detail__pdf-controls">
