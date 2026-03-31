@@ -40,8 +40,10 @@ Your print shop now has a **professional file upload system** with:
    - **Preset name:** `printing_uploads`
    - **Signing Mode:** Select **Unsigned** (important!)
    - **Folder:** `printing-etc-designs`
-   - **Resource type:** Auto
+   - **Access mode:** Select **"Public"** (required for PDF preview!)
 5. Click **Save**
+
+**Critical for PDFs:** The "Access mode" must be set to "Public" so that uploaded PDFs can be previewed without authentication errors.
 
 ### Step 4: Add Cloud Name to Your Code
 

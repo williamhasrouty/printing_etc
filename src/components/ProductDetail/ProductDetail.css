@@ -46,7 +46,7 @@
   padding: 0;
   margin-bottom: 30px;
   font-weight: 500;
-   font-family: "Bungee", "Roboto", Arial, sans-serif
+  font-family: "Bungee", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__back:hover {
@@ -195,13 +195,36 @@
   border: 1px solid #ddd;
 }
 
+.product-detail__preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
 .product-detail__preview-title {
-  margin: 0 0 16px 0;
+  margin: 0;
   font-size: 16px;
   font-weight: 600;
   color: #333;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.product-detail__reset-button {
+  padding: 8px 16px;
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.product-detail__reset-button:hover {
+  background-color: #5a6268;
 }
 
 .product-detail__pdf-container {
@@ -211,7 +234,7 @@
   padding: 20px;
   border-radius: 4px;
   border: 1px solid #ddd;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .product-detail__pdf-loading,
@@ -387,7 +410,7 @@
   font-size: 32px;
   font-weight: 400;
   color: #00b4d8;
-   font-family: "Bungee", "Roboto", Arial, sans-serif
+  font-family: "Bungee", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__add-button {
@@ -427,5 +450,378 @@
 
   .product-detail__price-value {
     font-size: 28px;
+  }
+}
+
+/* Position & Crop Modal */
+.position-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.position-modal__overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(4px);
+}
+
+.position-modal__content {
+  position: relative;
+  background-color: #2c2c2c;
+  border-radius: 12px;
+  max-width: 1200px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 2px solid rgba(0, 180, 216, 0.3);
+}
+
+.position-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.position-modal__title {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #00b4d8;
+  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  letter-spacing: 1px;
+}
+
+.position-modal__close {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 36px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.position-modal__close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.position-modal__body {
+  flex: 1;
+  overflow: hidden;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.position-modal__instructions {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.7);
+  margin-bottom: 16px;
+  text-align: center;
+  padding: 12px;
+  background-color: rgba(0, 180, 216, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(0, 180, 216, 0.2);
+}
+
+.position-modal__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.position-modal__control-button {
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.position-modal__control-button:hover {
+  background-color: #0096c7;
+  transform: scale(1.05);
+}
+
+.position-modal__zoom-level {
+  font-size: 16px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 60px;
+  text-align: center;
+}
+
+.position-modal__reset-button {
+  padding: 8px 16px;
+  background-color: #6c757d;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 8px;
+}
+
+.position-modal__reset-button:hover {
+  background-color: #5a6268;
+}
+
+.position-modal__canvas {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
+  overflow: hidden;
+  user-select: none;
+}
+
+.position-modal__preview-wrapper {
+  position: relative;
+  display: inline-block;
+  padding: 15px;
+  background-color: #f0f0f0;
+}
+
+.position-modal__content-area {
+  position: relative;
+  z-index: 1;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.position-modal__draggable-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  touch-action: none;
+  transform-origin: center;
+  transition: transform 0.05s ease-out;
+}
+
+.position-modal__draggable-content > * {
+  pointer-events: none;
+}
+
+.position-modal__image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.position-modal__loading,
+.position-modal__error {
+  padding: 40px;
+  text-align: center;
+  color: #666;
+  font-size: 14px;
+}
+
+.position-modal__error {
+  color: #dc3545;
+}
+
+.position-modal__guide-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.position-modal__bleed-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 3px solid #ff0000;
+  box-sizing: border-box;
+}
+
+.position-modal__cut-line {
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  right: 15px;
+  bottom: 15px;
+  border: 3px dashed #000000;
+  box-sizing: border-box;
+}
+
+.position-modal__pdf-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 16px;
+  gap: 12px;
+}
+
+.position-modal__pdf-button {
+  padding: 8px 16px;
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.position-modal__pdf-button:hover:not(:disabled) {
+  background-color: #0096c7;
+}
+
+.position-modal__pdf-button:disabled {
+  background-color: #555;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.position-modal__pdf-page-info {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 500;
+}
+
+.position-modal__footer {
+  padding: 20px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: flex-end;
+}
+
+.position-modal__done-button {
+  padding: 12px 32px;
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: "Roboto", Arial, sans-serif;
+}
+
+.position-modal__done-button:hover {
+  background-color: #0096c7;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 180, 216, 0.4);
+}
+
+.product-detail__edit-position-button {
+  padding: 8px 16px;
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.product-detail__edit-position-button:hover {
+  background-color: #0096c7;
+}
+
+.product-detail__preview-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.product-detail__delete-button {
+  padding: 8px 16px;
+  background-color: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.product-detail__delete-button:hover {
+  background-color: #b91c1c;
+}
+
+.product-detail__static-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transform-origin: center;
+  transition: transform 0.05s ease-out;
+}
+
+@media (max-width: 768px) {
+  .position-modal__content {
+    max-height: 95vh;
+  }
+
+  .position-modal__title {
+    font-size: 18px;
+  }
+
+  .position-modal__controls {
+    gap: 8px;
+  }
+
+  .position-modal__control-button {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
   }
 }

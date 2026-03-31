@@ -33,7 +33,7 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
     const k = 1024;
     const sizes = ["Bytes", "KB", "MB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + " " + sizes[i];
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
 
   const uploadToCloudinary = async (file) => {
@@ -42,29 +42,42 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
     formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
     formData.append("folder", "printing-etc-designs");
 
+    // Determine resource type based on file type
+    const isPDF = file.type === "application/pdf";
+    const resourceType = isPDF ? "raw" : "image";
+
     try {
       const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`,
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        console.error("Cloudinary upload failed:", errorData);
         throw new Error("Upload failed");
       }
 
       const data = await response.json();
+      console.log("Cloudinary upload response:", data);
+
+      // Construct the correct URL based on resource type
+      const baseUrl = data.secure_url;
+
       return {
-        url: data.secure_url,
+        url: baseUrl,
         publicId: data.public_id,
         fileName: file.name,
         fileSize: file.size,
         fileType: file.type,
-        previewUrl: data.secure_url, // Use Cloudinary URL for preview
+        previewUrl: baseUrl,
+        resourceType: resourceType,
       };
     } catch (error) {
+      console.error("Cloudinary upload error:", error);
       throw new Error("Failed to upload file to cloud storage");
     }
   };
@@ -78,6 +91,9 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
 
     setIsUploading(true);
     setUploadProgress(0);
+
+    // Create local blob URL for preview (especially for PDFs which may have auth issues)
+    const localPreviewUrl = URL.createObjectURL(file);
 
     // Simulate progress (Cloudinary doesn't provide real-time progress)
     const progressInterval = setInterval(() => {
@@ -94,16 +110,24 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
       const fileData = await uploadToCloudinary(file);
       clearInterval(progressInterval);
       setUploadProgress(100);
-      
+
       setTimeout(() => {
         setIsUploading(false);
         setUploadProgress(0);
-        if (onFileUploaded) onFileUploaded(fileData);
+        // Use local blob URL for preview, Cloudinary URL for storage/download
+        if (onFileUploaded)
+          onFileUploaded({
+            ...fileData,
+            previewUrl: localPreviewUrl, // Use local blob for preview
+            cloudinaryUrl: fileData.url, // Keep Cloudinary URL for orders
+          });
       }, 500);
     } catch (error) {
       clearInterval(progressInterval);
       setIsUploading(false);
       setUploadProgress(0);
+      // Clean up blob URL on error
+      URL.revokeObjectURL(localPreviewUrl);
       if (onError) onError(error.message);
     }
   };

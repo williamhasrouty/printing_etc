@@ -125,6 +125,7 @@
   align-items: center;
   gap: 12px;
   flex: 1;
+  
 }
 
 .file-upload__file-icon {
@@ -137,12 +138,13 @@
 .file-upload__file-details {
   flex: 1;
   min-width: 0;
+  
 }
 
 .file-upload__file-name {
   font-size: 16px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(33, 30, 30, 0.6);
   margin: 0 0 4px;
   font-family: "Roboto", Arial, sans-serif;
   white-space: nowrap;
@@ -152,7 +154,7 @@
 
 .file-upload__file-size {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(33, 30, 30, 0.6);
   margin: 0;
   font-family: "Roboto", Arial, sans-serif;
 }
