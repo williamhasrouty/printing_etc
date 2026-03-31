@@ -1186,6 +1186,10 @@ function ProductDetail({ products }) {
                             className="product-detail__static-content"
                             style={{
                               transform: `translate(${imagePositionBack.x}px, ${imagePositionBack.y}px) scale(${zoomLevelBack})`,
+                              filter:
+                                selectedOptions.color === "full-front-grayscale"
+                                  ? "grayscale(100%)"
+                                  : "none",
                             }}
                           >
                             {uploadedBackFile.fileType === "application/pdf" ? (
@@ -1383,6 +1387,11 @@ function ProductDetail({ products }) {
                         style={{
                           transform: `translate(${editingBackFile ? imagePositionBack.x : imagePosition.x}px, ${editingBackFile ? imagePositionBack.y : imagePosition.y}px) scale(${editingBackFile ? zoomLevelBack : zoomLevel})`,
                           cursor: isDragging ? "grabbing" : "grab",
+                          filter:
+                            editingBackFile &&
+                            selectedOptions.color === "full-front-grayscale"
+                              ? "grayscale(100%)"
+                              : "none",
                         }}
                         onMouseDown={handleMouseDown}
                         onTouchStart={handleTouchStart}
