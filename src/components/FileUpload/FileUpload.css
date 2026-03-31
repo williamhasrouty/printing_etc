@@ -125,7 +125,6 @@
   align-items: center;
   gap: 12px;
   flex: 1;
-  
 }
 
 .file-upload__file-icon {
@@ -138,7 +137,6 @@
 .file-upload__file-details {
   flex: 1;
   min-width: 0;
-  
 }
 
 .file-upload__file-name {
@@ -179,4 +177,58 @@
   width: 20px;
   height: 20px;
   display: block;
+}
+
+/* Error and Retry Styles */
+.file-upload__error-container {
+  margin-top: 16px;
+  padding: 12px 16px;
+  background-color: #fff3f3;
+  border: 1px solid #ffcdd2;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.file-upload__error-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #d32f2f;
+  font-size: 14px;
+  font-family: "Roboto", Arial, sans-serif;
+}
+
+.file-upload__error-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.file-upload__retry-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background-color: #00b4d8;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-family: "Roboto", Arial, sans-serif;
+  align-self: flex-start;
+}
+
+.file-upload__retry-button:hover {
+  background-color: #0096c7;
+}
+
+.file-upload__retry-icon {
+  width: 16px;
+  height: 16px;
 }

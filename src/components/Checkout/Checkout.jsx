@@ -34,9 +34,38 @@ function Checkout() {
   const [isCardReady, setIsCardReady] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
   const [shippingCost, setShippingCost] = useState(null);
   const [notification, setNotification] = useState(null);
   const taxRate = 0.1125; // Fixed 11.25% tax rate
+
+  // Helper function to get user-friendly error messages
+  const getPaymentErrorMessage = (error) => {
+    const errorCode = error.code;
+    const commonErrors = {
+      card_declined:
+        "Your card was declined. Please try a different payment method.",
+      insufficient_funds:
+        "Your card has insufficient funds. Please try a different card.",
+      expired_card: "Your card has expired. Please use a different card.",
+      incorrect_cvc:
+        "The security code (CVC) is incorrect. Please check and try again.",
+      processing_error:
+        "An error occurred while processing your card. Please try again.",
+      incorrect_number:
+        "The card number is incorrect. Please check and try again.",
+      invalid_expiry_year:
+        "The expiration year is invalid. Please check and try again.",
+      invalid_expiry_month:
+        "The expiration month is invalid. Please check and try again.",
+    };
+
+    return (
+      commonErrors[errorCode] ||
+      error.message ||
+      "Payment processing failed. Please try again."
+    );
+  };
 
   // Redirect if cart is empty
   useEffect(() => {
@@ -101,31 +130,37 @@ function Checkout() {
   // Calculate shipping when zip code changes
   const updateShippingAndTax = (zipCode) => {
     if (zipCode.length >= 5) {
-      // Check if it's Antelope Valley for local delivery
-      if (ANTELOPE_VALLEY_ZIPS.includes(zipCode)) {
-        setShippingCost(10); // Flat rate local delivery
-      } else {
-        // National shipping based on package weight (USPS/UPS/FedEx style)
-        const totalWeight = calculateTotalWeight();
+      setIsCalculatingShipping(true);
 
-        // Shipping tiers based on weight (in pounds)
-        let shipping = 8; // Minimum shipping cost
-        if (totalWeight > 1 && totalWeight <= 3) {
-          shipping = 12;
-        } else if (totalWeight > 3 && totalWeight <= 5) {
-          shipping = 18;
-        } else if (totalWeight > 5 && totalWeight <= 10) {
-          shipping = 28;
-        } else if (totalWeight > 10 && totalWeight <= 20) {
-          shipping = 42;
-        } else if (totalWeight > 20 && totalWeight <= 40) {
-          shipping = 60;
-        } else if (totalWeight > 40) {
-          shipping = 85;
+      // Simulate slight delay for calculation (can be instant but gives user feedback)
+      setTimeout(() => {
+        // Check if it's Antelope Valley for local delivery
+        if (ANTELOPE_VALLEY_ZIPS.includes(zipCode)) {
+          setShippingCost(10); // Flat rate local delivery
+        } else {
+          // National shipping based on package weight (USPS/UPS/FedEx style)
+          const totalWeight = calculateTotalWeight();
+
+          // Shipping tiers based on weight (in pounds)
+          let shipping = 8; // Minimum shipping cost
+          if (totalWeight > 1 && totalWeight <= 3) {
+            shipping = 12;
+          } else if (totalWeight > 3 && totalWeight <= 5) {
+            shipping = 18;
+          } else if (totalWeight > 5 && totalWeight <= 10) {
+            shipping = 28;
+          } else if (totalWeight > 10 && totalWeight <= 20) {
+            shipping = 42;
+          } else if (totalWeight > 20 && totalWeight <= 40) {
+            shipping = 60;
+          } else if (totalWeight > 40) {
+            shipping = 85;
+          }
+
+          setShippingCost(shipping);
         }
-
-        setShippingCost(shipping);
-      }
+        setIsCalculatingShipping(false);
+      }, 300);
     }
   };
 
@@ -278,7 +313,7 @@ function Checkout() {
 
       if (error) {
         setNotification({
-          message: error.message || "Payment processing failed",
+          message: getPaymentErrorMessage(error),
           type: "error",
         });
         setIsSubmitting(false);
@@ -650,7 +685,14 @@ function Checkout() {
               className="checkout__submit"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Processing..." : "Place Order"}
+              {isSubmitting ? (
+                <span className="checkout__submit-content">
+                  <span className="checkout__spinner"></span>
+                  Processing Payment...
+                </span>
+              ) : (
+                "Place Order"
+              )}
             </button>
           </form>
 
@@ -700,11 +742,20 @@ function Checkout() {
               <div className="checkout__total-row">
                 <span className="checkout__total-label">Shipping:</span>
                 <span className="checkout__total-value">
-                  {shippingCost !== null
-                    ? shippingCost === 10
-                      ? "$10.00 (Local Delivery)"
-                      : `$${shippingCost.toFixed(2)}`
-                    : "TBD"}
+                  {isCalculatingShipping ? (
+                    <span className="checkout__calculating">
+                      <span className="checkout__calculating-spinner"></span>
+                      Calculating...
+                    </span>
+                  ) : shippingCost !== null ? (
+                    shippingCost === 10 ? (
+                      "$10.00 (Local Delivery)"
+                    ) : (
+                      `$${shippingCost.toFixed(2)}`
+                    )
+                  ) : (
+                    "Enter ZIP code"
+                  )}
                 </span>
               </div>
               <div

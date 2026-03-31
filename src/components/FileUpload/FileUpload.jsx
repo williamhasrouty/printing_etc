@@ -8,6 +8,8 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadError, setUploadError] = useState(null);
+  const [failedFile, setFailedFile] = useState(null);
   const fileInputRef = useRef(null);
 
   const ACCEPTED_FILE_TYPES = [
@@ -86,8 +88,14 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
     const error = validateFile(file);
     if (error) {
       if (onError) onError(error);
+      setUploadError(error);
+      setFailedFile(file);
       return;
     }
+
+    // Clear any previous errors
+    setUploadError(null);
+    setFailedFile(null);
 
     setIsUploading(true);
     setUploadProgress(0);
@@ -128,7 +136,12 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
       setUploadProgress(0);
       // Clean up blob URL on error
       URL.revokeObjectURL(localPreviewUrl);
-      if (onError) onError(error.message);
+
+      const errorMessage = error.message || "Upload failed. Please try again.";
+      setUploadError(errorMessage);
+      setFailedFile(file);
+
+      if (onError) onError(errorMessage);
     }
   };
 
@@ -175,6 +188,12 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
 
   const handleRemove = () => {
     if (onFileUploaded) onFileUploaded(null);
+  };
+
+  const handleRetry = () => {
+    if (failedFile) {
+      handleFile(failedFile);
+    }
   };
 
   if (currentFile) {
@@ -279,6 +298,47 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
           <p className="file-upload__subtext">
             PDF, JPG, PNG, or SVG (max 50MB)
           </p>
+        </div>
+      )}
+
+      {uploadError && failedFile && (
+        <div className="file-upload__error-container">
+          <div className="file-upload__error-message">
+            <svg
+              className="file-upload__error-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>{uploadError}</span>
+          </div>
+          <button
+            type="button"
+            className="file-upload__retry-button"
+            onClick={handleRetry}
+          >
+            <svg
+              className="file-upload__retry-icon"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            Retry Upload
+          </button>
         </div>
       )}
     </div>
