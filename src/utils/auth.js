@@ -16,65 +16,50 @@ export const register = (email, password, name) => {
   const newUser = {
     email,
     name,
-    password, // In production, this should be hashed on the backend
-    createdAt: new Date().toISOString(),
+    password,
   };
 
-  return request(`${BASE_URL}/users`, {
+  return request(`${BASE_URL}/signup`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify(newUser),
   }).then((user) => {
-    // Generate a mock JWT token
-    const token = btoa(JSON.stringify({ userId: user.id, email: user.email }));
-    return { token, user };
+    // After successful signup, automatically log in to get the token
+    return login(email, password);
   });
 };
 
 // Login user
 export const login = (email, password) => {
-  // Find user by email
-  return request(`${BASE_URL}/users?email=${email}`).then((users) => {
-    if (users.length === 0) {
-      return Promise.reject("User not found");
-    }
-
-    const user = users[0];
-
-    // Check password (in production, this should be done securely on the backend)
-    if (user.password !== password) {
-      return Promise.reject("Invalid password");
-    }
-
-    // Generate a mock JWT token
-    const token = btoa(JSON.stringify({ userId: user.id, email: user.email }));
-    return { token, user };
+  return request(`${BASE_URL}/signin`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email, password }),
   });
 };
 
 // Check token validity
 export const checkToken = (token) => {
-  try {
-    // Decode the mock JWT token
-    const decoded = JSON.parse(atob(token));
-
-    // Fetch the user data
-    return request(`${BASE_URL}/users/${decoded.userId}`).then((user) => {
-      return user;
-    });
-  } catch (err) {
-    return Promise.reject("Invalid token");
-  }
+  return request(`${BASE_URL}/users/me`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+  });
 };
 
-// Update user profile (name)
-export const updateUser = (userId, name) => {
-  return request(`${BASE_URL}/users/${userId}`, {
+// Update user profile
+export const updateUser = (name, token) => {
+  return request(`${BASE_URL}/users/me`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
     },
     body: JSON.stringify({ name }),
   });

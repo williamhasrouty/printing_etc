@@ -36,7 +36,8 @@ function OrderSummary() {
         <h1 className="order-summary__title">Order Placed Successfully!</h1>
         <p className="order-summary__subtitle">
           Thank you for your order. We've received your request and sent an
-          email confirmation to {orderData.customerInfo?.email}.
+          email confirmation to{" "}
+          {orderData.guestInfo?.email || orderData.customerInfo?.email}.
         </p>
 
         <div className="order-summary__content">
@@ -56,7 +57,7 @@ function OrderSummary() {
             </div>
           </section>
 
-          {orderData.customerInfo && (
+          {(orderData.customerInfo || orderData.guestInfo) && (
             <section className="order-summary__section">
               <h2 className="order-summary__section-title">
                 Customer Information
@@ -65,19 +66,21 @@ function OrderSummary() {
                 <div className="order-summary__info-row">
                   <span className="order-summary__label">Name:</span>
                   <span className="order-summary__value">
-                    {orderData.customerInfo.name}
+                    {orderData.customerInfo?.name || orderData.guestInfo?.name}
                   </span>
                 </div>
                 <div className="order-summary__info-row">
                   <span className="order-summary__label">Email:</span>
                   <span className="order-summary__value">
-                    {orderData.customerInfo.email}
+                    {orderData.customerInfo?.email ||
+                      orderData.guestInfo?.email}
                   </span>
                 </div>
                 <div className="order-summary__info-row">
                   <span className="order-summary__label">Phone:</span>
                   <span className="order-summary__value">
-                    {orderData.customerInfo.phone}
+                    {orderData.customerInfo?.phone ||
+                      orderData.guestInfo?.phone}
                   </span>
                 </div>
               </div>
@@ -87,47 +90,49 @@ function OrderSummary() {
           <section className="order-summary__section">
             <h2 className="order-summary__section-title">Items Ordered</h2>
             <div className="order-summary__items">
-              {orderData.items.map((item) => (
-                <div key={item.id} className="order-summary__item">
+              {orderData.items.map((item, index) => (
+                <div key={item._id || index} className="order-summary__item">
                   <img
-                    src={item.imageUrl}
-                    alt={item.name}
+                    src={item.product?.imageUrl || item.imageUrl}
+                    alt={item.productName || item.name}
                     className="order-summary__item-image"
                   />
                   <div className="order-summary__item-info">
-                    <p className="order-summary__item-name">{item.name}</p>
+                    <p className="order-summary__item-name">
+                      {item.productName || item.name}
+                    </p>
                     <p className="order-summary__item-details">
-                      {item.options?.paperType} • Qty:{" "}
-                      {item.options?.quantity || 1}
-                      {item.options?.size && ` • ${item.options.size}`}
-                      {item.options?.color && ` • ${item.options.color}`}
+                      {item.selectedOptions?.paperType} • Qty: {item.quantity}
+                      {item.selectedOptions?.size &&
+                        ` • ${item.selectedOptions.size}`}
+                      {item.selectedOptions?.color &&
+                        ` • ${item.selectedOptions.color}`}
                     </p>
                   </div>
                   <p className="order-summary__item-price">
-                    ${item.price.toFixed(2)}
+                    ${(item.totalPrice || item.price || 0).toFixed(2)}
                   </p>
                 </div>
               ))}
             </div>
           </section>
 
-          <section className="order-summary__section">
-            <h2 className="order-summary__section-title">Shipping Address</h2>
-            <div className="order-summary__info">
-              <p className="order-summary__address">
-                {orderData.billingInfo.shippingAddress ||
-                  orderData.billingInfo.billingAddress}
-                <br />
-                {orderData.billingInfo.shippingCity ||
-                  orderData.billingInfo.city}
-                ,{" "}
-                {orderData.billingInfo.shippingState ||
-                  orderData.billingInfo.state}{" "}
-                {orderData.billingInfo.shippingZipCode ||
-                  orderData.billingInfo.zipCode}
-              </p>
-            </div>
-          </section>
+          {orderData.shippingAddress?.street && (
+            <section className="order-summary__section">
+              <h2 className="order-summary__section-title">Shipping Address</h2>
+              <div className="order-summary__info">
+                <p className="order-summary__address">
+                  {orderData.shippingAddress.street}
+                  <br />
+                  {orderData.shippingAddress.city},{" "}
+                  {orderData.shippingAddress.state}{" "}
+                  {orderData.shippingAddress.zipCode}
+                  <br />
+                  {orderData.shippingAddress.country}
+                </p>
+              </div>
+            </section>
+          )}
 
           <div className="order-summary__actions">
             <Link to="/" className="order-summary__button">
