@@ -4,6 +4,7 @@ import ModalWithForm from "../ModalWithForm/ModalWithForm";
 function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
@@ -14,6 +15,8 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
   const isValid =
     email.includes("@") &&
     password.length >= 6 &&
+    password === confirmPassword &&
+    confirmPassword.length > 0 &&
     (accountType === "individual"
       ? firstName.trim().length > 0 && lastName.trim().length > 0
       : companyName.trim().length > 0);
@@ -58,7 +61,7 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
       onGuestCheckoutClick={onGuestCheckout}
     >
       <label htmlFor="register-email" className="modal__label">
-        Email
+        Email*
         <input
           type="email"
           id="register-email"
@@ -71,7 +74,7 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
       </label>
 
       <label htmlFor="register-password" className="modal__label">
-        Password
+        Password*
         <input
           type="password"
           id="register-password"
@@ -82,6 +85,22 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
           required
           minLength={6}
         />
+      </label>
+
+      <label htmlFor="register-confirm-password" className="modal__label">
+        Confirm Password*
+        <input
+          type="password"
+          id="register-confirm-password"
+          className="modal__input"
+          placeholder="Confirm Password"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          required
+        />
+        {confirmPassword.length > 0 && password !== confirmPassword && (
+          <span className="modal__error">Passwords do not match</span>
+        )}
       </label>
 
       <div className="modal__radio-group">
@@ -110,7 +129,7 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
       {accountType === "individual" ? (
         <>
           <label htmlFor="register-firstName" className="modal__label">
-            First Name
+            First Name*
             <input
               type="text"
               id="register-firstName"
@@ -123,7 +142,7 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
           </label>
 
           <label htmlFor="register-lastName" className="modal__label">
-            Last Name
+            Last Name*
             <input
               type="text"
               id="register-lastName"
