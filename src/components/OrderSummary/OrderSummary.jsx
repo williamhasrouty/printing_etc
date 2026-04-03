@@ -44,6 +44,14 @@ function OrderSummary() {
           <section className="order-summary__section">
             <h2 className="order-summary__section-title">Order Details</h2>
             <div className="order-summary__info">
+              {orderData.orderNumber && (
+                <div className="order-summary__info-row">
+                  <span className="order-summary__label">Order Number:</span>
+                  <span className="order-summary__value order-summary__order-number">
+                    {orderData.orderNumber}
+                  </span>
+                </div>
+              )}
               <div className="order-summary__info-row">
                 <span className="order-summary__label">Order Date:</span>
                 <span className="order-summary__value">

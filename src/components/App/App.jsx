@@ -84,34 +84,38 @@ function App() {
   useEffect(() => {
     try {
       // Remove large file data before saving to avoid quota exceeded errors
-      const cartToSave = cartItems.map(item => {
+      const cartToSave = cartItems.map((item) => {
         const { uploadedFile, uploadedBackFile, ...itemWithoutFiles } = item;
         return {
           ...itemWithoutFiles,
           // Only save file metadata, not actual file data
-          uploadedFile: uploadedFile ? {
-            fileName: uploadedFile.fileName,
-            fileSize: uploadedFile.fileSize,
-            fileType: uploadedFile.fileType,
-            // Indicate file was uploaded but not persisted
-            _fileNotPersisted: true
-          } : null,
-          uploadedBackFile: uploadedBackFile ? {
-            fileName: uploadedBackFile.fileName,
-            fileSize: uploadedBackFile.fileSize,
-            fileType: uploadedBackFile.fileType,
-            _fileNotPersisted: true
-          } : null
+          uploadedFile: uploadedFile
+            ? {
+                fileName: uploadedFile.fileName,
+                fileSize: uploadedFile.fileSize,
+                fileType: uploadedFile.fileType,
+                // Indicate file was uploaded but not persisted
+                _fileNotPersisted: true,
+              }
+            : null,
+          uploadedBackFile: uploadedBackFile
+            ? {
+                fileName: uploadedBackFile.fileName,
+                fileSize: uploadedBackFile.fileSize,
+                fileType: uploadedBackFile.fileType,
+                _fileNotPersisted: true,
+              }
+            : null,
         };
       });
       localStorage.setItem("cart", JSON.stringify(cartToSave));
     } catch (error) {
-      if (error.name === 'QuotaExceededError') {
-        console.warn('Cart data too large for localStorage, clearing old data');
+      if (error.name === "QuotaExceededError") {
+        console.warn("Cart data too large for localStorage, clearing old data");
         // Clear cart from localStorage if quota exceeded
-        localStorage.removeItem('cart');
+        localStorage.removeItem("cart");
       } else {
-        console.error('Error saving cart:', error);
+        console.error("Error saving cart:", error);
       }
     }
   }, [cartItems]);

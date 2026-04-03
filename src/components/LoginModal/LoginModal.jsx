@@ -40,7 +40,7 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
       onRedirectClick={onRegisterClick}
     >
       <label htmlFor="login-email" className="modal__label">
-        Email
+        Email*
         <input
           type="email"
           id="login-email"
@@ -53,7 +53,7 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
       </label>
 
       <label htmlFor="login-password" className="modal__label">
-        Password
+        Password*
         <input
           type="password"
           id="login-password"

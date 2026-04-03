@@ -1,11 +1,15 @@
 import { useState, useEffect, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
+import CartContext from "../../contexts/CartContext";
 import { getUserOrders } from "../../utils/api";
 import { updateUser, updatePassword } from "../../utils/auth";
 import "./Profile.css";
 
 function Profile() {
   const { currentUser, setCurrentUser } = useContext(CurrentUserContext);
+  const { addToCart } = useContext(CartContext);
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditingName, setIsEditingName] = useState(false);
@@ -20,6 +24,33 @@ function Profile() {
   useEffect(() => {
     setName(currentUser?.name || "");
   }, [currentUser]);
+
+  const handleReorder = (order) => {
+    // Convert order items to cart format
+    order.items.forEach((item) => {
+      const cartItem = {
+        productId: item.product?._id || item.product,
+        name: item.productName || item.name,
+        imageUrl: item.productImage || item.product?.imageUrl,
+        category: item.productCategory || item.product?.category,
+        options: item.selectedOptions || {},
+        uploadedFile: null, // Can't restore uploaded files from previous orders
+        uploadedBackFile: null,
+        shippingCost: 0,
+        quantity: 1,
+        price: item.price || 0,
+      };
+      addToCart(cartItem);
+    });
+
+    // Show success message
+    setMessage("Items added to cart! Redirecting...");
+
+    // Navigate to cart after a short delay
+    setTimeout(() => {
+      navigate("/cart");
+    }, 1000);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("jwt");
@@ -381,6 +412,27 @@ function Profile() {
                         <span>${(order?.total || 0).toFixed(2)}</span>
                       </div>
                     </div>
+                    <button
+                      type="button"
+                      className="profile__reorder-btn"
+                      onClick={() => handleReorder(order)}
+                      title="Add these items to your cart again"
+                    >
+                      <svg
+                        className="profile__reorder-icon"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                        />
+                      </svg>
+                      Reorder
+                    </button>
                   </div>
                 </div>
               ))}
