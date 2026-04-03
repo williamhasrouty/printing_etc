@@ -100,10 +100,10 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
     setIsUploading(true);
     setUploadProgress(0);
 
-    // Create local blob URL for preview (especially for PDFs which may have auth issues)
+    // Create local blob URL for preview
     const localPreviewUrl = URL.createObjectURL(file);
 
-    // Simulate progress (Cloudinary doesn't provide real-time progress)
+    // Simulate progress for better UX
     const progressInterval = setInterval(() => {
       setUploadProgress((prev) => {
         if (prev >= 90) {
@@ -115,19 +115,30 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
     }, 200);
 
     try {
-      const fileData = await uploadToCloudinary(file);
+      // Convert file to base64 for storage until order is placed
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+
       clearInterval(progressInterval);
       setUploadProgress(100);
 
       setTimeout(() => {
         setIsUploading(false);
         setUploadProgress(0);
-        // Use local blob URL for preview, Cloudinary URL for storage/download
+        // Return file data WITHOUT uploading to Cloudinary yet
         if (onFileUploaded)
           onFileUploaded({
-            ...fileData,
-            previewUrl: localPreviewUrl, // Use local blob for preview
-            cloudinaryUrl: fileData.url, // Keep Cloudinary URL for orders
+            file: file, // Store the actual File object
+            base64: base64, // Store base64 for fallback
+            previewUrl: localPreviewUrl,
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            resourceType: file.type === "application/pdf" ? "raw" : "image",
           });
       }, 500);
     } catch (error) {
@@ -137,7 +148,8 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
       // Clean up blob URL on error
       URL.revokeObjectURL(localPreviewUrl);
 
-      const errorMessage = error.message || "Upload failed. Please try again.";
+      const errorMessage =
+        error.message || "Failed to read file. Please try again.";
       setUploadError(errorMessage);
       setFailedFile(file);
 
@@ -217,7 +229,7 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
             <div className="file-upload__file-details">
               <p className="file-upload__file-name">{currentFile.fileName}</p>
               <p className="file-upload__file-size">
-                {formatFileSize(currentFile.fileSize)} • Uploaded to cloud ✓
+                {formatFileSize(currentFile.fileSize)} • Ready to upload ✓
               </p>
             </div>
           </div>
@@ -343,6 +355,49 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
       )}
     </div>
   );
+};
+
+// Export utility function for uploading to Cloudinary during checkout
+export const uploadToCloudinary = async (file) => {
+  const CLOUDINARY_CLOUD_NAME = "dlonvpwii";
+  const CLOUDINARY_UPLOAD_PRESET = "printing_uploads";
+
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+  formData.append("folder", "printing-etc-designs");
+
+  // Determine resource type based on file type
+  const isPDF = file.type === "application/pdf";
+  const resourceType = isPDF ? "raw" : "image";
+
+  try {
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Upload failed with status: ${response.status}`);
+    }
+
+    const data = await response.json();
+
+    return {
+      url: data.secure_url,
+      publicId: data.public_id,
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      resourceType: resourceType,
+    };
+  } catch (error) {
+    console.error("Cloudinary upload error:", error);
+    throw new Error("Failed to upload file. Please try again.");
+  }
 };
 
 export default FileUpload;

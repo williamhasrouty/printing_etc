@@ -6,6 +6,12 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import NotificationModal from "../NotificationModal/NotificationModal";
 import PaymentForm from "../PaymentForm/PaymentForm";
 import { createOrder } from "../../utils/api";
+import { uploadToCloudinary } from "../FileUpload/FileUpload";
+import {
+  applyImageTransform,
+  hasTransformations,
+  getPrintDimensions,
+} from "../../utils/imageTransform";
 import { ANTELOPE_VALLEY_ZIPS } from "../../utils/constants";
 import "./Checkout.css";
 
@@ -293,6 +299,101 @@ function Checkout() {
     setIsSubmitting(true);
 
     try {
+      // Upload any user files to Cloudinary before creating the order
+      const processedCartItems = await Promise.all(
+        cartItems.map(async (item) => {
+          let processedItem = { ...item };
+
+          // Process front/main file
+          if (
+            item.uploadedFile &&
+            item.uploadedFile.file &&
+            !item.uploadedFile.cloudinaryUrl
+          ) {
+            try {
+              let fileToUpload = item.uploadedFile.file;
+
+              // Apply transformations if user edited the image/PDF
+              if (hasTransformations(item.uploadedFile)) {
+                const dimensions = getPrintDimensions(
+                  item.category,
+                  item.options,
+                );
+                fileToUpload = await applyImageTransform(
+                  item.uploadedFile,
+                  dimensions,
+                  false, // no grayscale for front
+                );
+              }
+
+              // Upload the (transformed) file to Cloudinary
+              const uploadResult = await uploadToCloudinary(fileToUpload);
+
+              // Replace local file data with Cloudinary URL
+              processedItem.uploadedFile = {
+                ...item.uploadedFile,
+                cloudinaryUrl: uploadResult.url,
+                publicId: uploadResult.publicId,
+                // Remove the actual file object to avoid sending it to backend
+                file: undefined,
+                base64: undefined,
+                previewUrl: undefined,
+              };
+            } catch (uploadError) {
+              console.error("File upload failed:", uploadError);
+              throw new Error(
+                `Failed to upload ${item.uploadedFile.fileName}. Please try again.`,
+              );
+            }
+          }
+
+          // Process back file (for double-sided products)
+          if (
+            item.uploadedBackFile &&
+            item.uploadedBackFile.file &&
+            !item.uploadedBackFile.cloudinaryUrl
+          ) {
+            try {
+              let fileToUpload = item.uploadedBackFile.file;
+
+              // Apply transformations if user edited the back image/PDF
+              if (hasTransformations(item.uploadedBackFile)) {
+                const dimensions = getPrintDimensions(
+                  item.category,
+                  item.options,
+                );
+                fileToUpload = await applyImageTransform(
+                  item.uploadedBackFile,
+                  dimensions,
+                  item.uploadedBackFile.applyGrayscale || false,
+                );
+              }
+
+              // Upload the (transformed) back file to Cloudinary
+              const uploadResult = await uploadToCloudinary(fileToUpload);
+
+              // Replace local file data with Cloudinary URL
+              processedItem.uploadedBackFile = {
+                ...item.uploadedBackFile,
+                cloudinaryUrl: uploadResult.url,
+                publicId: uploadResult.publicId,
+                // Remove the actual file object to avoid sending it to backend
+                file: undefined,
+                base64: undefined,
+                previewUrl: undefined,
+              };
+            } catch (uploadError) {
+              console.error("Back file upload failed:", uploadError);
+              throw new Error(
+                `Failed to upload back design ${item.uploadedBackFile.fileName}. Please try again.`,
+              );
+            }
+          }
+
+          return processedItem;
+        }),
+      );
+
       // Create payment method with Stripe
       const cardElement = elements.getElement(CardElement);
       const { error, paymentMethod } = await stripe.createPaymentMethod({
@@ -331,7 +432,7 @@ function Checkout() {
               phone: formData.customerPhone,
             }
           : null,
-        items: cartItems,
+        items: processedCartItems, // Use processed items with Cloudinary URLs
         total: calculateTotal(),
         paymentMethodId: paymentMethod.id, // Send only the Stripe payment method ID
         billingInfo: {
@@ -361,7 +462,7 @@ function Checkout() {
     } catch (err) {
       console.error(err);
       setNotification({
-        message: "Failed to place order. Please try again.",
+        message: err.message || "Failed to place order. Please try again.",
         type: "error",
       });
     } finally {

@@ -27,7 +27,9 @@ import "./App.css";
 // Initialize Stripe with your publishable key
 // IMPORTANT: Replace this with your actual Stripe publishable key
 // Get your key from: https://dashboard.stripe.com/apikeys
-const stripePromise = loadStripe("pk_test_51TGTogEAmwu5KmQ8ONfqPvSccHHsL2vFxzrMwAox0E8XUqkwRyHztOgGYEEgS2wdIO4BeMv2iP4CRmF8ocVxvcEk001TxeRkBu");
+const stripePromise = loadStripe(
+  "pk_test_51TGTogEAmwu5KmQ8ONfqPvSccHHsL2vFxzrMwAox0E8XUqkwRyHztOgGYEEgS2wdIO4BeMv2iP4CRmF8ocVxvcEk001TxeRkBu",
+);
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -136,6 +138,16 @@ function App() {
   };
 
   const removeFromCart = (id) => {
+    // Clean up blob URLs for the item being removed
+    const itemToRemove = cartItems.find((item) => item.id === id);
+    if (itemToRemove) {
+      if (itemToRemove.uploadedFile?.previewUrl) {
+        URL.revokeObjectURL(itemToRemove.uploadedFile.previewUrl);
+      }
+      if (itemToRemove.uploadedBackFile?.previewUrl) {
+        URL.revokeObjectURL(itemToRemove.uploadedBackFile.previewUrl);
+      }
+    }
     setCartItems(cartItems.filter((item) => item.id !== id));
   };
 
@@ -152,6 +164,15 @@ function App() {
   };
 
   const clearCart = () => {
+    // Clean up blob URLs before clearing cart to prevent memory leaks
+    cartItems.forEach((item) => {
+      if (item.uploadedFile?.previewUrl) {
+        URL.revokeObjectURL(item.uploadedFile.previewUrl);
+      }
+      if (item.uploadedBackFile?.previewUrl) {
+        URL.revokeObjectURL(item.uploadedBackFile.previewUrl);
+      }
+    });
     setCartItems([]);
   };
 

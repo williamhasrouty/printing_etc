@@ -509,11 +509,35 @@ function ProductDetail({ products }) {
       },
       uploadedFile: uploadedFile
         ? {
-            url: uploadedFile.url,
-            publicId: uploadedFile.publicId,
+            file: uploadedFile.file, // Store the File object
+            base64: uploadedFile.base64, // Store base64 for fallback
+            previewUrl: uploadedFile.previewUrl, // blob URL for preview
             fileName: uploadedFile.fileName,
             fileSize: uploadedFile.fileSize,
             fileType: uploadedFile.fileType,
+            resourceType: uploadedFile.resourceType,
+            // Store transformation data to apply before uploading
+            imagePosition: imagePosition,
+            zoomLevel: zoomLevel,
+            pageNumber:
+              uploadedFile.fileType === "application/pdf"
+                ? pageNumber
+                : undefined,
+          }
+        : null,
+      uploadedBackFile: uploadedBackFile
+        ? {
+            file: uploadedBackFile.file,
+            base64: uploadedBackFile.base64,
+            previewUrl: uploadedBackFile.previewUrl,
+            fileName: uploadedBackFile.fileName,
+            fileSize: uploadedBackFile.fileSize,
+            fileType: uploadedBackFile.fileType,
+            resourceType: uploadedBackFile.resourceType,
+            // Store transformation data for back file
+            imagePosition: imagePositionBack,
+            zoomLevel: zoomLevelBack,
+            applyGrayscale: selectedOptions.color === "full-front-grayscale", // Apply grayscale to back if needed
           }
         : null,
       shippingCost: shippingCost || 0,
