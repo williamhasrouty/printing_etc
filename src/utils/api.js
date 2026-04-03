@@ -34,23 +34,11 @@ export const createOrder = (orderData, token) => {
 
 // Get user orders
 export const getUserOrders = (token) => {
-  // Decode token to get userId
-  try {
-    const decoded = JSON.parse(atob(token));
-    return request(`${BASE_URL}/orders?userId=${decoded.userId}`, {
-      headers: {
-        authorization: `Bearer ${token}`,
-      },
-    }).then((orders) => {
-      // Additional client-side filter to ensure only orders for this user are returned
-      // This handles cases where the backend filter might not work correctly
-      return orders.filter(
-        (order) => order.userId === decoded.userId && !order.customerInfo,
-      );
-    });
-  } catch (err) {
-    return Promise.reject("Invalid token");
-  }
+  return request(`${BASE_URL}/orders/me`, {
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 // Update user profile

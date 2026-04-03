@@ -114,7 +114,7 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
           />
           Individual
         </label>
-        <label className="modal__radio-label">4
+        <label className="modal__radio-label">
           <input
             type="radio"
             name="accountType"

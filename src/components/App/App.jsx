@@ -38,6 +38,7 @@ function App() {
   const [activeModal, setActiveModal] = useState("");
   const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
   const navigate = useNavigate();
 
@@ -55,7 +56,7 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("jwt");
     if (!token) {
-      setIsLoading(false);
+      setIsCheckingAuth(false);
       return;
     }
 
@@ -68,7 +69,7 @@ function App() {
         console.error(err);
         localStorage.removeItem("jwt");
       })
-      .finally(() => setIsLoading(false));
+      .finally(() => setIsCheckingAuth(false));
   }, []);
 
   // Load cart from localStorage
@@ -79,9 +80,40 @@ function App() {
     }
   }, []);
 
-  // Save cart to localStorage
+  // Save cart to localStorage (excluding large file data)
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems));
+    try {
+      // Remove large file data before saving to avoid quota exceeded errors
+      const cartToSave = cartItems.map(item => {
+        const { uploadedFile, uploadedBackFile, ...itemWithoutFiles } = item;
+        return {
+          ...itemWithoutFiles,
+          // Only save file metadata, not actual file data
+          uploadedFile: uploadedFile ? {
+            fileName: uploadedFile.fileName,
+            fileSize: uploadedFile.fileSize,
+            fileType: uploadedFile.fileType,
+            // Indicate file was uploaded but not persisted
+            _fileNotPersisted: true
+          } : null,
+          uploadedBackFile: uploadedBackFile ? {
+            fileName: uploadedBackFile.fileName,
+            fileSize: uploadedBackFile.fileSize,
+            fileType: uploadedBackFile.fileType,
+            _fileNotPersisted: true
+          } : null
+        };
+      });
+      localStorage.setItem("cart", JSON.stringify(cartToSave));
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        console.warn('Cart data too large for localStorage, clearing old data');
+        // Clear cart from localStorage if quota exceeded
+        localStorage.removeItem('cart');
+      } else {
+        console.error('Error saving cart:', error);
+      }
+    }
   }, [cartItems]);
 
   // Modal handlers
@@ -178,7 +210,7 @@ function App() {
 
   return (
     <CurrentUserContext.Provider
-      value={{ currentUser, setCurrentUser, isLoggedIn }}
+      value={{ currentUser, setCurrentUser, isLoggedIn, isCheckingAuth }}
     >
       <CartContext.Provider
         value={{

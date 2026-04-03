@@ -26,18 +26,14 @@ function Profile() {
     if (token && currentUser) {
       getUserOrders(token)
         .then((data) => {
-          // Filter to only show orders for the current user (exclude guest orders)
-          const userOrders = data.filter(
-            (order) => order.userId === currentUser.id,
-          );
-
-          // Sort orders by creation date (newest first) or by id if no createdAt
-          const sortedOrders = userOrders.sort((a, b) => {
+          // Backend already filters to current user via /orders/me endpoint
+          // Sort orders by creation date (newest first)
+          const sortedOrders = data.sort((a, b) => {
             if (a.createdAt && b.createdAt) {
               return new Date(b.createdAt) - new Date(a.createdAt);
             }
-            // Fallback to id comparison if no createdAt
-            return (b.id || "").localeCompare(a.id || "");
+            // Fallback to _id comparison if no createdAt
+            return (b._id || "").localeCompare(a._id || "");
           });
           setOrders(sortedOrders);
         })
@@ -251,30 +247,140 @@ function Profile() {
                   className="profile__order"
                 >
                   <div className="profile__order-header">
-                    <span className="profile__order-id">
-                      Order #
-                      {(order?._id || order?.id || index).toString().slice(-6)}
-                    </span>
-                    {order?.createdAt && (
-                      <span className="profile__order-date">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                    <div className="profile__order-header-info">
+                      <span className="profile__order-number">
+                        {order?.orderNumber ||
+                          `Order #${(order?._id || order?.id || index).toString().slice(-6)}`}
                       </span>
+                      {order?.createdAt && (
+                        <span className="profile__order-date">
+                          {new Date(order.createdAt).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            },
+                          )}
+                        </span>
+                      )}
+                    </div>
+                    <span
+                      className={`profile__order-status profile__order-status_${order?.status || "pending"}`}
+                    >
+                      {order?.status || "pending"}
+                    </span>
+                  </div>
+
+                  <div className="profile__order-body">
+                    <div className="profile__order-items">
+                      {order?.items?.map((item, itemIndex) => (
+                        <div
+                          key={itemIndex}
+                          className="profile__order-item-card"
+                        >
+                          {item.productImage && (
+                            <img
+                              src={item.productImage}
+                              alt={item.productName || item.name}
+                              className="profile__order-item-image"
+                            />
+                          )}
+                          <div className="profile__order-item-details">
+                            <h4 className="profile__order-item-name">
+                              {item.productName || item.name}
+                            </h4>
+                            {item.productCategory && (
+                              <p className="profile__order-item-category">
+                                {item.productCategory.replace(/-/g, " ")}
+                              </p>
+                            )}
+                            {item.selectedOptions && (
+                              <div className="profile__order-item-options">
+                                {item.selectedOptions.quantity && (
+                                  <span className="profile__order-item-option">
+                                    Qty: {item.selectedOptions.quantity}
+                                  </span>
+                                )}
+                                {item.selectedOptions.paperType && (
+                                  <span className="profile__order-item-option">
+                                    Paper: {item.selectedOptions.paperType}
+                                  </span>
+                                )}
+                                {item.selectedOptions.size && (
+                                  <span className="profile__order-item-option">
+                                    Size: {item.selectedOptions.size}
+                                  </span>
+                                )}
+                                {item.selectedOptions.color && (
+                                  <span className="profile__order-item-option">
+                                    {item.selectedOptions.color}
+                                  </span>
+                                )}
+                                {item.selectedOptions.coating &&
+                                  item.selectedOptions.coating !== "none" && (
+                                    <span className="profile__order-item-option">
+                                      Coating: {item.selectedOptions.coating}
+                                    </span>
+                                  )}
+                              </div>
+                            )}
+                            {(item.uploadedFile?.cloudinaryUrl ||
+                              item.uploadedFile?.fileName) && (
+                              <p className="profile__order-item-file">
+                                📎 Custom design:{" "}
+                                {item.uploadedFile.fileName || "Uploaded"}
+                              </p>
+                            )}
+                          </div>
+                          <div className="profile__order-item-price">
+                            ${(item.totalPrice || item.price || 0).toFixed(2)}
+                          </div>
+                        </div>
+                      )) || <p>No items</p>}
+                    </div>
+
+                    {order?.shippingAddress && (
+                      <div className="profile__order-shipping">
+                        <h4 className="profile__order-section-title">
+                          Shipping Address
+                        </h4>
+                        <p className="profile__order-address">
+                          {order.shippingAddress.street &&
+                            `${order.shippingAddress.street}, `}
+                          {order.shippingAddress.city &&
+                            `${order.shippingAddress.city}, `}
+                          {order.shippingAddress.state &&
+                            `${order.shippingAddress.state} `}
+                          {order.shippingAddress.zipCode}
+                        </p>
+                      </div>
                     )}
                   </div>
-                  <div className="profile__order-items">
-                    {order?.items?.map((item, index) => (
-                      <p key={index} className="profile__order-item">
-                        {item.name} - Qty: {item?.options?.quantity || 1}
-                      </p>
-                    )) || <p>No items</p>}
-                  </div>
+
                   <div className="profile__order-footer">
-                    <span className="profile__order-status">
-                      Status: {order?.status || "Processing"}
-                    </span>
-                    <span className="profile__order-total">
-                      ${order?.total || "0.00"}
-                    </span>
+                    <div className="profile__order-summary">
+                      <div className="profile__order-summary-row">
+                        <span>Subtotal:</span>
+                        <span>${(order?.subtotal || 0).toFixed(2)}</span>
+                      </div>
+                      {order?.tax > 0 && (
+                        <div className="profile__order-summary-row">
+                          <span>Tax:</span>
+                          <span>${(order.tax || 0).toFixed(2)}</span>
+                        </div>
+                      )}
+                      {order?.shipping > 0 && (
+                        <div className="profile__order-summary-row">
+                          <span>Shipping:</span>
+                          <span>${(order.shipping || 0).toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div className="profile__order-summary-row profile__order-summary-total">
+                        <span>Total:</span>
+                        <span>${(order?.total || 0).toFixed(2)}</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
               ))}

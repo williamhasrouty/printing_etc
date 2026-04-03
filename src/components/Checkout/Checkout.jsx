@@ -424,7 +424,7 @@ function Checkout() {
       // Create order with payment method ID (never send raw card data!)
       const token = localStorage.getItem("jwt");
       const orderData = {
-        userId: currentUser?.id,
+        // Note: userId is determined by backend from JWT token in Authorization header
         customerInfo: !currentUser
           ? {
               name: formData.customerName,
