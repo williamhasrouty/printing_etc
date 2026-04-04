@@ -1038,19 +1038,6 @@ function ProductDetail({ products }) {
                 />
               </div>
 
-              {hasBackSide() && (
-                <div className="product-detail__option">
-                  <label className="product-detail__label">
-                    Upload Back Design (PDF, JPG, PNG, SVG)
-                  </label>
-                  <FileUpload
-                    onFileUploaded={handleBackFileUploaded}
-                    onError={handleFileError}
-                    currentFile={uploadedBackFile}
-                  />
-                </div>
-              )}
-
               {uploadedFile && uploadedFile.previewUrl && (
                 <div className="product-detail__pdf-preview">
                   <div className="product-detail__preview-header">
@@ -1167,6 +1154,19 @@ function ProductDetail({ products }) {
                         </button>
                       </div>
                     )}
+                </div>
+              )}
+
+              {hasBackSide() && (
+                <div className="product-detail__option">
+                  <label className="product-detail__label">
+                    Upload Back Design (PDF, JPG, PNG, SVG)
+                  </label>
+                  <FileUpload
+                    onFileUploaded={handleBackFileUploaded}
+                    onError={handleFileError}
+                    currentFile={uploadedBackFile}
+                  />
                 </div>
               )}
 
