@@ -132,6 +132,93 @@
   accent-color: #00b4d8;
 }
 
+.checkout__delivery-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.checkout__radio-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #fff;
+}
+
+.checkout__radio-label:hover {
+  border-color: #00b4d8;
+  background-color: #f0f9ff;
+}
+
+.checkout__radio-label:has(input:checked) {
+  border-color: #00b4d8;
+  background-color: #e0f4f9;
+}
+
+.checkout__radio {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #00b4d8;
+  flex-shrink: 0;
+}
+
+.checkout__radio-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.checkout__radio-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.checkout__radio-description {
+  font-size: 14px;
+  color: #666;
+}
+
+.checkout__pickup-info {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #e0f4f9;
+  border-left: 4px solid #00b4d8;
+  border-radius: 4px;
+}
+
+.checkout__pickup-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin: 0 0 12px 0;
+}
+
+.checkout__pickup-address {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #2c2c2c;
+  margin: 0;
+}
+
+.checkout__pickup-address strong {
+  font-size: 16px;
+  color: #00b4d8;
+}
+
+.checkout__pickup-address em {
+  color: #666;
+  font-style: normal;
+  font-weight: 500;
+}
+
 .checkout__error {
   display: block;
   color: #e91e63;

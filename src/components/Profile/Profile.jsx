@@ -374,7 +374,9 @@ function Profile() {
                     {order?.shippingAddress && (
                       <div className="profile__order-shipping">
                         <h4 className="profile__order-section-title">
-                          Shipping Address
+                          {order.deliveryMethod === "pickup"
+                            ? "Pickup Location"
+                            : "Shipping Address"}
                         </h4>
                         <p className="profile__order-address">
                           {order.shippingAddress.street &&
@@ -384,6 +386,14 @@ function Profile() {
                           {order.shippingAddress.state &&
                             `${order.shippingAddress.state} `}
                           {order.shippingAddress.zipCode}
+                          {order.deliveryMethod === "pickup" && (
+                            <>
+                              <br />
+                              <em style={{ fontSize: "14px", color: "#666" }}>
+                                (Store Pickup - FREE)
+                              </em>
+                            </>
+                          )}
                         </p>
                       </div>
                     )}

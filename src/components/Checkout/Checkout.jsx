@@ -12,7 +12,7 @@ import {
   hasTransformations,
   getPrintDimensions,
 } from "../../utils/imageTransform";
-import { ANTELOPE_VALLEY_ZIPS } from "../../utils/constants";
+import { ANTELOPE_VALLEY_ZIPS, PICKUP_LOCATION } from "../../utils/constants";
 import "./Checkout.css";
 
 function Checkout() {
@@ -35,6 +35,8 @@ function Checkout() {
     shippingState: "",
     shippingZipCode: "",
   });
+
+  const [deliveryMethod, setDeliveryMethod] = useState("shipping");
 
   const [sameAsBilling, setSameAsBilling] = useState(true);
   const [isCardReady, setIsCardReady] = useState(false);
@@ -79,6 +81,21 @@ function Checkout() {
       navigate("/cart");
     }
   }, [cartItems.length, navigate]);
+
+  // Update shipping when delivery method changes
+  useEffect(() => {
+    if (deliveryMethod === "pickup") {
+      setShippingCost(0);
+    } else {
+      // Recalculate shipping if we have a zip code
+      const zipToUse = sameAsBilling
+        ? formData.zipCode
+        : formData.shippingZipCode;
+      if (zipToUse.length === 5) {
+        updateShippingAndTax(zipToUse);
+      }
+    }
+  }, [deliveryMethod]);
 
   const calculateSubtotal = () => {
     return cartItems.reduce((sum, item) => sum + item.price, 0);
@@ -135,6 +152,13 @@ function Checkout() {
 
   // Calculate shipping when zip code changes
   const updateShippingAndTax = (zipCode) => {
+    // If pickup is selected, shipping is always $0
+    if (deliveryMethod === "pickup") {
+      setShippingCost(0);
+      setIsCalculatingShipping(false);
+      return;
+    }
+
     if (zipCode.length >= 5) {
       setIsCalculatingShipping(true);
 
@@ -251,8 +275,8 @@ function Checkout() {
       newErrors.zipCode = "Please enter a valid ZIP code";
     }
 
-    // Validate shipping address if different from billing
-    if (!sameAsBilling) {
+    // Validate shipping address if different from billing and not pickup
+    if (deliveryMethod === "shipping" && !sameAsBilling) {
       if (!formData.shippingAddress.trim()) {
         newErrors.shippingAddress = "Shipping address is required";
       }
@@ -435,21 +459,36 @@ function Checkout() {
         items: processedCartItems, // Use processed items with Cloudinary URLs
         total: calculateTotal(),
         paymentMethodId: paymentMethod.id, // Send only the Stripe payment method ID
+        deliveryMethod: deliveryMethod,
         billingInfo: {
           billingAddress: formData.billingAddress,
           city: formData.city,
           state: formData.state,
           zipCode: formData.zipCode,
-          shippingAddress: sameAsBilling
-            ? formData.billingAddress
-            : formData.shippingAddress,
-          shippingCity: sameAsBilling ? formData.city : formData.shippingCity,
-          shippingState: sameAsBilling
-            ? formData.state
-            : formData.shippingState,
-          shippingZipCode: sameAsBilling
-            ? formData.zipCode
-            : formData.shippingZipCode,
+          shippingAddress:
+            deliveryMethod === "pickup"
+              ? PICKUP_LOCATION.address
+              : sameAsBilling
+                ? formData.billingAddress
+                : formData.shippingAddress,
+          shippingCity:
+            deliveryMethod === "pickup"
+              ? PICKUP_LOCATION.city
+              : sameAsBilling
+                ? formData.city
+                : formData.shippingCity,
+          shippingState:
+            deliveryMethod === "pickup"
+              ? PICKUP_LOCATION.state
+              : sameAsBilling
+                ? formData.state
+                : formData.shippingState,
+          shippingZipCode:
+            deliveryMethod === "pickup"
+              ? PICKUP_LOCATION.zipCode
+              : sameAsBilling
+                ? formData.zipCode
+                : formData.shippingZipCode,
         },
         createdAt: new Date().toISOString(),
       };
@@ -655,131 +694,200 @@ function Checkout() {
             </section>
 
             <section className="checkout__section">
-              <h2 className="checkout__section-title">Shipping Address</h2>
+              <h2 className="checkout__section-title">Delivery Method</h2>
 
-              <div className="checkout__field">
-                <label className="checkout__checkbox-label">
+              <div className="checkout__delivery-options">
+                <label className="checkout__radio-label">
                   <input
-                    type="checkbox"
-                    checked={sameAsBilling}
-                    onChange={(e) => {
-                      setSameAsBilling(e.target.checked);
-                      if (e.target.checked) {
-                        // Use billing zip for shipping calculation
-                        if (formData.zipCode.length === 5) {
-                          updateShippingAndTax(formData.zipCode);
-                        }
-                      }
-                    }}
-                    className="checkout__checkbox"
+                    type="radio"
+                    name="deliveryMethod"
+                    value="pickup"
+                    checked={deliveryMethod === "pickup"}
+                    onChange={(e) => setDeliveryMethod(e.target.value)}
+                    className="checkout__radio"
                   />
-                  Same as Billing Address
+                  <div className="checkout__radio-content">
+                    <span className="checkout__radio-title">
+                      Store Pickup (Free)
+                    </span>
+                    <span className="checkout__radio-description">
+                      Pick up your order at our store
+                    </span>
+                  </div>
+                </label>
+
+                <label className="checkout__radio-label">
+                  <input
+                    type="radio"
+                    name="deliveryMethod"
+                    value="shipping"
+                    checked={deliveryMethod === "shipping"}
+                    onChange={(e) => setDeliveryMethod(e.target.value)}
+                    className="checkout__radio"
+                  />
+                  <div className="checkout__radio-content">
+                    <span className="checkout__radio-title">
+                      Ship to Address
+                    </span>
+                    <span className="checkout__radio-description">
+                      We'll ship your order to your specified address
+                    </span>
+                  </div>
                 </label>
               </div>
 
-              {!sameAsBilling && (
-                <>
-                  <div className="checkout__field">
-                    <label
-                      htmlFor="shippingAddress"
-                      className="checkout__label"
-                    >
-                      Street Address *
-                    </label>
-                    <input
-                      type="text"
-                      id="shippingAddress"
-                      name="shippingAddress"
-                      value={formData.shippingAddress}
-                      onChange={handleInputChange}
-                      className={`checkout__input ${
-                        errors.shippingAddress ? "checkout__input_error" : ""
-                      }`}
-                      placeholder="123 Main St"
-                    />
-                    {errors.shippingAddress && (
-                      <span className="checkout__error">
-                        {errors.shippingAddress}
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="checkout__row">
-                    <div className="checkout__field">
-                      <label htmlFor="shippingCity" className="checkout__label">
-                        City *
-                      </label>
-                      <input
-                        type="text"
-                        id="shippingCity"
-                        name="shippingCity"
-                        value={formData.shippingCity}
-                        onChange={handleInputChange}
-                        className={`checkout__input ${
-                          errors.shippingCity ? "checkout__input_error" : ""
-                        }`}
-                        placeholder="New York"
-                      />
-                      {errors.shippingCity && (
-                        <span className="checkout__error">
-                          {errors.shippingCity}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="checkout__field">
-                      <label
-                        htmlFor="shippingState"
-                        className="checkout__label"
-                      >
-                        State *
-                      </label>
-                      <input
-                        type="text"
-                        id="shippingState"
-                        name="shippingState"
-                        value={formData.shippingState}
-                        onChange={handleInputChange}
-                        className={`checkout__input ${
-                          errors.shippingState ? "checkout__input_error" : ""
-                        }`}
-                        placeholder="NY"
-                      />
-                      {errors.shippingState && (
-                        <span className="checkout__error">
-                          {errors.shippingState}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="checkout__field">
-                      <label
-                        htmlFor="shippingZipCode"
-                        className="checkout__label"
-                      >
-                        ZIP Code *
-                      </label>
-                      <input
-                        type="text"
-                        id="shippingZipCode"
-                        name="shippingZipCode"
-                        value={formData.shippingZipCode}
-                        onChange={handleInputChange}
-                        className={`checkout__input ${
-                          errors.shippingZipCode ? "checkout__input_error" : ""
-                        }`}
-                        placeholder="10001"
-                      />
-                      {errors.shippingZipCode && (
-                        <span className="checkout__error">
-                          {errors.shippingZipCode}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </>
+              {deliveryMethod === "pickup" && (
+                <div className="checkout__pickup-info">
+                  <h3 className="checkout__pickup-title">Pickup Location:</h3>
+                  <p className="checkout__pickup-address">
+                    <strong>{PICKUP_LOCATION.name}</strong>
+                    <br />
+                    {PICKUP_LOCATION.address}
+                    <br />
+                    {PICKUP_LOCATION.city}, {PICKUP_LOCATION.state}{" "}
+                    {PICKUP_LOCATION.zipCode}
+                    <br />
+                    {PICKUP_LOCATION.phone}
+                    <br />
+                    <em>{PICKUP_LOCATION.hours}</em>
+                  </p>
+                </div>
               )}
             </section>
+
+            {deliveryMethod === "shipping" && (
+              <section className="checkout__section">
+                <h2 className="checkout__section-title">Shipping Address</h2>
+
+                <div className="checkout__field">
+                  <label className="checkout__checkbox-label">
+                    <input
+                      type="checkbox"
+                      checked={sameAsBilling}
+                      onChange={(e) => {
+                        setSameAsBilling(e.target.checked);
+                        if (e.target.checked) {
+                          // Use billing zip for shipping calculation
+                          if (formData.zipCode.length === 5) {
+                            updateShippingAndTax(formData.zipCode);
+                          }
+                        }
+                      }}
+                      className="checkout__checkbox"
+                    />
+                    Same as Billing Address
+                  </label>
+                </div>
+
+                {!sameAsBilling && (
+                  <>
+                    <div className="checkout__field">
+                      <label
+                        htmlFor="shippingAddress"
+                        className="checkout__label"
+                      >
+                        Street Address *
+                      </label>
+                      <input
+                        type="text"
+                        id="shippingAddress"
+                        name="shippingAddress"
+                        value={formData.shippingAddress}
+                        onChange={handleInputChange}
+                        className={`checkout__input ${
+                          errors.shippingAddress ? "checkout__input_error" : ""
+                        }`}
+                        placeholder="123 Main St"
+                      />
+                      {errors.shippingAddress && (
+                        <span className="checkout__error">
+                          {errors.shippingAddress}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="checkout__row">
+                      <div className="checkout__field">
+                        <label
+                          htmlFor="shippingCity"
+                          className="checkout__label"
+                        >
+                          City *
+                        </label>
+                        <input
+                          type="text"
+                          id="shippingCity"
+                          name="shippingCity"
+                          value={formData.shippingCity}
+                          onChange={handleInputChange}
+                          className={`checkout__input ${
+                            errors.shippingCity ? "checkout__input_error" : ""
+                          }`}
+                          placeholder="New York"
+                        />
+                        {errors.shippingCity && (
+                          <span className="checkout__error">
+                            {errors.shippingCity}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="checkout__field">
+                        <label
+                          htmlFor="shippingState"
+                          className="checkout__label"
+                        >
+                          State *
+                        </label>
+                        <input
+                          type="text"
+                          id="shippingState"
+                          name="shippingState"
+                          value={formData.shippingState}
+                          onChange={handleInputChange}
+                          className={`checkout__input ${
+                            errors.shippingState ? "checkout__input_error" : ""
+                          }`}
+                          placeholder="NY"
+                        />
+                        {errors.shippingState && (
+                          <span className="checkout__error">
+                            {errors.shippingState}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="checkout__field">
+                        <label
+                          htmlFor="shippingZipCode"
+                          className="checkout__label"
+                        >
+                          ZIP Code *
+                        </label>
+                        <input
+                          type="text"
+                          id="shippingZipCode"
+                          name="shippingZipCode"
+                          value={formData.shippingZipCode}
+                          onChange={handleInputChange}
+                          className={`checkout__input ${
+                            errors.shippingZipCode
+                              ? "checkout__input_error"
+                              : ""
+                          }`}
+                          placeholder="10001"
+                        />
+                        {errors.shippingZipCode && (
+                          <span className="checkout__error">
+                            {errors.shippingZipCode}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </>
+                )}
+              </section>
+            )}
 
             <button
               type="submit"
@@ -843,7 +951,9 @@ function Checkout() {
               <div className="checkout__total-row">
                 <span className="checkout__total-label">Shipping:</span>
                 <span className="checkout__total-value">
-                  {isCalculatingShipping ? (
+                  {deliveryMethod === "pickup" ? (
+                    "FREE (Pickup)"
+                  ) : isCalculatingShipping ? (
                     <span className="checkout__calculating">
                       <span className="checkout__calculating-spinner"></span>
                       Calculating...

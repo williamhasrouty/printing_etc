@@ -447,3 +447,14 @@ export const ANTELOPE_VALLEY_ZIPS = [
   "93590", // Pearblossom
   "93563", // Valyermo
 ];
+
+// Store pickup location
+export const PICKUP_LOCATION = {
+  name: "Printing Etc.",
+  address: "1747 E Ave Q Ste B2",
+  city: "Palmdale",
+  state: "CA",
+  zipCode: "93550",
+  phone: "(661) 272-2869",
+  hours: "Mon-Fri: 9am-6pm, Sat-Sun: Closed.",
+};

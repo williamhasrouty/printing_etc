@@ -127,7 +127,11 @@ function OrderSummary() {
 
           {orderData.shippingAddress?.street && (
             <section className="order-summary__section">
-              <h2 className="order-summary__section-title">Shipping Address</h2>
+              <h2 className="order-summary__section-title">
+                {orderData.deliveryMethod === "pickup"
+                  ? "Pickup Location"
+                  : "Shipping Address"}
+              </h2>
               <div className="order-summary__info">
                 <p className="order-summary__address">
                   {orderData.shippingAddress.street}
@@ -137,6 +141,20 @@ function OrderSummary() {
                   {orderData.shippingAddress.zipCode}
                   <br />
                   {orderData.shippingAddress.country}
+                  {orderData.deliveryMethod === "pickup" && (
+                    <>
+                      <br />
+                      <em
+                        style={{
+                          fontSize: "14px",
+                          color: "#00b4d8",
+                          fontWeight: 600,
+                        }}
+                      >
+                        Store Pickup - FREE
+                      </em>
+                    </>
+                  )}
                 </p>
               </div>
             </section>
