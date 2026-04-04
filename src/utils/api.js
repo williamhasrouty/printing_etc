@@ -52,3 +52,44 @@ export const updateUserProfile = (data, token) => {
     body: JSON.stringify(data),
   });
 };
+
+// Admin API functions
+
+// Get all orders (admin only)
+export const getAllOrders = (token, status = null) => {
+  const url = status
+    ? `${BASE_URL}/orders?status=${status}`
+    : `${BASE_URL}/orders`;
+  return request(url, {
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+// Update order status (admin only)
+export const updateOrderStatus = (orderId, statusData, token) => {
+  return request(`${BASE_URL}/orders/${orderId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(statusData),
+  });
+};
+
+// Get order analytics (admin only)
+export const getOrderAnalytics = (token, startDate = null, endDate = null) => {
+  let url = `${BASE_URL}/orders/analytics/stats`;
+  const params = [];
+  if (startDate) params.push(`startDate=${startDate}`);
+  if (endDate) params.push(`endDate=${endDate}`);
+  if (params.length > 0) url += `?${params.join("&")}`;
+
+  return request(url, {
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
+};

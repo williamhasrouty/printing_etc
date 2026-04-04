@@ -10,6 +10,7 @@ import Cart from "../Cart/Cart";
 import Checkout from "../Checkout/Checkout";
 import OrderSummary from "../OrderSummary/OrderSummary";
 import Profile from "../Profile/Profile";
+import Admin from "../Admin/Admin";
 import Contact from "../Contact/Contact";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import LoginModal from "../LoginModal/LoginModal";
@@ -264,6 +265,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Admin />
                 </ProtectedRoute>
               }
             />

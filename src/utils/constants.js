@@ -456,5 +456,5 @@ export const PICKUP_LOCATION = {
   state: "CA",
   zipCode: "93550",
   phone: "(661) 272-2869",
-  hours: "Mon-Fri: 9am-6pm, Sat-Sun: Closed.",
+  hours: "Mon-Fri: 9am-5pm, Sat-Sun: Closed",
 };

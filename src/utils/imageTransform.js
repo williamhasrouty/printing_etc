@@ -91,11 +91,23 @@ export async function applyImageTransform(
         fileData.previewUrl || URL.createObjectURL(file),
       );
 
-      // Calculate dimensions with zoom
-      const scaledWidth = img.width * zoomLevel;
-      const scaledHeight = img.height * zoomLevel;
+      // First, fit the image to the canvas (like the preview does)
+      // Calculate scale to fit the image within the canvas
+      const scaleToFit = Math.min(
+        outputWidth / img.width,
+        outputHeight / img.height,
+      );
+
+      // Base dimensions (image scaled to fit canvas)
+      const baseFitWidth = img.width * scaleToFit;
+      const baseFitHeight = img.height * scaleToFit;
+
+      // Apply user's zoom level on top of the fit-to-canvas scale
+      const scaledWidth = baseFitWidth * zoomLevel;
+      const scaledHeight = baseFitHeight * zoomLevel;
 
       // Center the image with position offset
+      // Start from center, then apply zoom-adjusted position
       const offsetX = (outputWidth - scaledWidth) / 2 + imagePosition.x;
       const offsetY = (outputHeight - scaledHeight) / 2 + imagePosition.y;
 

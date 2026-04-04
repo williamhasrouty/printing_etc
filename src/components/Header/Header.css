@@ -100,6 +100,15 @@
   color: #0096c7;
 }
 
+.header__link_admin {
+  color: #ff006e;
+  font-weight: 600;
+}
+
+.header__link_admin:hover {
+  color: #d90051;
+}
+
 .header__cart {
   display: flex;
   align-items: center;

@@ -9,7 +9,6 @@ import { createOrder } from "../../utils/api";
 import { uploadToCloudinary } from "../FileUpload/FileUpload";
 import {
   applyImageTransform,
-  hasTransformations,
   getPrintDimensions,
 } from "../../utils/imageTransform";
 import { ANTELOPE_VALLEY_ZIPS, PICKUP_LOCATION } from "../../utils/constants";
@@ -337,18 +336,18 @@ function Checkout() {
             try {
               let fileToUpload = item.uploadedFile.file;
 
-              // Apply transformations if user edited the image/PDF
-              if (hasTransformations(item.uploadedFile)) {
-                const dimensions = getPrintDimensions(
-                  item.category,
-                  item.options,
-                );
-                fileToUpload = await applyImageTransform(
-                  item.uploadedFile,
-                  dimensions,
-                  false, // no grayscale for front
-                );
-              }
+              // Always apply transformations to ensure proper print dimensions
+              // Even if user didn't manually edit position/zoom, we need to
+              // fit the file to the correct print size
+              const dimensions = getPrintDimensions(
+                item.category,
+                item.options,
+              );
+              fileToUpload = await applyImageTransform(
+                item.uploadedFile,
+                dimensions,
+                false, // no grayscale for front
+              );
 
               // Upload the (transformed) file to Cloudinary
               const uploadResult = await uploadToCloudinary(fileToUpload);
@@ -380,18 +379,16 @@ function Checkout() {
             try {
               let fileToUpload = item.uploadedBackFile.file;
 
-              // Apply transformations if user edited the back image/PDF
-              if (hasTransformations(item.uploadedBackFile)) {
-                const dimensions = getPrintDimensions(
-                  item.category,
-                  item.options,
-                );
-                fileToUpload = await applyImageTransform(
-                  item.uploadedBackFile,
-                  dimensions,
-                  item.uploadedBackFile.applyGrayscale || false,
-                );
-              }
+              // Always apply transformations for back file as well
+              const dimensions = getPrintDimensions(
+                item.category,
+                item.options,
+              );
+              fileToUpload = await applyImageTransform(
+                item.uploadedBackFile,
+                dimensions,
+                item.uploadedBackFile.applyGrayscale || false,
+              );
 
               // Upload the (transformed) back file to Cloudinary
               const uploadResult = await uploadToCloudinary(fileToUpload);
@@ -701,25 +698,6 @@ function Checkout() {
                   <input
                     type="radio"
                     name="deliveryMethod"
-                    value="pickup"
-                    checked={deliveryMethod === "pickup"}
-                    onChange={(e) => setDeliveryMethod(e.target.value)}
-                    className="checkout__radio"
-                  />
-                  <div className="checkout__radio-content">
-                    <span className="checkout__radio-title">
-                      Store Pickup (Free)
-                    </span>
-                    <span className="checkout__radio-description">
-                      Pick up your order at our store
-                    </span>
-                  </div>
-                </label>
-
-                <label className="checkout__radio-label">
-                  <input
-                    type="radio"
-                    name="deliveryMethod"
                     value="shipping"
                     checked={deliveryMethod === "shipping"}
                     onChange={(e) => setDeliveryMethod(e.target.value)}
@@ -731,6 +709,25 @@ function Checkout() {
                     </span>
                     <span className="checkout__radio-description">
                       We'll ship your order to your specified address
+                    </span>
+                  </div>
+                </label>
+
+                <label className="checkout__radio-label">
+                  <input
+                    type="radio"
+                    name="deliveryMethod"
+                    value="pickup"
+                    checked={deliveryMethod === "pickup"}
+                    onChange={(e) => setDeliveryMethod(e.target.value)}
+                    className="checkout__radio"
+                  />
+                  <div className="checkout__radio-content">
+                    <span className="checkout__radio-title">
+                      Store Pickup (Free)
+                    </span>
+                    <span className="checkout__radio-description">
+                      Pick up your order at our store
                     </span>
                   </div>
                 </label>

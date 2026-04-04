@@ -63,6 +63,15 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
 
           {isLoggedIn ? (
             <>
+              {currentUser?.role === "admin" && (
+                <Link
+                  to="/admin"
+                  className="header__link header__link_admin"
+                  onClick={closeMobileMenu}
+                >
+                  Admin Dashboard
+                </Link>
+              )}
               <Link
                 to="/profile"
                 className="header__link header__link_profile"
@@ -106,7 +115,6 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
             </>
           )}
         </nav>
-      
       </div>
     </header>
   );
