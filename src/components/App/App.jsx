@@ -423,7 +423,7 @@ function App() {
               path="/admin"
               element={
                 <ProtectedRoute>
-                  <Admin />
+                  <Admin onProductsChange={setProducts} />
                 </ProtectedRoute>
               }
             />

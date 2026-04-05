@@ -6,7 +6,16 @@ const request = (url, options) => {
     if (res.ok) {
       return res.json();
     }
-    return Promise.reject(`Error: ${res.status}`);
+    return res
+      .json()
+      .then((err) => {
+        const detail =
+          err?.validation?.body?.message || err?.message || JSON.stringify(err);
+        console.error("API validation error:", detail);
+        console.error("Full error response:", JSON.stringify(err, null, 2));
+        return Promise.reject(`Error: ${res.status} - ${detail}`);
+      })
+      .catch(() => Promise.reject(`Error: ${res.status}`));
   });
 };
 
@@ -18,6 +27,40 @@ export const getProducts = () => {
 // Get single product
 export const getProduct = (id) => {
   return request(`${BASE_URL}/products/${id}`);
+};
+
+// Create product (admin only)
+export const createProduct = (productData, token) => {
+  return request(`${BASE_URL}/products`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(productData),
+  });
+};
+
+// Update product (admin only)
+export const updateProduct = (productId, productData, token) => {
+  return request(`${BASE_URL}/products/${productId}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify(productData),
+  });
+};
+
+// Delete product (admin only)
+export const deleteProduct = (productId, token) => {
+  return request(`${BASE_URL}/products/${productId}`, {
+    method: "DELETE",
+    headers: {
+      authorization: `Bearer ${token}`,
+    },
+  });
 };
 
 // Create order

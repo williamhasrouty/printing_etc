@@ -21,6 +21,7 @@ import {
   FLYER_PAPER,
   FLYER_SIZES,
   FLYER_COLORS,
+  FLYER_COATING,
   ANTELOPE_VALLEY_ZIPS,
 } from "../../utils/constants";
 import "./ProductDetail.css";
@@ -34,6 +35,150 @@ function ProductDetail({ products }) {
   const isBusinessCard = product?.category === "business-cards";
   const isFlyer = product?.category === "flyers";
 
+  const getBusinessCardCoatingOptions = () => {
+    const productCoatings = product?.options?.coatings;
+
+    if (Array.isArray(productCoatings) && productCoatings.length > 0) {
+      return productCoatings.map((coating, index) => {
+        const name = coating?.name || `Coating ${index + 1}`;
+        const id =
+          coating?.id ||
+          `custom-coating-${index}-${name
+            .toLowerCase()
+            .replace(/[^a-z0-9]+/g, "-")
+            .replace(/(^-|-$)/g, "")}`;
+
+        const inferredSides = name.toLowerCase().includes("both")
+          ? "both"
+          : "front";
+
+        let inferredType;
+        if (name.toLowerCase().includes("matte")) {
+          inferredType = "matte";
+        } else if (
+          name.toLowerCase().includes("gloss") ||
+          name.toLowerCase().includes("uv")
+        ) {
+          inferredType = "gloss";
+        }
+
+        return {
+          id,
+          name,
+          price: Number(coating?.price ?? coating?.priceModifier ?? 0) || 0,
+          sides: coating?.sides || inferredSides,
+          type: coating?.type || inferredType,
+        };
+      });
+    }
+
+    return BUSINESS_CARD_COATING;
+  };
+
+  // Returns the quantity list for non-business-card products from product options,
+  // falling back to the static QUANTITIES constant.
+  const getProductQuantities = () => {
+    const saved = getValidNamedOptions(product?.options?.quantities);
+    if (saved.length > 0) {
+      return saved.map((q) => ({
+        value: parseInt(q.name) || q.name,
+        label: q.name,
+        priceModifier: Number(q.priceModifier) || 0,
+      }));
+    }
+    return QUANTITIES.map((q) => ({
+      value: q,
+      label: String(q),
+      priceModifier: 0,
+    }));
+  };
+
+  const toSlug = (str) =>
+    String(str)
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+  const getValidNamedOptions = (arr) =>
+    (arr || []).filter(
+      (item) => item && typeof item.name === "string" && item.name.trim(),
+    );
+
+  const getFlyerPaperTypes = () => {
+    const saved = getValidNamedOptions(product?.options?.paperTypes);
+    if (saved.length > 0) {
+      return saved.map((p, i) => ({
+        id: p.id || toSlug(p.name) || `paper-${i}`,
+        name: p.name,
+        priceModifier: Number(p.priceModifier) || 0,
+      }));
+    }
+    return FLYER_PAPER;
+  };
+
+  const getFlyerSizes = () => {
+    const saved = getValidNamedOptions(product?.options?.sizes);
+    if (saved.length > 0) {
+      return saved.map((s, i) => ({
+        id: s.id || toSlug(s.name) || `size-${i}`,
+        name: s.name,
+        priceModifier: Number(s.priceModifier) || 0,
+      }));
+    }
+    return FLYER_SIZES;
+  };
+
+  const getFlyerColors = () => {
+    const saved = getValidNamedOptions(product?.options?.colors);
+    if (saved.length > 0) {
+      return saved.map((c, i) => ({
+        id: c.id || toSlug(c.name) || `color-${i}`,
+        name: c.name,
+        priceModifier: Number(c.priceModifier) || 0,
+      }));
+    }
+    return FLYER_COLORS;
+  };
+
+  const getFlyerCoatings = () => {
+    const saved = getValidNamedOptions(product?.options?.coatings);
+    if (saved.length > 0) {
+      return saved.map((c, i) => ({
+        id: c.id || toSlug(c.name) || `coating-${i}`,
+        name: c.name,
+        priceModifier: Number(c.priceModifier) || 0,
+      }));
+    }
+
+    return FLYER_COATING.map((c) => ({
+      id: c.id,
+      name: c.name,
+      priceModifier: Number(c.priceModifier) || 0,
+    }));
+  };
+
+  const mapOptionArray = (optionType, fallback = []) => {
+    const saved = getValidNamedOptions(product?.options?.[optionType]);
+    if (saved.length > 0) {
+      return saved.map((item, index) => ({
+        id: item.id || toSlug(item.name) || `${optionType}-${index}`,
+        name: item.name,
+        dimensions: item.dimensions || "",
+        priceModifier: Number(item.priceModifier) || 0,
+      }));
+    }
+    return fallback;
+  };
+
+  const getProductPaperTypes = () => mapOptionArray("paperTypes", PAPER_TYPES);
+  const getProductSizes = () => mapOptionArray("sizes", []);
+  const getProductOrientations = () => mapOptionArray("orientations", []);
+  const getProductColors = () => mapOptionArray("colors", []);
+  const getProductCoatings = () => mapOptionArray("coatings", []);
+  const getProductFinishes = () => mapOptionArray("finishes", []);
+  const getProductRoundedCorners = () => mapOptionArray("roundedCorners", []);
+  const getProductRaisedPrint = () => mapOptionArray("raisedPrint", []);
+
   // Get initial quantity from first available option for selected paper
   const getInitialQuantity = () => {
     if (isBusinessCard) {
@@ -43,27 +188,82 @@ function ProductDetail({ products }) {
       }
       return BUSINESS_CARD_QUANTITIES[0];
     }
-    return QUANTITIES[2];
+    // Use first product quantity if available
+    const productQtys = getProductQuantities();
+    return productQtys[0]?.value ?? QUANTITIES[2];
+  };
+
+  const getAvailableCoatingBySelection = (paperTypeId, colorId) => {
+    const selectedPaper = BUSINESS_CARD_PAPER.find((p) => p.id === paperTypeId);
+
+    // Uncoated / linen / trifecta: no coating options.
+    if (
+      selectedPaper?.id.includes("uncoated") ||
+      selectedPaper?.id.includes("linen") ||
+      selectedPaper?.id.includes("trifecta")
+    ) {
+      return [];
+    }
+
+    const allCoatings = getBusinessCardCoatingOptions();
+
+    let coatingType = null;
+    if (selectedPaper?.id.includes("matte")) {
+      coatingType = "matte";
+    } else if (selectedPaper?.id.includes("gloss")) {
+      coatingType = "gloss";
+    }
+
+    let filteredByType = allCoatings;
+    if (coatingType) {
+      filteredByType = allCoatings.filter(
+        (c) => !c.type || c.type === coatingType,
+      );
+    }
+
+    if (colorId === "full-both") {
+      return filteredByType;
+    }
+
+    return filteredByType.filter((c) => !c.sides || c.sides === "front");
   };
 
   const [selectedOptions, setSelectedOptions] = useState({
     paperType: isBusinessCard
       ? BUSINESS_CARD_PAPER[0].id
       : isFlyer
-        ? FLYER_PAPER[0].id
-        : PAPER_TYPES[0].id,
+        ? getFlyerPaperTypes()[0]?.id || ""
+        : getProductPaperTypes()[0]?.id || PAPER_TYPES[0].id,
     quantity: getInitialQuantity(),
-    size: isBusinessCard ? "2x3.5" : isFlyer ? FLYER_SIZES[0].id : "",
-    orientation: "horizontal",
+    size: isBusinessCard
+      ? "2x3.5"
+      : isFlyer
+        ? getFlyerSizes()[0]?.id || ""
+        : getProductSizes()[0]?.id || "",
+    orientation: isFlyer
+      ? "horizontal"
+      : getProductOrientations()[0]?.id || "horizontal",
     color: isBusinessCard
       ? BUSINESS_CARD_COLORS[0].id
       : isFlyer
-        ? FLYER_COLORS[0].id
-        : "",
-    roundedCorner: "none",
-    coating: isBusinessCard ? BUSINESS_CARD_COATING[0].id : "",
-    raisedPrint: isBusinessCard ? BUSINESS_CARD_RAISED[0].id : "",
+        ? getFlyerColors()[0]?.id || ""
+        : getProductColors()[0]?.id || "",
+    roundedCorner: isBusinessCard
+      ? "none"
+      : getProductRoundedCorners()[0]?.id || "none",
+    coating: isBusinessCard
+      ? getAvailableCoatingBySelection(
+          BUSINESS_CARD_PAPER[0].id,
+          BUSINESS_CARD_COLORS[0].id,
+        )[0]?.id || ""
+      : isFlyer
+        ? getFlyerCoatings()[0]?.id || ""
+        : getProductCoatings()[0]?.id || "",
+    raisedPrint: isBusinessCard
+      ? BUSINESS_CARD_RAISED[0].id
+      : getProductRaisedPrint()[0]?.id || "",
     velvetFinish: isBusinessCard ? BUSINESS_CARD_VELVET[0].id : "",
+    finish: getProductFinishes()[0]?.id || "",
     zipCode: "",
     addressType: "residential",
   });
@@ -98,27 +298,46 @@ function ProductDetail({ products }) {
           }
           return BUSINESS_CARD_QUANTITIES[0];
         }
-        return QUANTITIES[2];
+        const productQtys = getProductQuantities();
+        return productQtys[0]?.value ?? QUANTITIES[2];
       };
 
       setSelectedOptions({
         paperType: isBC
           ? BUSINESS_CARD_PAPER[0].id
           : isFly
-            ? FLYER_PAPER[0].id
-            : PAPER_TYPES[0].id,
+            ? getFlyerPaperTypes()[0]?.id || ""
+            : getProductPaperTypes()[0]?.id || PAPER_TYPES[0].id,
         quantity: getQty(),
-        size: isBC ? "2x3.5" : isFly ? FLYER_SIZES[0].id : "",
-        orientation: "horizontal",
+        size: isBC
+          ? "2x3.5"
+          : isFly
+            ? getFlyerSizes()[0]?.id || ""
+            : getProductSizes()[0]?.id || "",
+        orientation: isFly
+          ? "horizontal"
+          : getProductOrientations()[0]?.id || "horizontal",
         color: isBC
           ? BUSINESS_CARD_COLORS[0].id
           : isFly
-            ? FLYER_COLORS[0].id
-            : "",
-        roundedCorner: "none",
-        coating: isBC ? BUSINESS_CARD_COATING[0].id : "",
-        raisedPrint: isBC ? BUSINESS_CARD_RAISED[0].id : "",
+            ? getFlyerColors()[0]?.id || ""
+            : getProductColors()[0]?.id || "",
+        roundedCorner: isBC
+          ? "none"
+          : getProductRoundedCorners()[0]?.id || "none",
+        coating: isBC
+          ? getAvailableCoatingBySelection(
+              BUSINESS_CARD_PAPER[0].id,
+              BUSINESS_CARD_COLORS[0].id,
+            )[0]?.id || ""
+          : isFly
+            ? getFlyerCoatings()[0]?.id || ""
+            : getProductCoatings()[0]?.id || "",
+        raisedPrint: isBC
+          ? BUSINESS_CARD_RAISED[0].id
+          : getProductRaisedPrint()[0]?.id || "",
         velvetFinish: isBC ? BUSINESS_CARD_VELVET[0].id : "",
+        finish: getProductFinishes()[0]?.id || "",
         zipCode: "",
         addressType: "residential",
       });
@@ -134,46 +353,10 @@ function ProductDetail({ products }) {
 
   // Get available coating options based on selected color and paper type
   const getAvailableCoating = () => {
-    const selectedPaper = BUSINESS_CARD_PAPER.find(
-      (p) => p.id === selectedOptions.paperType,
+    return getAvailableCoatingBySelection(
+      selectedOptions.paperType,
+      selectedOptions.color,
     );
-
-    // If uncoated paper, return empty array (no coating options)
-    if (
-      selectedPaper?.id.includes("uncoated") ||
-      selectedPaper?.id.includes("linen") ||
-      selectedPaper?.id.includes("trifecta")
-    ) {
-      return [];
-    }
-
-    const selectedColor = BUSINESS_CARD_COLORS.find(
-      (c) => c.id === selectedOptions.color,
-    );
-
-    // Determine coating type based on paper
-    let coatingType = null;
-    if (selectedPaper?.id.includes("matte")) {
-      coatingType = "matte";
-    } else if (selectedPaper?.id.includes("gloss")) {
-      coatingType = "gloss";
-    }
-
-    // Filter by coating type first
-    let availableCoatings = BUSINESS_CARD_COATING;
-    if (coatingType) {
-      availableCoatings = availableCoatings.filter(
-        (c) => c.type === coatingType,
-      );
-    }
-
-    // Then filter by sides based on color selection
-    if (selectedColor?.id === "full-both") {
-      return availableCoatings; // Show all coating options for this type
-    }
-
-    // Otherwise, only show front coating
-    return availableCoatings.filter((c) => c.sides === "front");
   };
 
   const calculateShipping = () => {
@@ -414,6 +597,179 @@ function ProductDetail({ products }) {
   }
 
   const calculatePrice = () => {
+    // First try pricing matrix lookup (new approach)
+    if (
+      product?.pricing &&
+      Array.isArray(product.pricing) &&
+      product.pricing.length > 0
+    ) {
+      // Get the actual option objects to extract their names
+      const qtyOption = getProductQuantities().find(
+        (q) => String(q.value) === String(selectedOptions.quantity),
+      );
+      const paperOption = isFlyer
+        ? getFlyerPaperTypes().find((p) => p.id === selectedOptions.paperType)
+        : getProductPaperTypes().find(
+            (p) => p.id === selectedOptions.paperType,
+          );
+      const sizeOption = isFlyer
+        ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
+        : getProductSizes().find((s) => s.id === selectedOptions.size);
+      const orientationOption = getProductOrientations().find(
+        (o) => o.id === selectedOptions.orientation,
+      );
+      const colorOption = isFlyer
+        ? getFlyerColors().find((c) => c.id === selectedOptions.color)
+        : getProductColors().find((c) => c.id === selectedOptions.color);
+      const coatingOption = isFlyer
+        ? getFlyerCoatings().find((c) => c.id === selectedOptions.coating)
+        : getProductCoatings().find((c) => c.id === selectedOptions.coating);
+      const roundedCornerOption = getProductRoundedCorners().find(
+        (r) => r.id === selectedOptions.roundedCorner,
+      );
+      const raisedPrintOption = getProductRaisedPrint().find(
+        (r) => r.id === selectedOptions.raisedPrint,
+      );
+      const finishOption = getProductFinishes().find(
+        (f) => f.id === selectedOptions.finish,
+      );
+
+      // Build lookup key using option names
+      const lookupKey = {
+        quantity: qtyOption?.label || String(selectedOptions.quantity || ""),
+        size: sizeOption?.name || selectedOptions.size || "",
+        paperType: paperOption?.name || selectedOptions.paperType || "",
+        orientation:
+          orientationOption?.name || selectedOptions.orientation || "",
+        color: colorOption?.name || selectedOptions.color || "",
+        coating: coatingOption?.name || selectedOptions.coating || "",
+        finish: finishOption?.name || selectedOptions.finish || "",
+        roundedCorner:
+          roundedCornerOption?.name || selectedOptions.roundedCorner || "",
+        raisedPrint:
+          raisedPrintOption?.name || selectedOptions.raisedPrint || "",
+      };
+
+      // Debug logging
+      console.log("=== PRICING MATRIX DEBUG ===");
+      console.log(
+        "Product pricing entries:",
+        JSON.stringify(product.pricing, null, 2),
+      );
+      console.log("Current lookup key:", JSON.stringify(lookupKey, null, 2));
+
+      // Helper function to normalize strings for comparison
+      const normalize = (str) =>
+        String(str || "")
+          .trim()
+          .toLowerCase();
+
+      // Find exact match in pricing array
+      const match = product.pricing.find((entry, index) => {
+        console.log(
+          `\nChecking entry ${index}:`,
+          JSON.stringify(entry, null, 2),
+        );
+
+        // Match on all fields that are defined in the entry (case-insensitive, trimmed)
+        if (
+          entry.quantity &&
+          normalize(entry.quantity) !== normalize(lookupKey.quantity)
+        ) {
+          console.log(
+            `  ✗ Quantity mismatch: "${entry.quantity}" !== "${lookupKey.quantity}"`,
+          );
+          return false;
+        }
+        if (entry.size && normalize(entry.size) !== normalize(lookupKey.size)) {
+          console.log(
+            `  ✗ Size mismatch: "${entry.size}" !== "${lookupKey.size}"`,
+          );
+          return false;
+        }
+        if (
+          entry.paperType &&
+          normalize(entry.paperType) !== normalize(lookupKey.paperType)
+        ) {
+          console.log(
+            `  ✗ PaperType mismatch: "${entry.paperType}" !== "${lookupKey.paperType}"`,
+          );
+          return false;
+        }
+        if (
+          entry.orientation &&
+          normalize(entry.orientation) !== normalize(lookupKey.orientation)
+        ) {
+          console.log(
+            `  ✗ Orientation mismatch: "${entry.orientation}" !== "${lookupKey.orientation}"`,
+          );
+          return false;
+        }
+        if (
+          entry.color &&
+          normalize(entry.color) !== normalize(lookupKey.color)
+        ) {
+          console.log(
+            `  ✗ Color mismatch: "${entry.color}" !== "${lookupKey.color}"`,
+          );
+          return false;
+        }
+        if (
+          entry.coating &&
+          normalize(entry.coating) !== normalize(lookupKey.coating)
+        ) {
+          console.log(
+            `  ✗ Coating mismatch: "${entry.coating}" !== "${lookupKey.coating}"`,
+          );
+          return false;
+        }
+        if (
+          entry.finish &&
+          normalize(entry.finish) !== normalize(lookupKey.finish)
+        ) {
+          console.log(
+            `  ✗ Finish mismatch: "${entry.finish}" !== "${lookupKey.finish}"`,
+          );
+          return false;
+        }
+        if (
+          entry.roundedCorner &&
+          normalize(entry.roundedCorner) !== normalize(lookupKey.roundedCorner)
+        ) {
+          console.log(
+            `  ✗ RoundedCorner mismatch: "${entry.roundedCorner}" !== "${lookupKey.roundedCorner}"`,
+          );
+          return false;
+        }
+        if (
+          entry.raisedPrint &&
+          normalize(entry.raisedPrint) !== normalize(lookupKey.raisedPrint)
+        ) {
+          console.log(
+            `  ✗ RaisedPrint mismatch: "${entry.raisedPrint}" !== "${lookupKey.raisedPrint}"`,
+          );
+          return false;
+        }
+        console.log("  ✓ All checks passed!");
+        return true;
+      });
+
+      console.log("\nMatch found:", match);
+      console.log("=== END DEBUG ===");
+
+      if (match && match.price !== undefined) {
+        let price = match.price;
+
+        // Apply 25% markup for Full Color Both Sides on flyers
+        if (isFlyer && colorOption?.name?.toLowerCase().includes("both")) {
+          price = price * 1.25;
+        }
+
+        return price.toFixed(2);
+      }
+    }
+
+    // Fallback to old additive pricing logic for backward compatibility
     if (isBusinessCard) {
       // Get base price from selected paper type and quantity
       const paperType = BUSINESS_CARD_PAPER.find(
@@ -453,10 +809,72 @@ function ProductDetail({ products }) {
         price += raisedOption.price;
       }
 
+      // Add coating cost
+      const coatingOption = getBusinessCardCoatingOptions().find(
+        (c) => c.id === selectedOptions.coating,
+      );
+      if (coatingOption) {
+        price += coatingOption.price;
+      }
+
       return price.toFixed(2);
     } else {
-      const basePrice = product.basePrice * selectedOptions.quantity;
-      return basePrice.toFixed(2);
+      // Use the priceModifier on the selected quantity as the full price.
+      // Falls back to basePrice if no quantity option is matched.
+      const qtyOption = getProductQuantities().find(
+        (q) => String(q.value) === String(selectedOptions.quantity),
+      );
+
+      const paperOption = isFlyer
+        ? getFlyerPaperTypes().find((p) => p.id === selectedOptions.paperType)
+        : getProductPaperTypes().find(
+            (p) => p.id === selectedOptions.paperType,
+          );
+      const sizeOption = isFlyer
+        ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
+        : getProductSizes().find((s) => s.id === selectedOptions.size);
+      const orientationOption = getProductOrientations().find(
+        (o) => o.id === selectedOptions.orientation,
+      );
+      const colorOption = isFlyer
+        ? getFlyerColors().find((c) => c.id === selectedOptions.color)
+        : getProductColors().find((c) => c.id === selectedOptions.color);
+      const coatingOption = isFlyer
+        ? getFlyerCoatings().find((c) => c.id === selectedOptions.coating)
+        : getProductCoatings().find((c) => c.id === selectedOptions.coating);
+      const roundedCornerOption = getProductRoundedCorners().find(
+        (r) => r.id === selectedOptions.roundedCorner,
+      );
+      const raisedPrintOption = getProductRaisedPrint().find(
+        (r) => r.id === selectedOptions.raisedPrint,
+      );
+      const finishOption = getProductFinishes().find(
+        (f) => f.id === selectedOptions.finish,
+      );
+
+      const selectedOptionModifiers = [
+        paperOption,
+        sizeOption,
+        orientationOption,
+        colorOption,
+        coatingOption,
+        roundedCornerOption,
+        raisedPrintOption,
+        finishOption,
+      ].reduce((sum, option) => sum + (Number(option?.priceModifier) || 0), 0);
+
+      const baseTierPrice =
+        qtyOption && qtyOption.priceModifier > 0
+          ? qtyOption.priceModifier
+          : product.basePrice;
+      let price = baseTierPrice + selectedOptionModifiers;
+
+      // Apply 25% markup for Full Color Both Sides on flyers
+      if (isFlyer && colorOption?.name?.toLowerCase().includes("both")) {
+        price = price * 1.25;
+      }
+
+      return price.toFixed(2);
     }
   };
 
@@ -464,26 +882,42 @@ function ProductDetail({ products }) {
     const paperType = isBusinessCard
       ? BUSINESS_CARD_PAPER.find((p) => p.id === selectedOptions.paperType)
       : isFlyer
-        ? FLYER_PAPER.find((p) => p.id === selectedOptions.paperType)
-        : PAPER_TYPES.find((p) => p.id === selectedOptions.paperType);
+        ? getFlyerPaperTypes().find((p) => p.id === selectedOptions.paperType)
+        : getProductPaperTypes().find(
+            (p) => p.id === selectedOptions.paperType,
+          );
 
     const sizeOption = isFlyer
-      ? FLYER_SIZES.find((s) => s.id === selectedOptions.size)
-      : null;
+      ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
+      : getProductSizes().find((s) => s.id === selectedOptions.size);
 
     const colorOption = isBusinessCard
       ? BUSINESS_CARD_COLORS.find((c) => c.id === selectedOptions.color)
       : isFlyer
-        ? FLYER_COLORS.find((c) => c.id === selectedOptions.color)
-        : null;
+        ? getFlyerColors().find((c) => c.id === selectedOptions.color)
+        : getProductColors().find((c) => c.id === selectedOptions.color);
 
     const coatingOption = isBusinessCard
-      ? BUSINESS_CARD_COATING.find((c) => c.id === selectedOptions.coating)
-      : null;
+      ? getBusinessCardCoatingOptions().find(
+          (c) => c.id === selectedOptions.coating,
+        )
+      : isFlyer
+        ? getFlyerCoatings().find((c) => c.id === selectedOptions.coating)
+        : getProductCoatings().find((c) => c.id === selectedOptions.coating);
 
     const raisedPrintOption = isBusinessCard
       ? BUSINESS_CARD_RAISED.find((r) => r.id === selectedOptions.raisedPrint)
-      : null;
+      : getProductRaisedPrint().find(
+          (r) => r.id === selectedOptions.raisedPrint,
+        );
+
+    const roundedCornerOption = getProductRoundedCorners().find(
+      (r) => r.id === selectedOptions.roundedCorner,
+    );
+
+    const finishOption = getProductFinishes().find(
+      (f) => f.id === selectedOptions.finish,
+    );
 
     const velvetFinishOption = isBusinessCard
       ? BUSINESS_CARD_VELVET.find((v) => v.id === selectedOptions.velvetFinish)
@@ -500,10 +934,12 @@ function ProductDetail({ products }) {
         size: sizeOption?.name || selectedOptions.size || "",
         orientation: selectedOptions.orientation || "",
         color: colorOption?.name || "",
-        roundedCorner: selectedOptions.roundedCorner || "none",
+        roundedCorner:
+          roundedCornerOption?.name || selectedOptions.roundedCorner || "none",
         coating: coatingOption?.name || "",
         raisedPrint: raisedPrintOption?.name || "",
         velvetFinish: velvetFinishOption?.name || "",
+        finish: finishOption?.name || "",
         zipCode: selectedOptions.zipCode || "",
         addressType: selectedOptions.addressType || "",
       },
@@ -680,27 +1116,11 @@ function ProductDetail({ products }) {
                           : availableQtys[0];
 
                         // Determine coating type based on new paper
-                        let coatingType = null;
-                        if (newPaperType.includes("matte")) {
-                          coatingType = "matte";
-                        } else if (newPaperType.includes("gloss")) {
-                          coatingType = "gloss";
-                        }
-
-                        // Get available coatings for new paper type
-                        let availableCoatings = BUSINESS_CARD_COATING;
-                        if (coatingType) {
-                          availableCoatings = availableCoatings.filter(
-                            (c) => c.type === coatingType,
+                        const availableCoatings =
+                          getAvailableCoatingBySelection(
+                            newPaperType,
+                            selectedOptions.color,
                           );
-                        }
-
-                        // Filter by sides if needed
-                        if (selectedOptions.color !== "full-both") {
-                          availableCoatings = availableCoatings.filter(
-                            (c) => c.sides === "front",
-                          );
-                        }
 
                         setSelectedOptions({
                           ...selectedOptions,
@@ -728,11 +1148,10 @@ function ProductDetail({ products }) {
                       value={selectedOptions.color}
                       onChange={(e) => {
                         const availableCoatings =
-                          e.target.value === "full-both"
-                            ? BUSINESS_CARD_COATING
-                            : BUSINESS_CARD_COATING.filter(
-                                (c) => c.sides === "front",
-                              );
+                          getAvailableCoatingBySelection(
+                            selectedOptions.paperType,
+                            e.target.value,
+                          );
 
                         setSelectedOptions({
                           ...selectedOptions,
@@ -844,26 +1263,23 @@ function ProductDetail({ products }) {
               ) : isFlyer ? (
                 <>
                   <div className="product-detail__option">
-                    <label
-                      htmlFor="paperType"
-                      className="product-detail__label"
-                    >
-                      Paper Thickness
+                    <label htmlFor="quantity" className="product-detail__label">
+                      Quantity
                     </label>
                     <select
-                      id="paperType"
+                      id="quantity"
                       className="product-detail__select"
-                      value={selectedOptions.paperType}
+                      value={selectedOptions.quantity}
                       onChange={(e) =>
                         setSelectedOptions({
                           ...selectedOptions,
-                          paperType: e.target.value,
+                          quantity: parseInt(e.target.value) || e.target.value,
                         })
                       }
                     >
-                      {FLYER_PAPER.map((paper) => (
-                        <option key={paper.id} value={paper.id}>
-                          {paper.name}
+                      {getProductQuantities().map((qty) => (
+                        <option key={qty.value} value={qty.value}>
+                          {qty.label}
                         </option>
                       ))}
                     </select>
@@ -884,7 +1300,7 @@ function ProductDetail({ products }) {
                         })
                       }
                     >
-                      {FLYER_SIZES.map((size) => (
+                      {getFlyerSizes().map((size) => (
                         <option key={size.id} value={size.id}>
                           {size.name}
                         </option>
@@ -929,6 +1345,32 @@ function ProductDetail({ products }) {
                   </div>
 
                   <div className="product-detail__option">
+                    <label
+                      htmlFor="paperType"
+                      className="product-detail__label"
+                    >
+                      Paper
+                    </label>
+                    <select
+                      id="paperType"
+                      className="product-detail__select"
+                      value={selectedOptions.paperType}
+                      onChange={(e) =>
+                        setSelectedOptions({
+                          ...selectedOptions,
+                          paperType: e.target.value,
+                        })
+                      }
+                    >
+                      {getFlyerPaperTypes().map((paper) => (
+                        <option key={paper.id} value={paper.id}>
+                          {paper.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="product-detail__option">
                     <label htmlFor="color" className="product-detail__label">
                       Color Options
                     </label>
@@ -943,7 +1385,7 @@ function ProductDetail({ products }) {
                         })
                       }
                     >
-                      {FLYER_COLORS.map((color) => (
+                      {getFlyerColors().map((color) => (
                         <option key={color.id} value={color.id}>
                           {color.name}
                         </option>
@@ -951,6 +1393,92 @@ function ProductDetail({ products }) {
                     </select>
                   </div>
 
+                  {getProductRoundedCorners().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="roundedCorner"
+                        className="product-detail__label"
+                      >
+                        Rounded Corners
+                      </label>
+                      <select
+                        id="roundedCorner"
+                        className="product-detail__select"
+                        value={selectedOptions.roundedCorner}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            roundedCorner: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductRoundedCorners().map((corner) => (
+                          <option key={corner.id} value={corner.id}>
+                            {corner.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getFlyerCoatings().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="coating"
+                        className="product-detail__label"
+                      >
+                        Coating
+                      </label>
+                      <select
+                        id="coating"
+                        className="product-detail__select"
+                        value={selectedOptions.coating}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            coating: e.target.value,
+                          })
+                        }
+                      >
+                        {getFlyerCoatings().map((coating) => (
+                          <option key={coating.id} value={coating.id}>
+                            {coating.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getProductRaisedPrint().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="raisedPrint"
+                        className="product-detail__label"
+                      >
+                        Raised Print
+                      </label>
+                      <select
+                        id="raisedPrint"
+                        className="product-detail__select"
+                        value={selectedOptions.raisedPrint}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            raisedPrint: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductRaisedPrint().map((raised) => (
+                          <option key={raised.id} value={raised.id}>
+                            {raised.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
                   <div className="product-detail__option">
                     <label htmlFor="quantity" className="product-detail__label">
                       Quantity
@@ -962,20 +1490,71 @@ function ProductDetail({ products }) {
                       onChange={(e) =>
                         setSelectedOptions({
                           ...selectedOptions,
-                          quantity: parseInt(e.target.value),
+                          quantity: parseInt(e.target.value) || e.target.value,
                         })
                       }
                     >
-                      {QUANTITIES.map((qty) => (
-                        <option key={qty} value={qty}>
-                          {qty}
+                      {getProductQuantities().map((qty) => (
+                        <option key={qty.value} value={qty.value}>
+                          {qty.label}
                         </option>
                       ))}
                     </select>
                   </div>
-                </>
-              ) : (
-                <>
+
+                  {getProductSizes().length > 0 && (
+                    <div className="product-detail__option">
+                      <label htmlFor="size" className="product-detail__label">
+                        Size
+                      </label>
+                      <select
+                        id="size"
+                        className="product-detail__select"
+                        value={selectedOptions.size}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            size: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductSizes().map((size) => (
+                          <option key={size.id} value={size.id}>
+                            {size.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getProductOrientations().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="orientation"
+                        className="product-detail__label"
+                      >
+                        Orientation
+                      </label>
+                      <select
+                        id="orientation"
+                        className="product-detail__select"
+                        value={selectedOptions.orientation}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            orientation: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductOrientations().map((orientation) => (
+                          <option key={orientation.id} value={orientation.id}>
+                            {orientation.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
                   <div className="product-detail__option">
                     <label
                       htmlFor="paperType"
@@ -994,7 +1573,7 @@ function ProductDetail({ products }) {
                         })
                       }
                     >
-                      {PAPER_TYPES.map((type) => (
+                      {getProductPaperTypes().map((type) => (
                         <option key={type.id} value={type.id}>
                           {type.name}
                         </option>
@@ -1002,28 +1581,139 @@ function ProductDetail({ products }) {
                     </select>
                   </div>
 
-                  <div className="product-detail__option">
-                    <label htmlFor="quantity" className="product-detail__label">
-                      Quantity
-                    </label>
-                    <select
-                      id="quantity"
-                      className="product-detail__select"
-                      value={selectedOptions.quantity}
-                      onChange={(e) =>
-                        setSelectedOptions({
-                          ...selectedOptions,
-                          quantity: parseInt(e.target.value),
-                        })
-                      }
-                    >
-                      {QUANTITIES.map((qty) => (
-                        <option key={qty} value={qty}>
-                          {qty}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {getProductColors().length > 0 && (
+                    <div className="product-detail__option">
+                      <label htmlFor="color" className="product-detail__label">
+                        Color Options
+                      </label>
+                      <select
+                        id="color"
+                        className="product-detail__select"
+                        value={selectedOptions.color}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            color: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductColors().map((color) => (
+                          <option key={color.id} value={color.id}>
+                            {color.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getProductRoundedCorners().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="roundedCorner"
+                        className="product-detail__label"
+                      >
+                        Rounded Corners
+                      </label>
+                      <select
+                        id="roundedCorner"
+                        className="product-detail__select"
+                        value={selectedOptions.roundedCorner}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            roundedCorner: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductRoundedCorners().map((corner) => (
+                          <option key={corner.id} value={corner.id}>
+                            {corner.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getProductCoatings().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="coating"
+                        className="product-detail__label"
+                      >
+                        Coating
+                      </label>
+                      <select
+                        id="coating"
+                        className="product-detail__select"
+                        value={selectedOptions.coating}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            coating: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductCoatings().map((coating) => (
+                          <option key={coating.id} value={coating.id}>
+                            {coating.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getProductRaisedPrint().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="raisedPrint"
+                        className="product-detail__label"
+                      >
+                        Raised Print
+                      </label>
+                      <select
+                        id="raisedPrint"
+                        className="product-detail__select"
+                        value={selectedOptions.raisedPrint}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            raisedPrint: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductRaisedPrint().map((raised) => (
+                          <option key={raised.id} value={raised.id}>
+                            {raised.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getProductFinishes().length > 0 && (
+                    <div className="product-detail__option">
+                      <label htmlFor="finish" className="product-detail__label">
+                        Finish
+                      </label>
+                      <select
+                        id="finish"
+                        className="product-detail__select"
+                        value={selectedOptions.finish}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            finish: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductFinishes().map((finish) => (
+                          <option key={finish.id} value={finish.id}>
+                            {finish.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </>
               )}
 
