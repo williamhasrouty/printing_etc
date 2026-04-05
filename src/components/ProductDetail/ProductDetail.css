@@ -413,6 +413,38 @@
   font-family: "Bungee", "Roboto", Arial, sans-serif;
 }
 
+.product-detail__turnaround {
+  background-color: rgba(0, 180, 216, 0.1);
+  border-left: 4px solid #00b4d8;
+  padding: 16px 20px;
+  border-radius: 6px;
+  margin: 16px 0;
+}
+
+.product-detail__turnaround-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #00b4d8;
+  margin: 0 0 12px 0;
+}
+
+.product-detail__turnaround-list {
+  margin: 0;
+  padding-left: 20px;
+  list-style: disc;
+}
+
+.product-detail__turnaround-list li {
+  font-size: 14px;
+  color: #2c2c2c;
+  line-height: 1.6;
+  margin-bottom: 6px;
+}
+
+.product-detail__turnaround-list li:last-child {
+  margin-bottom: 0;
+}
+
 .product-detail__add-button {
   padding: 16px;
   background-color: #00b4d8;

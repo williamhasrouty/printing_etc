@@ -17,9 +17,7 @@ function Contact() {
             <div className="contact__details">
               <div className="contact__detail">
                 <h3 className="contact__detail-title">Phone</h3>
-                <p className="contact__detail-text-phone">
-                  (661) 272-2869
-                </p>
+                <p className="contact__detail-text-phone">(661) 272-2869</p>
               </div>
 
               <div className="contact__detail">
@@ -37,6 +35,17 @@ function Contact() {
                   Monday - Friday: 9:00 AM - 5:00 PM
                   <br />
                   Saturday - Sunday: Closed
+                </p>
+              </div>
+
+              <div className="contact__detail contact__detail_turnaround">
+                <h3 className="contact__detail-title">Turnaround Times</h3>
+                <p className="contact__detail-text">
+                  <strong>Standard Orders:</strong> 5-7 business days
+                  <br />
+                  <strong>Custom Orders:</strong> 7-10 business days
+                  <br />
+                  <strong>Rush Orders:</strong> Please call to confirm availability
                 </p>
               </div>
             </div>

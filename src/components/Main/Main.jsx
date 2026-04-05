@@ -23,7 +23,7 @@ function Main({ products, isLoading }) {
             <h1 className="main__hero-title">Professional Printing Services</h1>
             <p className="main__hero-text">
               Quality Printing & Affordable Prices. <br></br>
-              Serving the Antelope Valley since 2007.
+              Serving the Antelope Valley since 2008.
             </p>
             
           </div>

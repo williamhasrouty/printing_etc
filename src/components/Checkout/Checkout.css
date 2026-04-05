@@ -226,6 +226,107 @@
   margin-top: 4px;
 }
 
+.checkout__terms {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(0, 180, 216, 0.3);
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.checkout__terms-notice {
+  margin-bottom: 20px;
+}
+
+.checkout__terms-heading {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00b4d8;
+  margin: 0 0 12px 0;
+}
+
+.checkout__terms-text {
+  font-size: 14px;
+  color: #666;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+}
+
+.checkout__terms-warning {
+  font-size: 14px;
+  color: #ff1744;
+  margin: 0;
+  line-height: 1.5;
+  font-weight: 500;
+  padding: 12px;
+  background-color: rgba(255, 23, 68, 0.1);
+  border-left: 3px solid #ff1744;
+  border-radius: 4px;
+}
+
+.checkout__terms-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  padding: 16px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+  transition: background-color 0.2s;
+}
+
+.checkout__terms-label:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.checkout__terms-checkbox {
+  margin-top: 2px;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #00b4d8;
+  flex-shrink: 0;
+}
+
+.checkout__terms-agreement {
+  font-size: 15px;
+  color: #666;
+  font-weight: 500;
+}
+
+.checkout__turnaround {
+  background-color: rgba(0, 180, 216, 0.05);
+  border: 2px solid rgba(0, 180, 216, 0.3);
+  border-radius: 8px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.checkout__turnaround-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00b4d8;
+  margin: 0 0 16px 0;
+}
+
+.checkout__turnaround-info {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkout__turnaround-item {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.checkout__turnaround-item strong {
+  color: #2c2c2c;
+  font-weight: 600;
+}
+
 .checkout__submit {
   width: 100%;
   padding: 16px;

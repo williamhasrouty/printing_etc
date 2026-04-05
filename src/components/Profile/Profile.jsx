@@ -87,7 +87,8 @@ function Profile() {
       return;
     }
 
-    updateUser(currentUser.id, name)
+    const token = localStorage.getItem("jwt");
+    updateUser(name, token)
       .then((updatedUser) => {
         if (setCurrentUser) {
           setCurrentUser(updatedUser);
@@ -117,12 +118,13 @@ function Profile() {
       return;
     }
 
-    if (newPassword.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (newPassword.length < 8) {
+      setError("Password must be at least 8 characters");
       return;
     }
 
-    updatePassword(currentUser.id, currentPassword, newPassword)
+    const token = localStorage.getItem("jwt");
+    updatePassword(currentPassword, newPassword, token)
       .then(() => {
         setMessage("Password updated successfully");
         setIsEditingPassword(false);
@@ -221,25 +223,53 @@ function Profile() {
                 >
                   <input
                     type="password"
-                    placeholder="Current Password"
+                    placeholder="Current Password*"
                     value={currentPassword}
                     onChange={(e) => setCurrentPassword(e.target.value)}
                     className="profile__input"
                   />
                   <input
                     type="password"
-                    placeholder="New Password"
+                    placeholder="New Password (min 8 characters)*"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     className="profile__input"
+                    minLength={8}
                   />
+                  {newPassword.length > 0 && newPassword.length < 8 && (
+                    <span
+                      className="profile__error"
+                      style={{
+                        fontSize: "14px",
+                        color: "#ff4444",
+                        marginTop: "4px",
+                        display: "block",
+                      }}
+                    >
+                      Password must be at least 8 characters long
+                    </span>
+                  )}
                   <input
                     type="password"
-                    placeholder="Confirm New Password"
+                    placeholder="Confirm New Password*"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="profile__input"
                   />
+                  {confirmPassword.length > 0 &&
+                    newPassword !== confirmPassword && (
+                      <span
+                        className="profile__error"
+                        style={{
+                          fontSize: "14px",
+                          color: "#ff4444",
+                          marginTop: "4px",
+                          display: "block",
+                        }}
+                      >
+                        Passwords do not match
+                      </span>
+                    )}
                   <div className="profile__form-buttons">
                     <button type="submit" className="profile__save-btn">
                       Update Password

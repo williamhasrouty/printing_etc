@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
@@ -37,9 +37,46 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeModal, setActiveModal] = useState("");
-  const [cartItems, setCartItems] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const [isCartLoaded, setIsCartLoaded] = useState(false);
+
+  // Use ref to track which user we've initialized the cart for
+  // This prevents re-running merge on every render
+  const initializedUserIdRef = useRef(null);
+
+  // Helper function to get cart key for current user
+  const getCartKey = (user) => {
+    return user ? `cart_${user._id}` : "cart_guest";
+  };
+
+  // Initialize cart from localStorage synchronously
+  const [cartItems, setCartItems] = useState(() => {
+    try {
+      // Try to get user from token to load their cart
+      const token = localStorage.getItem("jwt");
+      let cartKey = "cart_guest";
+
+      if (token) {
+        try {
+          // Decode JWT to get user ID (simple decode, not verification)
+          const payload = JSON.parse(atob(token.split(".")[1]));
+          if (payload._id) {
+            cartKey = `cart_${payload._id}`;
+          }
+        } catch (e) {
+          // If token decode fails, use guest cart
+          console.log("Using guest cart");
+        }
+      }
+
+      const savedCart = localStorage.getItem(cartKey);
+      return savedCart ? JSON.parse(savedCart) : [];
+    } catch (error) {
+      console.error("Error loading cart from localStorage:", error);
+      return [];
+    }
+  });
 
   const navigate = useNavigate();
 
@@ -73,16 +110,89 @@ function App() {
       .finally(() => setIsCheckingAuth(false));
   }, []);
 
-  // Load cart from localStorage
+  // Mark cart as loaded after initial render
   useEffect(() => {
-    const savedCart = localStorage.getItem("cart");
-    if (savedCart) {
-      setCartItems(JSON.parse(savedCart));
-    }
+    setIsCartLoaded(true);
   }, []);
 
-  // Save cart to localStorage (excluding large file data)
+  // Load user's cart when they log in and merge with guest cart
   useEffect(() => {
+    // Only run when user is present and cart is loaded
+    if (!currentUser || !isCartLoaded) {
+      return;
+    }
+
+    // Check if we've already initialized for this user
+    if (initializedUserIdRef.current === currentUser._id) {
+      return;
+    }
+
+    const userCartKey = getCartKey(currentUser);
+    const guestCartKey = "cart_guest";
+
+    try {
+      // Mark as initialized first to prevent this effect from running again
+      initializedUserIdRef.current = currentUser._id;
+
+      // If cart already has items (page refresh scenario), don't reload
+      if (cartItems.length > 0) {
+        return;
+      }
+
+      // Get guest cart from localStorage
+      const savedGuestCart = localStorage.getItem(guestCartKey);
+      const guestCart = savedGuestCart ? JSON.parse(savedGuestCart) : [];
+
+      // Get user's saved cart from localStorage
+      const savedUserCart = localStorage.getItem(userCartKey);
+      const userCart = savedUserCart ? JSON.parse(savedUserCart) : [];
+
+      // Start with user's saved cart
+      const mergedCart = [...userCart];
+
+      // If there's a guest cart, merge it with user cart
+      if (guestCart.length > 0) {
+        guestCart.forEach((guestItem) => {
+          const existingIndex = mergedCart.findIndex(
+            (item) =>
+              item.productId === guestItem.productId &&
+              JSON.stringify(item.options) ===
+                JSON.stringify(guestItem.options),
+          );
+
+          if (existingIndex >= 0) {
+            // Item exists, increase quantity
+            mergedCart[existingIndex] = {
+              ...mergedCart[existingIndex],
+              quantity:
+                mergedCart[existingIndex].quantity + (guestItem.quantity || 1),
+            };
+          } else {
+            // Item doesn't exist, add it
+            mergedCart.push(guestItem);
+          }
+        });
+
+        // Clear guest cart after merging
+        localStorage.removeItem(guestCartKey);
+      }
+
+      // Update state with user's cart (merged with guest if applicable)
+      if (mergedCart.length > 0) {
+        setCartItems(mergedCart);
+      }
+    } catch (error) {
+      console.error("Error loading cart:", error);
+      initializedUserIdRef.current = currentUser._id;
+    }
+  }, [currentUser?._id, isCartLoaded]);
+
+  // Save cart to localStorage (excluding large file data) - only after cart is loaded
+  useEffect(() => {
+    if (!isCartLoaded) return; // Don't save on initial mount
+
+    const cartKey = getCartKey(currentUser);
+
     try {
       // Remove large file data before saving to avoid quota exceeded errors
       const cartToSave = cartItems.map((item) => {
@@ -109,17 +219,17 @@ function App() {
             : null,
         };
       });
-      localStorage.setItem("cart", JSON.stringify(cartToSave));
+      localStorage.setItem(cartKey, JSON.stringify(cartToSave));
     } catch (error) {
       if (error.name === "QuotaExceededError") {
         console.warn("Cart data too large for localStorage, clearing old data");
         // Clear cart from localStorage if quota exceeded
-        localStorage.removeItem("cart");
+        localStorage.removeItem(cartKey);
       } else {
         console.error("Error saving cart:", error);
       }
     }
-  }, [cartItems]);
+  }, [cartItems, isCartLoaded, currentUser]);
 
   // Modal handlers
   const handleOpenLoginModal = () => setActiveModal("login");
@@ -130,15 +240,22 @@ function App() {
   const handleLogin = (email, password) => {
     return loginUser(email, password).then((data) => {
       localStorage.setItem("jwt", data.token);
+      initializedUserIdRef.current = null; // Reset to allow cart merge
       setCurrentUser(data.user);
       setIsLoggedIn(true);
       closeActiveModal();
+
+      // Redirect admin users to admin dashboard
+      if (data.user.role === "admin") {
+        navigate("/admin");
+      }
     });
   };
 
-  const handleRegister = (email, password, name) => {
-    return registerUser(email, password, name).then((data) => {
+  const handleRegister = (email, password, name, phone) => {
+    return registerUser(email, password, name, phone).then((data) => {
       localStorage.setItem("jwt", data.token);
+      initializedUserIdRef.current = null; // Reset to allow cart merge
       setCurrentUser(data.user);
       setIsLoggedIn(true);
       closeActiveModal();
@@ -146,9 +263,43 @@ function App() {
   };
 
   const handleLogout = () => {
+    // Save current cart to user's localStorage before clearing state
+    if (currentUser && cartItems.length > 0) {
+      const userCartKey = `cart_${currentUser._id}`;
+      try {
+        const cartToSave = cartItems.map((item) => {
+          const { uploadedFile, uploadedBackFile, ...itemWithoutFiles } = item;
+          return {
+            ...itemWithoutFiles,
+            uploadedFile: uploadedFile
+              ? {
+                  fileName: uploadedFile.fileName,
+                  fileSize: uploadedFile.fileSize,
+                  fileType: uploadedFile.fileType,
+                  _fileNotPersisted: true,
+                }
+              : null,
+            uploadedBackFile: uploadedBackFile
+              ? {
+                  fileName: uploadedBackFile.fileName,
+                  fileSize: uploadedBackFile.fileSize,
+                  fileType: uploadedBackFile.fileType,
+                  _fileNotPersisted: true,
+                }
+              : null,
+          };
+        });
+        localStorage.setItem(userCartKey, JSON.stringify(cartToSave));
+      } catch (error) {
+        console.error("Error saving cart on logout:", error);
+      }
+    }
+
     localStorage.removeItem("jwt");
+    initializedUserIdRef.current = null; // Reset for next login
     setCurrentUser(null);
     setIsLoggedIn(false);
+    setCartItems([]);
     navigate("/");
   };
 

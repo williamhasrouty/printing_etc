@@ -7,7 +7,18 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const isValid = email.includes("@") && password.length >= 6;
+  // Email validation function
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Password validation function
+  const isValidPassword = (password) => {
+    return password.length >= 8;
+  };
+
+  const isValid = isValidEmail(email) && isValidPassword(password);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -50,6 +61,11 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+        {email.length > 0 && !isValidEmail(email) && (
+          <span className="modal__error">
+            Please enter a valid email address
+          </span>
+        )}
       </label>
 
       <label htmlFor="login-password" className="modal__label">
@@ -62,8 +78,13 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          minLength={6}
+          minLength={8}
         />
+        {password.length > 0 && !isValidPassword(password) && (
+          <span className="modal__error">
+            Password must be at least 8 characters long
+          </span>
+        )}
       </label>
 
       {errors.submit && <span className="modal__error">{errors.submit}</span>}

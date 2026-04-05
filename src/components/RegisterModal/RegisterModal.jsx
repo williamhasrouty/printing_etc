@@ -8,15 +8,28 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [companyName, setCompanyName] = useState("");
+  const [phone, setPhone] = useState("");
   const [accountType, setAccountType] = useState("individual"); // 'individual' or 'business'
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Email validation function
+  const isValidEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Password validation function
+  const isValidPassword = (password) => {
+    return password.length >= 8;
+  };
+
   const isValid =
-    email.includes("@") &&
-    password.length >= 6 &&
+    isValidEmail(email) &&
+    isValidPassword(password) &&
     password === confirmPassword &&
     confirmPassword.length > 0 &&
+    phone.replace(/\D/g, "").length >= 10 &&
     (accountType === "individual"
       ? firstName.trim().length > 0 && lastName.trim().length > 0
       : companyName.trim().length > 0);
@@ -36,7 +49,10 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
         ? `${firstName.trim()} ${lastName.trim()}`
         : companyName.trim();
 
-    onRegister(email, password, name)
+    // Strip formatting from phone number before sending to backend
+    const cleanPhone = phone.replace(/\D/g, "");
+
+    onRegister(email, password, name, cleanPhone)
       .catch((err) => {
         console.error("Registration error:", err);
         setErrors({
@@ -66,11 +82,16 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
           type="email"
           id="register-email"
           className="modal__input"
-          placeholder="Email"
+          placeholder="example@email.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
         />
+        {email.length > 0 && !isValidEmail(email) && (
+          <span className="modal__error">
+            Please enter a valid email address
+          </span>
+        )}
       </label>
 
       <label htmlFor="register-password" className="modal__label">
@@ -79,12 +100,17 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
           type="password"
           id="register-password"
           className="modal__input"
-          placeholder="Password (min 6 characters)"
+          placeholder="Password (min 8 characters)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
-          minLength={6}
+          minLength={8}
         />
+        {password.length > 0 && !isValidPassword(password) && (
+          <span className="modal__error">
+            Password must be at least 8 characters long
+          </span>
+        )}
       </label>
 
       <label htmlFor="register-confirm-password" className="modal__label">
@@ -101,6 +127,27 @@ function RegisterModal({ onClose, onRegister, onLoginClick, onGuestCheckout }) {
         {confirmPassword.length > 0 && password !== confirmPassword && (
           <span className="modal__error">Passwords do not match</span>
         )}
+      </label>
+
+      <label htmlFor="register-phone" className="modal__label">
+        Phone Number*
+        <input
+          type="tel"
+          id="register-phone"
+          className="modal__input"
+          placeholder="Phone Number"
+          value={phone}
+          onChange={(e) => {
+            const value = e.target.value;
+            // Format phone number as (123) 456-7890
+            const formattedPhone = value
+              .replace(/\D/g, "")
+              .replace(/(\d{3})(\d{3})(\d{4})/, "($1) $2-$3")
+              .slice(0, 14);
+            setPhone(formattedPhone);
+          }}
+          required
+        />
       </label>
 
       <div className="modal__radio-group">

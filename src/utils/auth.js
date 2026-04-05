@@ -11,12 +11,13 @@ const request = (url, options) => {
 };
 
 // Register user
-export const register = (email, password, name) => {
+export const register = (email, password, name, phone) => {
   // Create a new user
   const newUser = {
     email,
     name,
     password,
+    phone,
   };
 
   return request(`${BASE_URL}/signup`, {
@@ -66,20 +67,13 @@ export const updateUser = (name, token) => {
 };
 
 // Update user password
-export const updatePassword = (userId, currentPassword, newPassword) => {
-  // First verify the current password
-  return request(`${BASE_URL}/users/${userId}`).then((user) => {
-    if (user.password !== currentPassword) {
-      return Promise.reject("Current password is incorrect");
-    }
-
-    // Update the password
-    return request(`${BASE_URL}/users/${userId}`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ password: newPassword }),
-    });
+export const updatePassword = (currentPassword, newPassword, token) => {
+  return request(`${BASE_URL}/users/me/password`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({ currentPassword, newPassword }),
   });
 };

@@ -1308,6 +1308,18 @@ function ProductDetail({ products }) {
                   </span>
                 </div>
               )}
+
+              <div className="product-detail__turnaround">
+                <h4 className="product-detail__turnaround-title">
+                  Turnaround Times
+                </h4>
+                <ul className="product-detail__turnaround-list">
+                  <li>Standard Orders: 5-7 business days</li>
+                  <li>Custom Orders: 7-10 business days</li>
+                  <li>Rush Orders: Please call (661) 272-2869</li>
+                </ul>
+              </div>
+
               <button
                 onClick={handleAddToCart}
                 className="product-detail__add-button"

@@ -245,6 +245,12 @@
   border: 2px solid #28a745;
 }
 
+.admin__status-badge_completed {
+  background-color: #d4edda;
+  color: #155724;
+  border: 2px solid #28a745;
+}
+
 .admin__status-badge_cancelled {
   background-color: #f8d7da;
   color: #721c24;
@@ -265,6 +271,7 @@
 
 .admin__customer-name,
 .admin__customer-email,
+.admin__customer-phone,
 .admin__shipping-address,
 .admin__tracking,
 .admin__delivery-method {

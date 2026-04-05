@@ -139,6 +139,18 @@ function Admin() {
     });
   };
 
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return "N/A";
+    // Remove all non-digits
+    const cleaned = phone.replace(/\D/g, "");
+    // Format as (123) 456-7890
+    if (cleaned.length === 10) {
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
+    }
+    // Return original if not 10 digits
+    return phone;
+  };
+
   const getStatusBadgeClass = (status) => {
     const statusMap = {
       pending: "admin__status-badge_pending",
@@ -146,6 +158,7 @@ function Admin() {
       processing: "admin__status-badge_processing",
       shipped: "admin__status-badge_shipped",
       delivered: "admin__status-badge_delivered",
+      completed: "admin__status-badge_completed",
       cancelled: "admin__status-badge_cancelled",
     };
     return `admin__status-badge ${statusMap[status] || ""}`;
@@ -198,6 +211,7 @@ function Admin() {
               <option value="processing">Processing</option>
               <option value="shipped">Shipped</option>
               <option value="delivered">Delivered</option>
+              <option value="completed">Completed</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
@@ -263,6 +277,12 @@ function Admin() {
                   <p className="admin__customer-email">
                     <strong>Email:</strong>{" "}
                     {order.user?.email || order.guestInfo?.email || "N/A"}
+                  </p>
+                  <p className="admin__customer-phone">
+                    <strong>Phone:</strong>{" "}
+                    {formatPhoneNumber(
+                      order.user?.phone || order.guestInfo?.phone,
+                    )}
                   </p>
                   {order.deliveryMethod === "pickup" ? (
                     <p className="admin__delivery-method">
@@ -421,32 +441,59 @@ function Admin() {
 
                     <div className="admin__status-update">
                       <div className="admin__status-buttons">
-                        {[
-                          "pending",
-                          "confirmed",
-                          "processing",
-                          "shipped",
-                          "delivered",
-                          "cancelled",
-                        ].map((status) => (
-                          <button
-                            key={status}
-                            type="button"
-                            className={`admin__status-btn ${
-                              order.status === status
-                                ? "admin__status-btn_active"
-                                : ""
-                            }`}
-                            onClick={() =>
-                              handleStatusUpdate(order._id, status)
-                            }
-                            disabled={
-                              isUpdatingStatus || order.status === status
-                            }
-                          >
-                            {status}
-                          </button>
-                        ))}
+                        {/* Show different status flow based on delivery method */}
+                        {order.deliveryMethod === "pickup"
+                          ? [
+                              "pending",
+                              "confirmed",
+                              "processing",
+                              "completed",
+                              "cancelled",
+                            ].map((status) => (
+                              <button
+                                key={status}
+                                type="button"
+                                className={`admin__status-btn ${
+                                  order.status === status
+                                    ? "admin__status-btn_active"
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  handleStatusUpdate(order._id, status)
+                                }
+                                disabled={
+                                  isUpdatingStatus || order.status === status
+                                }
+                              >
+                                {status}
+                              </button>
+                            ))
+                          : [
+                              "pending",
+                              "confirmed",
+                              "processing",
+                              "shipped",
+                              "delivered",
+                              "cancelled",
+                            ].map((status) => (
+                              <button
+                                key={status}
+                                type="button"
+                                className={`admin__status-btn ${
+                                  order.status === status
+                                    ? "admin__status-btn_active"
+                                    : ""
+                                }`}
+                                onClick={() =>
+                                  handleStatusUpdate(order._id, status)
+                                }
+                                disabled={
+                                  isUpdatingStatus || order.status === status
+                                }
+                              >
+                                {status}
+                              </button>
+                            ))}
                       </div>
 
                       {order.deliveryMethod !== "pickup" && (

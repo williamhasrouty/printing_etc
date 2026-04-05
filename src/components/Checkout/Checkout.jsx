@@ -44,6 +44,7 @@ function Checkout() {
   const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
   const [shippingCost, setShippingCost] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const taxRate = 0.1125; // Fixed 11.25% tax rate
 
   // Helper function to get user-friendly error messages
@@ -232,6 +233,12 @@ function Checkout() {
   const validateForm = () => {
     const newErrors = {};
 
+    // Email validation function
+    const isValidEmail = (email) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return emailRegex.test(email);
+    };
+
     // Validate guest customer information if not logged in
     if (!currentUser) {
       if (!formData.customerName.trim()) {
@@ -240,9 +247,9 @@ function Checkout() {
 
       if (
         !formData.customerEmail.trim() ||
-        !formData.customerEmail.includes("@")
+        !isValidEmail(formData.customerEmail)
       ) {
-        newErrors.customerEmail = "Please enter a valid email";
+        newErrors.customerEmail = "Please enter a valid email address (e.g., name@email.com)";
       }
 
       if (
@@ -306,6 +313,14 @@ function Checkout() {
     if (!validateForm()) {
       setNotification({
         message: "Please fill in all required fields correctly",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!termsAccepted) {
+      setNotification({
+        message: "Please accept the terms and conditions to proceed",
         type: "error",
       });
       return;
@@ -554,7 +569,7 @@ function Checkout() {
                     className={`checkout__input ${
                       errors.customerEmail ? "checkout__input_error" : ""
                     }`}
-                    placeholder="john@example.com"
+                    placeholder="example@email.com"
                   />
                   {errors.customerEmail && (
                     <span className="checkout__error">
@@ -886,10 +901,57 @@ function Checkout() {
               </section>
             )}
 
+            <section className="checkout__section checkout__turnaround">
+              <h3 className="checkout__turnaround-title">Turnaround Times</h3>
+              <div className="checkout__turnaround-info">
+                <p className="checkout__turnaround-item">
+                  <strong>Standard Orders:</strong> 5-7 business
+                  days
+                </p>
+                <p className="checkout__turnaround-item">
+                  <strong>Custom Orders:</strong> 7-10 business
+                  days
+                </p>
+                <p className="checkout__turnaround-item">
+                  <strong>Rush Orders:</strong> Please call to confirm availability
+                </p>
+              </div>
+            </section>
+
+            <section className="checkout__section checkout__terms">
+              <div className="checkout__terms-notice">
+                <p className="checkout__terms-heading">
+                  Are you sure you want to submit your order?
+                </p>
+                <p className="checkout__terms-text">
+                  Please review all details and attached files carefully before
+                  submitting.
+                </p>
+                <p className="checkout__terms-warning">
+                  All sales are final once an order has been submitted. Due to
+                  the custom nature of our printing services, cancellations are
+                  not permitted, and full charges will apply.*
+                </p>
+              </div>
+
+              <label className="checkout__terms-label">
+                <input
+                  type="checkbox"
+                  checked={termsAccepted}
+                  onChange={(e) => setTermsAccepted(e.target.checked)}
+                  className="checkout__terms-checkbox"
+                  required
+                />
+                <span className="checkout__terms-agreement">
+                  I accept the terms and conditions *
+                </span>
+              </label>
+            </section>
+
             <button
               type="submit"
               className="checkout__submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || !termsAccepted}
             >
               {isSubmitting ? (
                 <span className="checkout__submit-content">
