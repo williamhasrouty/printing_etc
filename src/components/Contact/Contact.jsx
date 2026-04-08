@@ -45,7 +45,8 @@ function Contact() {
                   <br />
                   <strong>Custom Orders:</strong> 7-10 business days
                   <br />
-                  <strong>Rush Orders:</strong> Please call to confirm availability
+                  <strong>Rush Orders:</strong> Please call to confirm
+                  availability
                 </p>
               </div>
             </div>

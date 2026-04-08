@@ -1,5 +1,5 @@
-// Base API URL
-export const BASE_URL = "http://localhost:3002";
+// Base API URL - Environment aware
+export const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3002";
 
 // Product categories
 export const PRODUCT_CATEGORIES = [
