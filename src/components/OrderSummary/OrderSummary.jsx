@@ -37,7 +37,10 @@ function OrderSummary() {
         <p className="order-summary__subtitle">
           Thank you for your order. We've received your request and sent an
           email confirmation to{" "}
-          {orderData.guestInfo?.email || orderData.customerInfo?.email}.
+          {orderData.user?.email ||
+            orderData.guestInfo?.email ||
+            orderData.customerInfo?.email}
+          .
         </p>
 
         <div className="order-summary__content">
@@ -65,7 +68,9 @@ function OrderSummary() {
             </div>
           </section>
 
-          {(orderData.customerInfo || orderData.guestInfo) && (
+          {(orderData.user ||
+            orderData.customerInfo ||
+            orderData.guestInfo) && (
             <section className="order-summary__section">
               <h2 className="order-summary__section-title">
                 Customer Information
@@ -74,20 +79,24 @@ function OrderSummary() {
                 <div className="order-summary__info-row">
                   <span className="order-summary__label">Name:</span>
                   <span className="order-summary__value">
-                    {orderData.customerInfo?.name || orderData.guestInfo?.name}
+                    {orderData.user?.name ||
+                      orderData.customerInfo?.name ||
+                      orderData.guestInfo?.name}
                   </span>
                 </div>
                 <div className="order-summary__info-row">
                   <span className="order-summary__label">Email:</span>
                   <span className="order-summary__value">
-                    {orderData.customerInfo?.email ||
+                    {orderData.user?.email ||
+                      orderData.customerInfo?.email ||
                       orderData.guestInfo?.email}
                   </span>
                 </div>
                 <div className="order-summary__info-row">
                   <span className="order-summary__label">Phone:</span>
                   <span className="order-summary__value">
-                    {orderData.customerInfo?.phone ||
+                    {orderData.user?.phone ||
+                      orderData.customerInfo?.phone ||
                       orderData.guestInfo?.phone}
                   </span>
                 </div>
