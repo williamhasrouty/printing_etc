@@ -359,43 +359,36 @@ const FileUpload = ({ onFileUploaded, onError, currentFile }) => {
 
 // Export utility function for uploading to Cloudinary during checkout
 export const uploadToCloudinary = async (file) => {
-  const CLOUDINARY_CLOUD_NAME = "dlonvpwii";
-  const CLOUDINARY_UPLOAD_PRESET = "printing_uploads";
+  // Use backend API for secure uploads (handles authentication)
+  const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3002";
 
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-  formData.append("folder", "printing-etc-designs");
-
-  // Determine resource type based on file type
-  const isPDF = file.type === "application/pdf";
-  const resourceType = isPDF ? "raw" : "image";
 
   try {
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
+    const response = await fetch(`${BASE_URL}/upload/single`, {
+      method: "POST",
+      body: formData,
+    });
 
     if (!response.ok) {
-      throw new Error(`Upload failed with status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.message || `Upload failed with status: ${response.status}`,
+      );
     }
 
     const data = await response.json();
 
     return {
-      url: data.secure_url,
-      publicId: data.public_id,
-      fileName: file.name,
+      url: data.url,
+      publicId: data.publicId,
+      fileName: data.name || file.name,
       fileSize: file.size,
       fileType: file.type,
-      resourceType: resourceType,
     };
   } catch (error) {
-    console.error("Cloudinary upload error:", error);
+    console.error("File upload error:", error);
     throw new Error("Failed to upload file. Please try again.");
   }
 };

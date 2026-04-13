@@ -10,6 +10,7 @@ import { uploadToCloudinary } from "../FileUpload/FileUpload";
 import {
   applyImageTransform,
   getPrintDimensions,
+  hasTransformations,
 } from "../../utils/imageTransform";
 import { ANTELOPE_VALLEY_ZIPS, PICKUP_LOCATION } from "../../utils/constants";
 import "./Checkout.css";
@@ -249,7 +250,8 @@ function Checkout() {
         !formData.customerEmail.trim() ||
         !isValidEmail(formData.customerEmail)
       ) {
-        newErrors.customerEmail = "Please enter a valid email address (e.g., name@email.com)";
+        newErrors.customerEmail =
+          "Please enter a valid email address (e.g., name@email.com)";
       }
 
       if (
@@ -345,26 +347,62 @@ function Checkout() {
           // Process front/main file
           if (
             item.uploadedFile &&
-            item.uploadedFile.file &&
+            (item.uploadedFile.file || item.uploadedFile.base64) &&
             !item.uploadedFile.cloudinaryUrl
           ) {
             try {
+              // Get the file - if File object is lost (e.g. from localStorage),
+              // recreate it from base64
               let fileToUpload = item.uploadedFile.file;
 
-              // Always apply transformations to ensure proper print dimensions
-              // Even if user didn't manually edit position/zoom, we need to
-              // fit the file to the correct print size
-              const dimensions = getPrintDimensions(
-                item.category,
-                item.options,
-              );
-              fileToUpload = await applyImageTransform(
-                item.uploadedFile,
-                dimensions,
-                false, // no grayscale for front
-              );
+              if (!fileToUpload || !(fileToUpload instanceof File)) {
+                // Recreate File from base64
+                console.log("Recreating File from base64");
+                const base64 = item.uploadedFile.base64;
+                const response = await fetch(base64);
+                const blob = await response.blob();
+                fileToUpload = new File([blob], item.uploadedFile.fileName, {
+                  type: item.uploadedFile.fileType,
+                });
+              }
 
-              // Upload the (transformed) file to Cloudinary
+              // For PDFs, only transform if user applied position/zoom
+              // Otherwise upload raw PDF directly
+              const isPDF = fileToUpload.type === "application/pdf";
+              const needsTransform =
+                !isPDF || hasTransformations(item.uploadedFile);
+
+              console.log("File upload check:", {
+                fileName: item.uploadedFile.fileName,
+                fileType: fileToUpload.type,
+                fileSize: fileToUpload.size,
+                isPDF,
+                needsTransform,
+              });
+
+              if (needsTransform) {
+                // Apply transformations to ensure proper print dimensions
+                const dimensions = getPrintDimensions(
+                  item.category,
+                  item.options,
+                );
+                // Pass file data with the correct file object
+                const fileDataForTransform = {
+                  ...item.uploadedFile,
+                  file: fileToUpload,
+                };
+                fileToUpload = await applyImageTransform(
+                  fileDataForTransform,
+                  dimensions,
+                  false, // no grayscale for front
+                );
+                console.log("After transform:", {
+                  fileType: fileToUpload.type,
+                  fileSize: fileToUpload.size,
+                });
+              }
+
+              // Upload the (transformed or raw) file to Cloudinary
               const uploadResult = await uploadToCloudinary(fileToUpload);
 
               // Replace local file data with Cloudinary URL
@@ -388,24 +426,54 @@ function Checkout() {
           // Process back file (for double-sided products)
           if (
             item.uploadedBackFile &&
-            item.uploadedBackFile.file &&
+            (item.uploadedBackFile.file || item.uploadedBackFile.base64) &&
             !item.uploadedBackFile.cloudinaryUrl
           ) {
             try {
+              // Get the file - if File object is lost (e.g. from localStorage),
+              // recreate it from base64
               let fileToUpload = item.uploadedBackFile.file;
 
-              // Always apply transformations for back file as well
-              const dimensions = getPrintDimensions(
-                item.category,
-                item.options,
-              );
-              fileToUpload = await applyImageTransform(
-                item.uploadedBackFile,
-                dimensions,
-                item.uploadedBackFile.applyGrayscale || false,
-              );
+              if (!fileToUpload || !(fileToUpload instanceof File)) {
+                // Recreate File from base64
+                console.log("Recreating back File from base64");
+                const base64 = item.uploadedBackFile.base64;
+                const response = await fetch(base64);
+                const blob = await response.blob();
+                fileToUpload = new File(
+                  [blob],
+                  item.uploadedBackFile.fileName,
+                  {
+                    type: item.uploadedBackFile.fileType,
+                  },
+                );
+              }
 
-              // Upload the (transformed) back file to Cloudinary
+              // For PDFs, only transform if user applied position/zoom
+              // Otherwise upload raw PDF directly
+              const isPDF = fileToUpload.type === "application/pdf";
+              const needsTransform =
+                !isPDF || hasTransformations(item.uploadedBackFile);
+
+              if (needsTransform) {
+                // Apply transformations for back file
+                const dimensions = getPrintDimensions(
+                  item.category,
+                  item.options,
+                );
+                // Pass file data with the correct file object
+                const fileDataForTransform = {
+                  ...item.uploadedBackFile,
+                  file: fileToUpload,
+                };
+                fileToUpload = await applyImageTransform(
+                  fileDataForTransform,
+                  dimensions,
+                  item.uploadedBackFile.applyGrayscale || false,
+                );
+              }
+
+              // Upload the (transformed or raw) back file to Cloudinary
               const uploadResult = await uploadToCloudinary(fileToUpload);
 
               // Replace local file data with Cloudinary URL
@@ -905,15 +973,14 @@ function Checkout() {
               <h3 className="checkout__turnaround-title">Turnaround Times</h3>
               <div className="checkout__turnaround-info">
                 <p className="checkout__turnaround-item">
-                  <strong>Standard Orders:</strong> 5-7 business
-                  days
+                  <strong>Standard Orders:</strong> 5-7 business days
                 </p>
                 <p className="checkout__turnaround-item">
-                  <strong>Custom Orders:</strong> 7-10 business
-                  days
+                  <strong>Custom Orders:</strong> 7-10 business days
                 </p>
                 <p className="checkout__turnaround-item">
-                  <strong>Rush Orders:</strong> Please call to confirm availability
+                  <strong>Rush Orders:</strong> Please call to confirm
+                  availability
                 </p>
               </div>
             </section>
