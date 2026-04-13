@@ -372,13 +372,13 @@ function Checkout() {
               const needsTransform =
                 !isPDF || hasTransformations(item.uploadedFile);
 
-              console.log("File upload check:", {
-                fileName: item.uploadedFile.fileName,
-                fileType: fileToUpload.type,
-                fileSize: fileToUpload.size,
-                isPDF,
-                needsTransform,
-              });
+              // console.log("File upload check:", {
+              //   fileName: item.uploadedFile.fileName,
+              //   fileType: fileToUpload.type,
+              //   fileSize: fileToUpload.size,
+              //   isPDF,
+              //   needsTransform,
+              // });
 
               if (needsTransform) {
                 // Apply transformations to ensure proper print dimensions

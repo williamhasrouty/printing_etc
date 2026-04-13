@@ -716,15 +716,30 @@ function Admin({ onProductsChange }) {
     }
   };
 
-  const handleDownloadFile = (fileUrl, fileName) => {
-    // Open Cloudinary URL in new tab for download
-    const link = document.createElement("a");
-    link.href = fileUrl;
-    link.target = "_blank";
-    link.download = fileName || "download";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadFile = async (fileUrl, fileName) => {
+    try {
+      const token = localStorage.getItem("jwt");
+      const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3002";
+      const proxyUrl = `${BASE_URL}/upload/download?url=${encodeURIComponent(fileUrl)}`;
+
+      const response = await fetch(proxyUrl, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) throw new Error("Download failed");
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectUrl;
+      link.download = fileName || "download";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(objectUrl);
+    } catch (err) {
+      console.error("Download error:", err);
+    }
   };
 
   const formatDate = (dateString) => {
