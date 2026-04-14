@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import CartContext from "../../contexts/CartContext";
 import { getUserOrders } from "../../utils/api";
-import { updateUser, updatePassword } from "../../utils/auth";
+import { getStoredToken, updateUser, updatePassword } from "../../utils/auth";
 import "./Profile.css";
 
 function Profile() {
@@ -53,7 +53,7 @@ function Profile() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
     if (token && currentUser) {
       getUserOrders(token)
         .then((data) => {
@@ -87,7 +87,7 @@ function Profile() {
       return;
     }
 
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
     updateUser(name, token)
       .then((updatedUser) => {
         if (setCurrentUser) {
@@ -123,7 +123,7 @@ function Profile() {
       return;
     }
 
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
     updatePassword(currentPassword, newPassword, token)
       .then(() => {
         setMessage("Password updated successfully");

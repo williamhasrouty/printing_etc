@@ -1,5 +1,7 @@
 import { BASE_URL } from "./constants";
 
+const JWT_KEY = "jwt";
+
 // Generic request function
 const request = (url, options) => {
   return fetch(url, options).then((res) => {
@@ -8,6 +10,26 @@ const request = (url, options) => {
     }
     return Promise.reject(`Error: ${res.status}`);
   });
+};
+
+export const getStoredToken = () => {
+  return localStorage.getItem(JWT_KEY) || sessionStorage.getItem(JWT_KEY);
+};
+
+export const storeAuthToken = (token, rememberMe = false) => {
+  if (rememberMe) {
+    localStorage.setItem(JWT_KEY, token);
+    sessionStorage.removeItem(JWT_KEY);
+    return;
+  }
+
+  sessionStorage.setItem(JWT_KEY, token);
+  localStorage.removeItem(JWT_KEY);
+};
+
+export const clearAuthToken = () => {
+  localStorage.removeItem(JWT_KEY);
+  sessionStorage.removeItem(JWT_KEY);
 };
 
 // Register user

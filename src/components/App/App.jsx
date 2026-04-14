@@ -20,8 +20,11 @@ import CartContext from "../../contexts/CartContext";
 import { getProducts } from "../../utils/api";
 import {
   checkToken,
+  clearAuthToken,
+  getStoredToken,
   login as loginUser,
   register as registerUser,
+  storeAuthToken,
 } from "../../utils/auth";
 import "./App.css";
 
@@ -54,7 +57,7 @@ function App() {
   const [cartItems, setCartItems] = useState(() => {
     try {
       // Try to get user from token to load their cart
-      const token = localStorage.getItem("jwt");
+      const token = getStoredToken();
       let cartKey = "cart_guest";
 
       if (token) {
@@ -92,7 +95,7 @@ function App() {
 
   // Check token on mount
   useEffect(() => {
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
     if (!token) {
       setIsCheckingAuth(false);
       return;
@@ -105,7 +108,7 @@ function App() {
       })
       .catch((err) => {
         console.error(err);
-        localStorage.removeItem("jwt");
+        clearAuthToken();
       })
       .finally(() => setIsCheckingAuth(false));
   }, []);
@@ -237,9 +240,9 @@ function App() {
   const closeActiveModal = () => setActiveModal("");
 
   // Auth handlers
-  const handleLogin = (email, password) => {
+  const handleLogin = (email, password, rememberMe = false) => {
     return loginUser(email, password).then((data) => {
-      localStorage.setItem("jwt", data.token);
+      storeAuthToken(data.token, rememberMe);
       initializedUserIdRef.current = null; // Reset to allow cart merge
       setCurrentUser(data.user);
       setIsLoggedIn(true);
@@ -254,7 +257,7 @@ function App() {
 
   const handleRegister = (email, password, name, phone) => {
     return registerUser(email, password, name, phone).then((data) => {
-      localStorage.setItem("jwt", data.token);
+      storeAuthToken(data.token, true);
       initializedUserIdRef.current = null; // Reset to allow cart merge
       setCurrentUser(data.user);
       setIsLoggedIn(true);
@@ -295,7 +298,7 @@ function App() {
       }
     }
 
-    localStorage.removeItem("jwt");
+    clearAuthToken();
     initializedUserIdRef.current = null; // Reset for next login
     setCurrentUser(null);
     setIsLoggedIn(false);

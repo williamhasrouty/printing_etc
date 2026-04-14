@@ -9,6 +9,7 @@ import {
   updateProduct,
   deleteProduct,
 } from "../../utils/api";
+import { getStoredToken } from "../../utils/auth";
 import "./Admin.css";
 
 function Admin({ onProductsChange }) {
@@ -81,7 +82,7 @@ function Admin({ onProductsChange }) {
   // Fetch all orders
   useEffect(() => {
     if (currentUser && currentUser.role === "admin") {
-      const token = localStorage.getItem("jwt");
+      const token = getStoredToken();
       setIsLoading(true);
 
       getAllOrders(token)
@@ -221,7 +222,7 @@ function Admin({ onProductsChange }) {
 
   const handleSaveProduct = async (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
 
     // Strip _id from option array items (added by Mongoose) so validation passes
     const stripIds = (arr) => (arr || []).map(({ _id, __v, ...rest }) => rest);
@@ -318,7 +319,7 @@ function Admin({ onProductsChange }) {
   };
 
   const persistProductOrder = async (orderedProducts) => {
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
 
     try {
       await Promise.all(
@@ -663,7 +664,7 @@ function Admin({ onProductsChange }) {
       return;
     }
 
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
     try {
       await deleteProduct(productId, token);
       const deletedList = products.filter((p) => p._id !== productId);
@@ -685,7 +686,7 @@ function Admin({ onProductsChange }) {
     setUpdateError("");
     setUpdateSuccess("");
 
-    const token = localStorage.getItem("jwt");
+    const token = getStoredToken();
     const statusData = { status: newStatus };
     if (trackingNumber.trim()) {
       statusData.trackingNumber = trackingNumber;
@@ -718,7 +719,7 @@ function Admin({ onProductsChange }) {
 
   const handleDownloadFile = async (fileUrl, fileName) => {
     try {
-      const token = localStorage.getItem("jwt");
+      const token = getStoredToken();
       const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3002";
       const proxyUrl = `${BASE_URL}/upload/download?url=${encodeURIComponent(fileUrl)}`;
 

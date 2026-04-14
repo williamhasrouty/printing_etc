@@ -6,6 +6,7 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import NotificationModal from "../NotificationModal/NotificationModal";
 import PaymentForm from "../PaymentForm/PaymentForm";
 import { createOrder } from "../../utils/api";
+import { getStoredToken } from "../../utils/auth";
 import { uploadToCloudinary } from "../FileUpload/FileUpload";
 import {
   applyImageTransform,
@@ -526,7 +527,7 @@ function Checkout() {
       }
 
       // Create order with payment method ID (never send raw card data!)
-      const token = localStorage.getItem("jwt");
+      const token = getStoredToken();
       const orderData = {
         // Note: userId is determined by backend from JWT token in Authorization header
         customerInfo: !currentUser

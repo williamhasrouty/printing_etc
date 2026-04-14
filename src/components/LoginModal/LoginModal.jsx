@@ -4,6 +4,7 @@ import ModalWithForm from "../ModalWithForm/ModalWithForm";
 function LoginModal({ onClose, onLogin, onRegisterClick }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -30,7 +31,7 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
     setIsSubmitting(true);
     setErrors({});
 
-    onLogin(email, password)
+    onLogin(email, password, rememberMe)
       .catch((err) => {
         setErrors({ submit: "Login failed. Please check your credentials." });
         console.error(err);
@@ -85,6 +86,16 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
             Password must be at least 8 characters long
           </span>
         )}
+      </label>
+
+      <label htmlFor="remember-me" className="modal__label">
+        <input
+          type="checkbox"
+          id="remember-me"
+          checked={rememberMe}
+          onChange={(e) => setRememberMe(e.target.checked)}
+        />{" "}
+        Remember me
       </label>
 
       {errors.submit && <span className="modal__error">{errors.submit}</span>}
