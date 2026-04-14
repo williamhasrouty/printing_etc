@@ -12,9 +12,13 @@ function Profile() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
   const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [email, setEmail] = useState(currentUser?.email || "");
   const [name, setName] = useState(currentUser?.name || "");
+  const [phone, setPhone] = useState(currentUser?.phone || "");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,8 +26,23 @@ function Profile() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setEmail(currentUser?.email || "");
     setName(currentUser?.name || "");
+    setPhone(currentUser?.phone || "");
   }, [currentUser]);
+
+  const isValidEmail = (value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value);
+  };
+
+  const formatPhone = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 10);
+
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  };
 
   const handleReorder = (order) => {
     // Convert order items to cart format
@@ -88,7 +107,7 @@ function Profile() {
     }
 
     const token = getStoredToken();
-    updateUser(name, token)
+    updateUser({ name }, token)
       .then((updatedUser) => {
         if (setCurrentUser) {
           setCurrentUser(updatedUser);
@@ -99,6 +118,66 @@ function Profile() {
       })
       .catch((err) => {
         setError("Failed to update name");
+        console.error(err);
+      });
+  };
+
+  const handleUpdatePhone = (e) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+
+    const digitsOnly = phone.replace(/\D/g, "");
+    if (digitsOnly.length > 0 && digitsOnly.length < 10) {
+      setError("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    const token = getStoredToken();
+    updateUser({ phone }, token)
+      .then((updatedUser) => {
+        if (setCurrentUser) {
+          setCurrentUser(updatedUser);
+        }
+        setPhone(updatedUser?.phone || "");
+        setMessage("Phone number updated successfully");
+        setIsEditingPhone(false);
+        setTimeout(() => setMessage(""), 3000);
+      })
+      .catch((err) => {
+        setError("Failed to update phone number");
+        console.error(err);
+      });
+  };
+
+  const handleUpdateEmail = (e) => {
+    e.preventDefault();
+    setError("");
+    setMessage("");
+
+    if (!email.trim() || !isValidEmail(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    const token = getStoredToken();
+    updateUser({ email }, token)
+      .then((updatedUser) => {
+        if (setCurrentUser) {
+          setCurrentUser(updatedUser);
+        }
+        setEmail(updatedUser?.email || "");
+        setMessage("Email updated successfully");
+        setIsEditingEmail(false);
+        setTimeout(() => setMessage(""), 3000);
+      })
+      .catch((err) => {
+        const msg = String(err);
+        if (msg.includes("409") || msg.toLowerCase().includes("exists")) {
+          setError("This email is already in use.");
+        } else {
+          setError("Failed to update email");
+        }
         console.error(err);
       });
   };
@@ -197,12 +276,93 @@ function Profile() {
               )}
             </div>
 
-            <p className="profile__detail">
+            <div className="profile__detail">
               <span className="profile__detail-label">Email:</span>
-              <span className="profile__detail-value">
-                {currentUser?.email || ""}
-              </span>
-            </p>
+              {!isEditingEmail ? (
+                <div className="profile__detail-content">
+                  <span className="profile__detail-value">
+                    {currentUser?.email || ""}
+                  </span>
+                  <button
+                    className="profile__edit-btn"
+                    onClick={() => setIsEditingEmail(true)}
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleUpdateEmail}
+                  className="profile__edit-form"
+                >
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="profile__input"
+                    placeholder="Email"
+                  />
+                  <button type="submit" className="profile__save-btn">
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="profile__cancel-btn"
+                    onClick={() => {
+                      setIsEditingEmail(false);
+                      setEmail(currentUser?.email || "");
+                      setError("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </form>
+              )}
+            </div>
+
+            <div className="profile__detail">
+              <span className="profile__detail-label">Phone:</span>
+              {!isEditingPhone ? (
+                <div className="profile__detail-content">
+                  <span className="profile__detail-value">
+                    {currentUser?.phone || "Not added"}
+                  </span>
+                  <button
+                    className="profile__edit-btn"
+                    onClick={() => setIsEditingPhone(true)}
+                  >
+                    Edit
+                  </button>
+                </div>
+              ) : (
+                <form
+                  onSubmit={handleUpdatePhone}
+                  className="profile__edit-form"
+                >
+                  <input
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPhone(e.target.value))}
+                    className="profile__input"
+                    placeholder="(123) 456-7890"
+                  />
+                  <button type="submit" className="profile__save-btn">
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="profile__cancel-btn"
+                    onClick={() => {
+                      setIsEditingPhone(false);
+                      setPhone(currentUser?.phone || "");
+                      setError("");
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </form>
+              )}
+            </div>
 
             <div className="profile__detail">
               <span className="profile__detail-label">Password:</span>

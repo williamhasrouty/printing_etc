@@ -77,14 +77,14 @@ export const checkToken = (token) => {
 };
 
 // Update user profile
-export const updateUser = (name, token) => {
+export const updateUser = (profileData, token) => {
   return request(`${BASE_URL}/users/me`, {
     method: "PATCH",
     headers: {
       "Content-Type": "application/json",
       authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ name }),
+    body: JSON.stringify(profileData),
   });
 };
 
