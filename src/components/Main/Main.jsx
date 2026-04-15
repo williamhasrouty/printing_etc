@@ -1,19 +1,26 @@
 import ProductGallery from "../ProductGallery/ProductGallery";
 import "./Main.css";
-import printingPress1 from "../../assets/images/Old_Threshers_Miehle_Press_Drum.jpg";
-import printingPress2 from "../../assets/images/printing-press-invention.webp";
-import printingPress3 from "../../assets/images/history-of-printing.jpg";
-import printingPress4 from "../../assets/images/Letterpress-printing-offers-a-unique-and-sophisticated-product-with-superior-quality..jpg";
-import printingPress5 from "../../assets/images/ghows-NY-4b80397e-4b7b-25b0-e053-0100007ffaf9-ce1a0fe0.webp";
 
 function Main({ products, isLoading }) {
-  const images = [
-    printingPress1,
-    printingPress2,
-    printingPress3,
-    printingPress4,
-    printingPress5,
-  ];
+  const customerWorkModules = import.meta.glob(
+    "../../assets/images/customer-work/*.{jpg,jpeg,png,webp}",
+    { eager: true, import: "default" },
+  );
+
+  const images = Object.entries(customerWorkModules)
+    .sort(([pathA], [pathB]) => {
+      const fileA = pathA.split("/").pop() || "";
+      const fileB = pathB.split("/").pop() || "";
+      const numA = parseInt(fileA, 10);
+      const numB = parseInt(fileB, 10);
+
+      if (!Number.isNaN(numA) && !Number.isNaN(numB)) {
+        return numA - numB;
+      }
+
+      return fileA.localeCompare(fileB);
+    })
+    .map(([, img]) => img);
 
   return (
     <main className="main">
@@ -25,7 +32,6 @@ function Main({ products, isLoading }) {
               Quality Printing & Affordable Prices. <br></br>
               Serving the Antelope Valley since 2008.
             </p>
-            
           </div>
           <div className="main__hero-ticker">
             <div className="main__hero-ticker-track">
@@ -33,7 +39,7 @@ function Main({ products, isLoading }) {
                 <img
                   key={`first-${index}`}
                   src={img}
-                  alt="Printing press"
+                  alt="Customer printed product"
                   className="main__hero-ticker-image"
                 />
               ))}
@@ -41,7 +47,7 @@ function Main({ products, isLoading }) {
                 <img
                   key={`second-${index}`}
                   src={img}
-                  alt="Printing press"
+                  alt="Customer printed product"
                   className="main__hero-ticker-image"
                 />
               ))}
@@ -52,7 +58,7 @@ function Main({ products, isLoading }) {
 
       <section className="main__products">
         <div className="main__container">
-          <h2 className="main__section-title">Our Products</h2>
+          <h2 className="main__section-title">Shop Our Products</h2>
           {isLoading ? (
             <p className="main__loading">Loading products...</p>
           ) : (

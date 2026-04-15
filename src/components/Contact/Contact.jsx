@@ -1,10 +1,47 @@
 import "./Contact.css";
+import printingPress1 from "../../assets/images/Old_Threshers_Miehle_Press_Drum.jpg";
+import printingPress2 from "../../assets/images/printing-press-invention.webp";
+import printingPress3 from "../../assets/images/history-of-printing.jpg";
+import printingPress4 from "../../assets/images/Letterpress-printing-offers-a-unique-and-sophisticated-product-with-superior-quality..jpg";
+import printingPress5 from "../../assets/images/ghows-NY-4b80397e-4b7b-25b0-e053-0100007ffaf9-ce1a0fe0.webp";
 
 function Contact() {
+  const customerProductImages = [
+    printingPress1,
+    printingPress2,
+    printingPress3,
+    printingPress4,
+    printingPress5,
+  ];
+
   return (
     <main className="contact">
       <div className="contact__container">
         <h1 className="contact__title">Contact Us</h1>
+{/* 
+        <section
+          className="contact__gallery"
+          aria-label="Customer product gallery"
+        >
+          <div className="contact__gallery-track">
+            {customerProductImages.map((img, index) => (
+              <img
+                key={`contact-gallery-first-${index}`}
+                src={img}
+                alt="Printing press"
+                className="contact__gallery-image"
+              />
+            ))}
+            {customerProductImages.map((img, index) => (
+              <img
+                key={`contact-gallery-second-${index}`}
+                src={img}
+                alt="Printing press"
+                className="contact__gallery-image"
+              />
+            ))}
+          </div>
+        </section> */}
 
         <div className="contact__content">
           <section className="contact__info">

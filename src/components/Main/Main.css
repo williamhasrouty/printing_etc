@@ -50,32 +50,44 @@
 
 .main__hero-content {
   max-width: 1000px;
-  margin: 0 auto 40px;
+  margin: 0 auto 10px;
   text-align: center;
   color: #fff;
 }
 
 .main__hero-ticker {
   width: 100%;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: visible;
   position: relative;
-  margin-top: 40px;
+  padding: 20px 0;
 }
 
 .main__hero-ticker-track {
   display: flex;
-  gap: 20px;
-  animation: scroll 40s linear infinite;
+  gap: 24px;
+  animation: scroll 80s linear infinite;
   width: fit-content;
 }
 
 .main__hero-ticker-image {
-  height: 120px;
+  height: 145px;
   width: auto;
   object-fit: cover;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.main__hero-ticker-image:hover {
+  transform: scale(1.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+  border-radius: 8px;
+  position: relative;
+  z-index: 10;
 }
 
 @keyframes scroll {
@@ -90,7 +102,7 @@
 .main__hero-title {
   font-size: 48px;
   font-weight: 400;
-  margin: 0 0 20px;
+  margin: 10px 0 20px;
   color: #fff;
 }
 
@@ -150,7 +162,7 @@
 .main__section-title {
   font-size: 36px;
   font-weight: 400;
-  margin: 0 0 40px;
+  margin: 10px 0 40px;
   text-align: center;
   font-family: "Bungee", "Roboto", Arial, sans-serif;
   color: #ffffff;
