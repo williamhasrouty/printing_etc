@@ -62,7 +62,7 @@ function Main({ products, isLoading }) {
             We also offer a wide range of other printing services including:
             <br />
             Copies, Labels, Invoices, Brochures, Menus, A-Frames, Yard Signs,
-            Car Magnets, Letterheads, Envelopes, Presentation Folders, etc.
+            Booklets, Letterheads, Envelopes, Presentation Folders, etc.
             <br />
             <br />
             Contact us for a custom quote on any printing project!

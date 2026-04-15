@@ -115,6 +115,15 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
             </>
           )}
         </nav>
+
+        {isMobileMenuOpen && (
+          <button
+            type="button"
+            className="header__overlay"
+            aria-label="Close menu"
+            onClick={closeMobileMenu}
+          />
+        )}
       </div>
     </header>
   );
