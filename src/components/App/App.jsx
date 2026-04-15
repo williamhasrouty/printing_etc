@@ -13,6 +13,7 @@ import Profile from "../Profile/Profile";
 import Admin from "../Admin/Admin";
 import Contact from "../Contact/Contact";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
+import ScrollToTop from "../ScrollToTop/ScrollToTop";
 import LoginModal from "../LoginModal/LoginModal";
 import RegisterModal from "../RegisterModal/RegisterModal";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
@@ -381,6 +382,7 @@ function App() {
         }}
       >
         <div className="page">
+          <ScrollToTop />
           <Header
             onLoginClick={handleOpenLoginModal}
             onRegisterClick={handleOpenRegisterModal}
