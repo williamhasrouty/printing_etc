@@ -1,5 +1,6 @@
 import { useState } from "react";
 import ModalWithForm from "../ModalWithForm/ModalWithForm";
+import { forgotPassword } from "../../utils/api";
 
 function LoginModal({ onClose, onLogin, onRegisterClick }) {
   const [email, setEmail] = useState("");
@@ -7,6 +8,10 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
+  const [forgotPasswordMessage, setForgotPasswordMessage] = useState("");
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   // Email validation function
   const isValidEmail = (email) => {
@@ -38,6 +43,38 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
       })
       .finally(() => {
         setIsSubmitting(false);
+      });
+  };
+
+  const handleForgotPassword = (e) => {
+    e.preventDefault();
+    if (!isValidEmail(forgotPasswordEmail)) {
+      setForgotPasswordMessage("Please enter a valid email address");
+      return;
+    }
+
+    setIsSendingReset(true);
+    setForgotPasswordMessage("");
+
+    forgotPassword(forgotPasswordEmail)
+      .then((response) => {
+        setForgotPasswordMessage(
+          response.message ||
+            "If an account exists with this email, you will receive password reset instructions shortly.",
+        );
+        setTimeout(() => {
+          setShowForgotPassword(false);
+          setForgotPasswordEmail("");
+          setForgotPasswordMessage("");
+          setIsSendingReset(false);
+        }, 4000);
+      })
+      .catch((err) => {
+        console.error("Forgot password error:", err);
+        setForgotPasswordMessage(
+          "Unable to process request. Please try again later.",
+        );
+        setIsSendingReset(false);
       });
   };
 
@@ -88,17 +125,77 @@ function LoginModal({ onClose, onLogin, onRegisterClick }) {
         )}
       </label>
 
-      <label htmlFor="remember-me" className="modal__label">
-        <input
-          type="checkbox"
-          id="remember-me"
-          checked={rememberMe}
-          onChange={(e) => setRememberMe(e.target.checked)}
-        />{" "}
-        Remember me
-      </label>
+      <div className="modal__remember-row">
+        <label htmlFor="remember-me" className="modal__label modal__checkbox">
+          <input
+            type="checkbox"
+            id="remember-me"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+          />{" "}
+          Remember me
+        </label>
+
+        <button
+          type="button"
+          className="modal__link"
+          onClick={() => setShowForgotPassword(true)}
+        >
+          Forgot Password?
+        </button>
+      </div>
 
       {errors.submit && <span className="modal__error">{errors.submit}</span>}
+
+      {showForgotPassword && (
+        <div className="modal__forgot-password">
+          <h4 className="modal__forgot-title">Reset Password</h4>
+          <p className="modal__forgot-text">
+            Enter your email address and we'll send you instructions to reset
+            your password.
+          </p>
+          <input
+            type="email"
+            className="modal__input"
+            placeholder="Email"
+            value={forgotPasswordEmail}
+            onChange={(e) => setForgotPasswordEmail(e.target.value)}
+          />
+          {forgotPasswordMessage && (
+            <p
+              className={
+                forgotPasswordMessage.includes("valid")
+                  ? "modal__error"
+                  : "modal__success"
+              }
+            >
+              {forgotPasswordMessage}
+            </p>
+          )}
+          <div className="modal__forgot-actions">
+            <button
+              type="button"
+              className="modal__forgot-btn modal__forgot-btn_submit"
+              onClick={handleForgotPassword}
+              disabled={isSendingReset}
+            >
+              {isSendingReset ? "Sending..." : "Send Reset Link"}
+            </button>
+            <button
+              type="button"
+              className="modal__forgot-btn modal__forgot-btn_cancel"
+              onClick={() => {
+                setShowForgotPassword(false);
+                setForgotPasswordEmail("");
+                setForgotPasswordMessage("");
+              }}
+              disabled={isSendingReset}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
     </ModalWithForm>
   );
 }

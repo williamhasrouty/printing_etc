@@ -96,6 +96,28 @@ export const updateUserProfile = (data, token) => {
   });
 };
 
+// Request password reset
+export const forgotPassword = (email) => {
+  return request(`${BASE_URL}/forgot-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+};
+
+// Reset password with token
+export const resetPassword = (token, newPassword) => {
+  return request(`${BASE_URL}/reset-password`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ token, newPassword }),
+  });
+};
+
 // Admin API functions
 
 // Get all orders (admin only)

@@ -12,6 +12,7 @@ import OrderSummary from "../OrderSummary/OrderSummary";
 import Profile from "../Profile/Profile";
 import Admin from "../Admin/Admin";
 import Contact from "../Contact/Contact";
+import ResetPassword from "../ResetPassword/ResetPassword";
 import ProtectedRoute from "../ProtectedRoute/ProtectedRoute";
 import ScrollToTop from "../ScrollToTop/ScrollToTop";
 import LoginModal from "../LoginModal/LoginModal";
@@ -407,6 +408,10 @@ function App() {
               }
             />
             <Route path="/contact" element={<Contact />} />
+            <Route
+              path="/reset-password"
+              element={<ResetPassword onLoginClick={handleOpenLoginModal} />}
+            />
             <Route
               path="/checkout"
               element={
