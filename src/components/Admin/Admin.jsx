@@ -49,7 +49,6 @@ function Admin({ onProductsChange }) {
   const [productFormData, setProductFormData] = useState({
     name: "",
     description: "",
-    category: "",
     basePrice: "",
     imageUrl: "",
     options: {
@@ -175,7 +174,6 @@ function Admin({ onProductsChange }) {
     setProductFormData({
       name: product.name || "",
       description: product.description || "",
-      category: product.category || "",
       basePrice: product.basePrice || "",
       imageUrl: product.imageUrl || "",
       options: {
@@ -200,7 +198,6 @@ function Admin({ onProductsChange }) {
     setProductFormData({
       name: "",
       description: "",
-      category: "",
       basePrice: "",
       imageUrl: "",
       options: {
@@ -796,9 +793,7 @@ function Admin({ onProductsChange }) {
       <div className="admin__container">
         <div className="admin__header">
           <h1 className="admin__title">Admin Dashboard</h1>
-          <p className="admin__subtitle">
-            Manage orders, products, and inventory
-          </p>
+          <p className="admin__subtitle">Manage orders and products</p>
         </div>
 
         {/* Tab Navigation */}
@@ -1304,32 +1299,6 @@ function Admin({ onProductsChange }) {
                             required
                             className="admin__form-input"
                           />
-                        </div>
-
-                        <div className="admin__form-field">
-                          <label>Category *</label>
-                          <select
-                            value={productFormData.category}
-                            onChange={(e) =>
-                              setProductFormData({
-                                ...productFormData,
-                                category: e.target.value,
-                              })
-                            }
-                            required
-                            className="admin__form-input"
-                          >
-                            <option value="">Select category</option>
-                            <option value="business-cards">
-                              Business Cards
-                            </option>
-                            <option value="flyers">Flyers</option>
-                            <option value="brochures">Brochures</option>
-                            <option value="banners">Banners</option>
-                            <option value="posters">Posters</option>
-                            <option value="stickers">Stickers</option>
-                            <option value="invitations">Invitations</option>
-                          </select>
                         </div>
 
                         <div className="admin__form-field">
