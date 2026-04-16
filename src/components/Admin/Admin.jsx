@@ -1244,7 +1244,7 @@ function Admin({ onProductsChange }) {
                 <input
                   type="text"
                   className="admin__search-input"
-                  placeholder="Search products by name, category..."
+                  placeholder="Search products by name..."
                   value={productSearchQuery}
                   onChange={(e) => setProductSearchQuery(e.target.value)}
                 />
