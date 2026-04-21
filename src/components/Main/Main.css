@@ -65,7 +65,7 @@
 
 .main__hero-ticker-track {
   display: flex;
-  gap: 24px;
+  gap: 0;
   animation: scroll 80s linear infinite;
   width: fit-content;
 }
@@ -74,7 +74,7 @@
   height: 145px;
   width: auto;
   object-fit: cover;
-  border-radius: 8px;
+  border-radius: 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
   flex-shrink: 0;
   transition:
@@ -85,7 +85,7 @@
 .main__hero-ticker-image:hover {
   transform: scale(1.15);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-  border-radius: 8px;
+  border-radius: 0;
   position: relative;
   z-index: 10;
 }
