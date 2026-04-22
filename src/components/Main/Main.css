@@ -10,7 +10,7 @@
   font-family: "Bungee", "Roboto", Arial, sans-serif;
   max-width: 1300px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 20px 0;
   /* background: linear-gradient(180deg, #2c2c2c 0%, #00b4d8 50%, #2c2c2c 100%); */
   background-color: rgba(0, 180, 216, 0.5);
   /* background-image:
@@ -71,7 +71,7 @@
 }
 
 .main__hero-ticker-image {
-  height: 145px;
+  height: 200px;
   width: auto;
   object-fit: cover;
   border-radius: 0;
@@ -85,7 +85,7 @@
 .main__hero-ticker-image:hover {
   transform: scale(1.15);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
-  border-radius: 0;
+  border-radius: 5px;
   position: relative;
   z-index: 10;
 }
