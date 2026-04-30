@@ -41,7 +41,7 @@
   font-size: 36px;
   font-weight: 400;
   margin: 0 0 40px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   color: #fff;
 }
 
@@ -93,14 +93,14 @@
   padding: 40px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .contact__subtitle {
   font-size: 28px;
   font-weight: 400;
   margin: 0 0 16px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .contact__text {

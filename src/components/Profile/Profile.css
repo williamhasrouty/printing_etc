@@ -29,7 +29,7 @@
     100px 100px,
     60px 60px,
     90px 90px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .profile__container {
@@ -50,7 +50,7 @@
   font-size: 36px;
   font-weight: 400;
   margin: 0 0 24px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   color: #333;
 }
 
@@ -198,7 +198,7 @@
   font-size: 28px;
   font-weight: 400;
   margin: 0 0 24px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .profile__loading,
@@ -250,7 +250,7 @@
   font-weight: 600;
   font-size: 18px;
   color: #333;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .profile__order-date {

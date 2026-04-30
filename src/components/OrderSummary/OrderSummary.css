@@ -60,7 +60,7 @@
   text-align: center;
   margin: 0 0 12px;
   color: #333;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .order-summary__subtitle {
@@ -197,7 +197,7 @@
   text-decoration: none;
   transition: background-color 0.2s;
   display: inline-block;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .order-summary__button:hover {

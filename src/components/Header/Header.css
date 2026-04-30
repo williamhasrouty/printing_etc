@@ -42,9 +42,10 @@
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  border: 2px solid #ffffff;
   /* background-color: rgba(0, 180, 216, 0.1);*/
-  /* border-radius: 8px;
-  border: 1px solid rgba(0, 180, 216, 0.45);  */
+  border-radius: 8px;
+  
 }
 
 .header__logo {
@@ -52,7 +53,7 @@
   font-weight: 900;
   color: #ffffff;
   text-decoration: none;
-  font-family: "Bungee", Arial, sans-serif;
+  font-family: "BungeeInline", Arial, sans-serif;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   display: flex;
@@ -68,7 +69,7 @@
   text-align: center;
   color: #ffffff;
   font-size: 20px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   margin: 12px 0 0 0;
   opacity: 0.9;
   padding-top: 12px;
@@ -90,7 +91,7 @@
   font-weight: 500;
   transition: color 0.2s;
   position: relative;
-  font-family: "Bungee", Arial, sans-serif;
+  font-family: "BungeeInline", Arial, sans-serif;
 }
 
 .header__link:hover {
@@ -142,7 +143,7 @@
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
-  font-family: "Bungee", Arial, sans-serif;
+  font-family: "BungeeInline", Arial, sans-serif;
 }
 
 .header__button:hover {

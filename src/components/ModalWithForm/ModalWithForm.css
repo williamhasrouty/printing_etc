@@ -10,7 +10,7 @@
   justify-content: center;
   z-index: 1000;
   padding: 20px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .modal__content {
@@ -52,7 +52,7 @@
   margin: 0 0 24px;
   text-align: center;
   color: #333;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .modal__form {
@@ -66,7 +66,7 @@
   font-size: 14px;
   font-weight: 600;
   color: #333;
-  font-family: "Bungee", Arial, sans-serif;
+  font-family: "BungeeInline", Arial, sans-serif;
 }
 
 .modal__input {
@@ -211,7 +211,7 @@
   font-size: 18px;
   font-weight: 600;
   color: #333;
-  font-family: "Bungee", Arial, sans-serif;
+  font-family: "BungeeInline", Arial, sans-serif;
 }
 
 .modal__forgot-text {

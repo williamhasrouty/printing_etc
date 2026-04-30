@@ -36,7 +36,7 @@
   font-size: 42px;
   font-weight: 400;
   margin: 0 0 10px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   color: #d90051;
   text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
 }
@@ -132,7 +132,7 @@
   font-size: 36px;
   font-weight: 700;
   color: #fff;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .admin__stat-label {
@@ -196,7 +196,7 @@
   font-weight: 600;
   color: #2c2c2c;
   margin: 0;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .admin__order-date {
@@ -730,7 +730,7 @@
   font-weight: 600;
   color: #2c2c2c;
   margin: 0;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .admin__form {
@@ -1257,7 +1257,7 @@
   margin: 0 0 10px;
   color: #2c2c2c;
   font-size: 22px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   font-weight: 400;
 }
 

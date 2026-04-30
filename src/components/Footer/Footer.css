@@ -53,7 +53,7 @@
   font-size: 20px;
   font-weight: 400;
   margin: 0 0 8px;
-  font-family: "Bungee", Arial, sans-serif;
+  font-family: "BungeeInline", Arial, sans-serif;
 }
 
 .footer__text {
@@ -100,7 +100,7 @@
   color: #95a5a6;
   max-width: 1200px;
   margin: 0 auto;
-  font-family: "Bungee", Arial, sans-serif;
+  font-family: "BungeeInline", Arial, sans-serif;
 }
 
 @media screen and (max-width: 768px) {

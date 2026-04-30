@@ -41,7 +41,7 @@
   font-size: 36px;
   font-weight: 400;
   margin: 0 0 40px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   color: #fff;
 }
 
@@ -57,7 +57,7 @@
   font-size: 18px;
   color: #666;
   margin: 0 0 24px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .cart__continue-button {
@@ -70,7 +70,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .cart__continue-button:hover {
@@ -182,7 +182,7 @@
   font-size: 24px;
   font-weight: 400;
   margin: 0 0 20px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .cart__summary-row {

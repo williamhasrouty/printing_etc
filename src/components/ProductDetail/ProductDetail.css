@@ -46,7 +46,7 @@
   padding: 0;
   margin-bottom: 30px;
   font-weight: 500;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__back:hover {
@@ -84,7 +84,7 @@
   font-size: 36px;
   font-weight: 400;
   margin: 0;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__description {
@@ -116,7 +116,7 @@
   color: #333;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__select {
@@ -403,14 +403,14 @@
   font-size: 18px;
   font-weight: 600;
   color: #333;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__price-value {
   font-size: 32px;
   font-weight: 400;
   color: #00b4d8;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__turnaround {
@@ -455,7 +455,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: background-color 0.2s;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
 
 .product-detail__add-button:hover {
@@ -535,7 +535,7 @@
   font-size: 24px;
   font-weight: 600;
   color: #00b4d8;
-  font-family: "Bungee", "Roboto", Arial, sans-serif;
+  font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   letter-spacing: 1px;
 }
 
