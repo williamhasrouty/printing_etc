@@ -539,6 +539,8 @@ function Checkout() {
           : null,
         items: processedCartItems, // Use processed items with Cloudinary URLs
         total: calculateTotal(),
+        shippingCost: shippingCost || 0,
+        taxRate: 0.1125,
         paymentMethodId: paymentMethod.id, // Send only the Stripe payment method ID
         deliveryMethod: deliveryMethod,
         billingInfo: {
@@ -998,7 +1000,7 @@ function Checkout() {
                 <p className="checkout__terms-warning">
                   All sales are final once an order has been submitted. Due to
                   the custom nature of our printing services, cancellations are
-                  not permitted, and full charges will apply.*
+                  not permitted, and full charges will apply.
                 </p>
               </div>
 
@@ -1011,7 +1013,7 @@ function Checkout() {
                   required
                 />
                 <span className="checkout__terms-agreement">
-                  I accept the terms and conditions *
+                  I accept the terms and conditions
                 </span>
               </label>
             </section>
