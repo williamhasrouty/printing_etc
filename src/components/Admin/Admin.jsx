@@ -718,13 +718,24 @@ function Admin({ onProductsChange }) {
     try {
       const token = getStoredToken();
       const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3002";
-      const proxyUrl = `${BASE_URL}/upload/download?url=${encodeURIComponent(fileUrl)}`;
+      const proxyUrl = `${BASE_URL}/upload/download?url=${encodeURIComponent(fileUrl)}&filename=${encodeURIComponent(fileName || "")}`;
 
       const response = await fetch(proxyUrl, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!response.ok) throw new Error("Download failed");
+      if (!response.ok) {
+        let message = "Download failed";
+        try {
+          const errData = await response.json();
+          if (errData && errData.message) {
+            message = errData.message;
+          }
+        } catch (e) {
+          // Keep generic message when backend doesn't return JSON
+        }
+        throw new Error(message);
+      }
 
       const blob = await response.blob();
       const objectUrl = URL.createObjectURL(blob);

@@ -8,11 +8,6 @@ import PaymentForm from "../PaymentForm/PaymentForm";
 import { createOrder } from "../../utils/api";
 import { getStoredToken } from "../../utils/auth";
 import { uploadToCloudinary } from "../FileUpload/FileUpload";
-import {
-  applyImageTransform,
-  getPrintDimensions,
-  hasTransformations,
-} from "../../utils/imageTransform";
 import { ANTELOPE_VALLEY_ZIPS, PICKUP_LOCATION } from "../../utils/constants";
 import "./Checkout.css";
 
@@ -358,7 +353,6 @@ function Checkout() {
 
               if (!fileToUpload || !(fileToUpload instanceof File)) {
                 // Recreate File from base64
-                console.log("Recreating File from base64");
                 const base64 = item.uploadedFile.base64;
                 const response = await fetch(base64);
                 const blob = await response.blob();
@@ -367,43 +361,7 @@ function Checkout() {
                 });
               }
 
-              // For PDFs, only transform if user applied position/zoom
-              // Otherwise upload raw PDF directly
-              const isPDF = fileToUpload.type === "application/pdf";
-              const needsTransform =
-                !isPDF || hasTransformations(item.uploadedFile);
-
-              // console.log("File upload check:", {
-              //   fileName: item.uploadedFile.fileName,
-              //   fileType: fileToUpload.type,
-              //   fileSize: fileToUpload.size,
-              //   isPDF,
-              //   needsTransform,
-              // });
-
-              if (needsTransform) {
-                // Apply transformations to ensure proper print dimensions
-                const dimensions = getPrintDimensions(
-                  item.category,
-                  item.options,
-                );
-                // Pass file data with the correct file object
-                const fileDataForTransform = {
-                  ...item.uploadedFile,
-                  file: fileToUpload,
-                };
-                fileToUpload = await applyImageTransform(
-                  fileDataForTransform,
-                  dimensions,
-                  false, // no grayscale for front
-                );
-                console.log("After transform:", {
-                  fileType: fileToUpload.type,
-                  fileSize: fileToUpload.size,
-                });
-              }
-
-              // Upload the (transformed or raw) file to Cloudinary
+              // Upload file directly to Cloudinary
               const uploadResult = await uploadToCloudinary(fileToUpload);
 
               // Replace local file data with Cloudinary URL
@@ -437,7 +395,6 @@ function Checkout() {
 
               if (!fileToUpload || !(fileToUpload instanceof File)) {
                 // Recreate File from base64
-                console.log("Recreating back File from base64");
                 const base64 = item.uploadedBackFile.base64;
                 const response = await fetch(base64);
                 const blob = await response.blob();
@@ -450,31 +407,7 @@ function Checkout() {
                 );
               }
 
-              // For PDFs, only transform if user applied position/zoom
-              // Otherwise upload raw PDF directly
-              const isPDF = fileToUpload.type === "application/pdf";
-              const needsTransform =
-                !isPDF || hasTransformations(item.uploadedBackFile);
-
-              if (needsTransform) {
-                // Apply transformations for back file
-                const dimensions = getPrintDimensions(
-                  item.category,
-                  item.options,
-                );
-                // Pass file data with the correct file object
-                const fileDataForTransform = {
-                  ...item.uploadedBackFile,
-                  file: fileToUpload,
-                };
-                fileToUpload = await applyImageTransform(
-                  fileDataForTransform,
-                  dimensions,
-                  item.uploadedBackFile.applyGrayscale || false,
-                );
-              }
-
-              // Upload the (transformed or raw) back file to Cloudinary
+              // Upload back file directly to Cloudinary
               const uploadResult = await uploadToCloudinary(fileToUpload);
 
               // Replace local file data with Cloudinary URL

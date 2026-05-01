@@ -275,14 +275,6 @@ function ProductDetail({ products }) {
   const [shippingCost, setShippingCost] = useState(null);
   const [shippingCalculated, setShippingCalculated] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [imagePosition, setImagePosition] = useState({ x: 0, y: 0 });
-  const [imagePositionBack, setImagePositionBack] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [isPositionModalOpen, setIsPositionModalOpen] = useState(false);
-  const [editingBackFile, setEditingBackFile] = useState(false);
-  const [zoomLevel, setZoomLevel] = useState(1);
-  const [zoomLevelBack, setZoomLevelBack] = useState(1);
 
   // Reset options when product changes or loads
   useEffect(() => {
@@ -391,7 +383,6 @@ function ProductDetail({ products }) {
 
   const handleFileUploaded = (fileData) => {
     setUploadedFile(fileData);
-    setImagePosition({ x: 0, y: 0 }); // Reset position when new file is uploaded
     if (fileData && fileData.fileType === "application/pdf") {
       setPageNumber(1);
     }
@@ -399,28 +390,21 @@ function ProductDetail({ products }) {
 
   const handleBackFileUploaded = (fileData) => {
     setUploadedBackFile(fileData);
-    setImagePositionBack({ x: 0, y: 0 }); // Reset position when new file is uploaded
   };
 
   const handleDeleteFile = () => {
     if (uploadedFile && uploadedFile.previewUrl) {
-      // Clean up blob URL if it exists
       URL.revokeObjectURL(uploadedFile.previewUrl);
     }
     setUploadedFile(null);
-    setImagePosition({ x: 0, y: 0 });
-    setZoomLevel(1);
     setPageNumber(1);
   };
 
   const handleDeleteBackFile = () => {
     if (uploadedBackFile && uploadedBackFile.previewUrl) {
-      // Clean up blob URL if it exists
       URL.revokeObjectURL(uploadedBackFile.previewUrl);
     }
     setUploadedBackFile(null);
-    setImagePositionBack({ x: 0, y: 0 });
-    setZoomLevelBack(1);
   };
 
   const handleFileError = (errorMessage) => {
@@ -440,103 +424,6 @@ function ProductDetail({ products }) {
 
   const goToNextPage = () => {
     setPageNumber((prev) => Math.min(prev + 1, numPages || 1));
-  };
-
-  // Drag handlers for repositioning the image
-  const handleMouseDown = (e) => {
-    const currentPosition = editingBackFile ? imagePositionBack : imagePosition;
-    setIsDragging(true);
-    setDragStart({
-      x: e.clientX - currentPosition.x,
-      y: e.clientY - currentPosition.y,
-    });
-    e.preventDefault();
-  };
-
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    const newPosition = {
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    };
-    if (editingBackFile) {
-      setImagePositionBack(newPosition);
-    } else {
-      setImagePosition(newPosition);
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleTouchStart = (e) => {
-    const touch = e.touches[0];
-    const currentPosition = editingBackFile ? imagePositionBack : imagePosition;
-    setIsDragging(true);
-    setDragStart({
-      x: touch.clientX - currentPosition.x,
-      y: touch.clientY - currentPosition.y,
-    });
-    e.preventDefault();
-  };
-
-  const handleTouchMove = (e) => {
-    if (!isDragging) return;
-    const touch = e.touches[0];
-    const newPosition = {
-      x: touch.clientX - dragStart.x,
-      y: touch.clientY - dragStart.y,
-    };
-    if (editingBackFile) {
-      setImagePositionBack(newPosition);
-    } else {
-      setImagePosition(newPosition);
-    }
-  };
-
-  const handleTouchEnd = () => {
-    setIsDragging(false);
-  };
-
-  const resetImagePosition = () => {
-    setImagePosition({ x: 0, y: 0 });
-  };
-
-  const openPositionModal = (isBack = false) => {
-    setEditingBackFile(isBack);
-    setIsPositionModalOpen(true);
-  };
-
-  const closePositionModal = () => {
-    setIsPositionModalOpen(false);
-    setEditingBackFile(false);
-  };
-
-  const handleZoomIn = () => {
-    if (editingBackFile) {
-      setZoomLevelBack((prev) => Math.min(prev + 0.25, 3));
-    } else {
-      setZoomLevel((prev) => Math.min(prev + 0.25, 3));
-    }
-  };
-
-  const handleZoomOut = () => {
-    if (editingBackFile) {
-      setZoomLevelBack((prev) => Math.max(prev - 0.25, 0.5));
-    } else {
-      setZoomLevel((prev) => Math.max(prev - 0.25, 0.5));
-    }
-  };
-
-  const handleResetZoom = () => {
-    if (editingBackFile) {
-      setZoomLevelBack(1);
-      setImagePositionBack({ x: 0, y: 0 });
-    } else {
-      setZoomLevel(1);
-      setImagePosition({ x: 0, y: 0 });
-    }
   };
 
   // Calculate preview dimensions based on product size and orientation
@@ -952,9 +839,6 @@ function ProductDetail({ products }) {
             fileSize: uploadedFile.fileSize,
             fileType: uploadedFile.fileType,
             resourceType: uploadedFile.resourceType,
-            // Store transformation data to apply before uploading
-            imagePosition: imagePosition,
-            zoomLevel: zoomLevel,
             pageNumber:
               uploadedFile.fileType === "application/pdf"
                 ? pageNumber
@@ -970,10 +854,7 @@ function ProductDetail({ products }) {
             fileSize: uploadedBackFile.fileSize,
             fileType: uploadedBackFile.fileType,
             resourceType: uploadedBackFile.resourceType,
-            // Store transformation data for back file
-            imagePosition: imagePositionBack,
-            zoomLevel: zoomLevelBack,
-            applyGrayscale: selectedOptions.color === "full-front-grayscale", // Apply grayscale to back if needed
+            applyGrayscale: selectedOptions.color === "full-front-grayscale",
           }
         : null,
       shippingCost: shippingCost || 0,
@@ -1737,14 +1618,6 @@ function ProductDetail({ products }) {
                     <div className="product-detail__preview-actions">
                       <button
                         type="button"
-                        className="product-detail__edit-position-button"
-                        onClick={() => openPositionModal(false)}
-                        title="Edit position and crop"
-                      >
-                        ✂ Edit Position & Crop
-                      </button>
-                      <button
-                        type="button"
                         className="product-detail__delete-button"
                         onClick={handleDeleteFile}
                         title="Delete uploaded file"
@@ -1762,12 +1635,7 @@ function ProductDetail({ products }) {
                           height: `${previewDimensions.height}px`,
                         }}
                       >
-                        <div
-                          className="product-detail__static-content"
-                          style={{
-                            transform: `translate(${imagePosition.x}px, ${imagePosition.y}px) scale(${zoomLevel})`,
-                          }}
-                        >
+                        <div className="product-detail__static-content">
                           {uploadedFile.fileType === "application/pdf" ? (
                             <Document
                               file={uploadedFile.previewUrl}
@@ -1871,14 +1739,6 @@ function ProductDetail({ products }) {
                       <div className="product-detail__preview-actions">
                         <button
                           type="button"
-                          className="product-detail__edit-position-button"
-                          onClick={() => openPositionModal(true)}
-                          title="Edit position and crop"
-                        >
-                          ✂ Edit Position & Crop
-                        </button>
-                        <button
-                          type="button"
                           className="product-detail__delete-button"
                           onClick={handleDeleteBackFile}
                           title="Delete uploaded file"
@@ -1899,7 +1759,6 @@ function ProductDetail({ products }) {
                           <div
                             className="product-detail__static-content"
                             style={{
-                              transform: `translate(${imagePositionBack.x}px, ${imagePositionBack.y}px) scale(${zoomLevelBack})`,
                               filter:
                                 selectedOptions.color === "full-front-grayscale"
                                   ? "grayscale(100%)"
@@ -2028,190 +1887,6 @@ function ProductDetail({ products }) {
           onClose={() => setNotification(null)}
         />
       )}
-
-      {/* Position & Crop Modal */}
-      {isPositionModalOpen &&
-        (editingBackFile ? uploadedBackFile : uploadedFile) && (
-          <div className="position-modal">
-            <div
-              className="position-modal__overlay"
-              onClick={closePositionModal}
-            ></div>
-            <div className="position-modal__content">
-              <div className="position-modal__header">
-                <h2 className="position-modal__title">
-                  Position & Crop Your {editingBackFile ? "Back" : "Front"}{" "}
-                  Design
-                </h2>
-                <button
-                  type="button"
-                  className="position-modal__close"
-                  onClick={closePositionModal}
-                  aria-label="Close"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="position-modal__body">
-                <div className="position-modal__instructions">
-                  Drag the image to position it. Use zoom controls to scale. Red
-                  line = bleed, dashed = trim/cut line.
-                </div>
-
-                <div className="position-modal__controls">
-                  <button
-                    type="button"
-                    className="position-modal__control-button"
-                    onClick={handleZoomOut}
-                    title="Zoom out"
-                  >
-                    −
-                  </button>
-                  <span className="position-modal__zoom-level">
-                    {Math.round(
-                      (editingBackFile ? zoomLevelBack : zoomLevel) * 100,
-                    )}
-                    %
-                  </span>
-                  <button
-                    type="button"
-                    className="position-modal__control-button"
-                    onClick={handleZoomIn}
-                    title="Zoom in"
-                  >
-                    +
-                  </button>
-                  <button
-                    type="button"
-                    className="position-modal__reset-button"
-                    onClick={handleResetZoom}
-                    title="Reset zoom and position"
-                  >
-                    ↻ Reset
-                  </button>
-                </div>
-
-                <div
-                  className="position-modal__canvas"
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
-                >
-                  <div className="position-modal__preview-wrapper">
-                    <div
-                      className="position-modal__content-area"
-                      style={{
-                        width: `${previewDimensions.width * 3}px`,
-                        height: `${previewDimensions.height * 3}px`,
-                      }}
-                    >
-                      <div
-                        className="position-modal__draggable-content"
-                        style={{
-                          transform: `translate(${editingBackFile ? imagePositionBack.x : imagePosition.x}px, ${editingBackFile ? imagePositionBack.y : imagePosition.y}px) scale(${editingBackFile ? zoomLevelBack : zoomLevel})`,
-                          cursor: isDragging ? "grabbing" : "grab",
-                          filter:
-                            editingBackFile &&
-                            selectedOptions.color === "full-front-grayscale"
-                              ? "grayscale(100%)"
-                              : "none",
-                        }}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleTouchStart}
-                      >
-                        {(editingBackFile ? uploadedBackFile : uploadedFile)
-                          .fileType === "application/pdf" ? (
-                          <Document
-                            file={
-                              (editingBackFile
-                                ? uploadedBackFile
-                                : uploadedFile
-                              ).previewUrl
-                            }
-                            onLoadSuccess={onDocumentLoadSuccess}
-                            loading={
-                              <div className="position-modal__loading">
-                                Loading PDF...
-                              </div>
-                            }
-                            error={
-                              <div className="position-modal__error">
-                                Failed to load PDF
-                              </div>
-                            }
-                          >
-                            <Page
-                              pageNumber={editingBackFile ? 1 : pageNumber}
-                              height={previewDimensions.height * 3}
-                              renderTextLayer={false}
-                              renderAnnotationLayer={false}
-                            />
-                          </Document>
-                        ) : (
-                          <img
-                            src={
-                              (editingBackFile
-                                ? uploadedBackFile
-                                : uploadedFile
-                              ).previewUrl
-                            }
-                            alt={`Uploaded ${editingBackFile ? "back" : "front"} design`}
-                            className="position-modal__image"
-                            draggable={false}
-                          />
-                        )}
-                      </div>
-                    </div>
-                    <div className="position-modal__guide-overlay">
-                      <div className="position-modal__bleed-line"></div>
-                      <div className="position-modal__cut-line"></div>
-                    </div>
-                  </div>
-                </div>
-
-                {!editingBackFile &&
-                  uploadedFile.fileType === "application/pdf" &&
-                  numPages &&
-                  numPages > 1 && (
-                    <div className="position-modal__pdf-controls">
-                      <button
-                        onClick={goToPrevPage}
-                        disabled={pageNumber <= 1}
-                        className="position-modal__pdf-button"
-                        type="button"
-                      >
-                        ← Previous
-                      </button>
-                      <span className="position-modal__pdf-page-info">
-                        Page {pageNumber} of {numPages}
-                      </span>
-                      <button
-                        onClick={goToNextPage}
-                        disabled={pageNumber >= numPages}
-                        className="position-modal__pdf-button"
-                        type="button"
-                      >
-                        Next →
-                      </button>
-                    </div>
-                  )}
-              </div>
-
-              <div className="position-modal__footer">
-                <button
-                  type="button"
-                  className="position-modal__done-button"
-                  onClick={closePositionModal}
-                >
-                  Done
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
     </main>
   );
 }
