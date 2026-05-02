@@ -30,12 +30,8 @@ import {
 } from "../../utils/auth";
 import "./App.css";
 
-// Initialize Stripe with your publishable key
-// IMPORTANT: Replace this with your actual Stripe publishable key
-// Get your key from: https://dashboard.stripe.com/apikeys
-const stripePromise = loadStripe(
-  "pk_test_51TGTogEAmwu5KmQ8ONfqPvSccHHsL2vFxzrMwAox0E8XUqkwRyHztOgGYEEgS2wdIO4BeMv2iP4CRmF8ocVxvcEk001TxeRkBu",
-);
+// Initialize Stripe with your publishable key from environment variables
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 function App() {
   const [products, setProducts] = useState([]);
