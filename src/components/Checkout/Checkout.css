@@ -499,6 +499,13 @@
   color: #00b4d8;
 }
 
+.checkout__item-sizes {
+  margin: 5px 0 0 0;
+  color: #00b4d8;
+  font-size: 13px;
+  font-weight: 500;
+}
+
 @media screen and (max-width: 968px) {
   .checkout__content {
     grid-template-columns: 1fr;

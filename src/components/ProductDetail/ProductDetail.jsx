@@ -8,7 +8,7 @@ import NotificationModal from "../NotificationModal/NotificationModal";
 import FileUpload from "../FileUpload/FileUpload";
 
 // Set up PDF.js worker from public directory
-pdfjs.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
+pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
 import {
   PAPER_TYPES,
   QUANTITIES,
@@ -34,6 +34,7 @@ function ProductDetail({ products }) {
   const product = products.find((p) => p._id === id);
   const isBusinessCard = product?.category === "business-cards";
   const isFlyer = product?.category === "flyers";
+  const isPostcard = product?.category === "postcards";
 
   const getBusinessCardCoatingOptions = () => {
     const productCoatings = product?.options?.coatings;
@@ -179,6 +180,24 @@ function ProductDetail({ products }) {
   const getProductRoundedCorners = () => mapOptionArray("roundedCorners", []);
   const getProductRaisedPrint = () => mapOptionArray("raisedPrint", []);
 
+  // Get custom option categories (e.g., Materials for banners)
+  const getCustomOptions = () => {
+    return product?.options?.customOptions || {};
+  };
+
+  const getCustomOptionValues = (categoryKey) => {
+    const customOpts = getCustomOptions();
+    const category = customOpts[categoryKey];
+    if (!category || !category.options || category.options.length === 0) {
+      return [];
+    }
+    return category.options.map((item, index) => ({
+      id: item.id || toSlug(item.name) || `${categoryKey}-${index}`,
+      name: item.name,
+      priceModifier: Number(item.priceModifier) || 0,
+    }));
+  };
+
   // Get initial quantity from first available option for selected paper
   const getInitialQuantity = () => {
     if (isBusinessCard) {
@@ -266,6 +285,7 @@ function ProductDetail({ products }) {
     finish: getProductFinishes()[0]?.id || "",
     zipCode: "",
     addressType: "residential",
+    customOptions: {}, // Initialize empty, will be populated in useEffect
   });
 
   const [uploadedFile, setUploadedFile] = useState(null);
@@ -275,6 +295,28 @@ function ProductDetail({ products }) {
   const [shippingCost, setShippingCost] = useState(null);
   const [shippingCalculated, setShippingCalculated] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [sizeDistribution, setSizeDistribution] = useState({}); // { "small": 2, "medium": 3, ... }
+
+  // Check if product needs size distribution (has multiple sizes and is apparel/shirts)
+  const needsSizeDistribution = () => {
+    const sizes = getProductSizes();
+    return (
+      sizes.length > 1 &&
+      (product?.name?.toLowerCase().includes("shirt") ||
+        product?.name?.toLowerCase().includes("tshirt") ||
+        product?.name?.toLowerCase().includes("t-shirt") ||
+        product?.name?.toLowerCase().includes("apparel") ||
+        product?.category === "tshirts")
+    );
+  };
+
+  // Calculate total of size distribution
+  const getTotalDistributed = () => {
+    return Object.values(sizeDistribution).reduce(
+      (sum, qty) => sum + (parseInt(qty) || 0),
+      0,
+    );
+  };
 
   // Reset options when product changes or loads
   useEffect(() => {
@@ -293,6 +335,22 @@ function ProductDetail({ products }) {
         const productQtys = getProductQuantities();
         return productQtys[0]?.value ?? QUANTITIES[2];
       };
+
+      // Initialize custom options with first value from each category
+      const initialCustomOptions = {};
+      const customOpts = product?.options?.customOptions || {};
+      Object.keys(customOpts).forEach((categoryKey) => {
+        const categoryData = customOpts[categoryKey];
+        if (
+          categoryData &&
+          categoryData.options &&
+          categoryData.options.length > 0
+        ) {
+          const firstOption = categoryData.options[0];
+          initialCustomOptions[categoryKey] =
+            firstOption.id || toSlug(firstOption.name) || firstOption.name;
+        }
+      });
 
       setSelectedOptions({
         paperType: isBC
@@ -332,6 +390,7 @@ function ProductDetail({ products }) {
         finish: getProductFinishes()[0]?.id || "",
         zipCode: "",
         addressType: "residential",
+        customOptions: initialCustomOptions,
       });
     }
   }, [product]);
@@ -342,6 +401,20 @@ function ProductDetail({ products }) {
       handleDeleteBackFile();
     }
   }, [selectedOptions.color]);
+
+  // Initialize size distribution when product changes or quantity changes
+  useEffect(() => {
+    if (product && needsSizeDistribution()) {
+      // Initialize all sizes to 0
+      const initialDistribution = {};
+      getProductSizes().forEach((size) => {
+        initialDistribution[size.id] = 0;
+      });
+      setSizeDistribution(initialDistribution);
+    } else {
+      setSizeDistribution({});
+    }
+  }, [product, selectedOptions.quantity]);
 
   // Get available coating options based on selected color and paper type
   const getAvailableCoating = () => {
@@ -368,8 +441,8 @@ function ProductDetail({ products }) {
 
   // Check if back side upload is needed
   const hasBackSide = () => {
-    if (isBusinessCard) {
-      // Business cards: back needed for full-both and full-front-grayscale
+    if (isBusinessCard || isPostcard) {
+      // Business cards & postcards: back needed for full-both and full-front-grayscale
       return (
         selectedOptions.color === "full-both" ||
         selectedOptions.color === "full-front-grayscale"
@@ -739,16 +812,30 @@ function ProductDetail({ products }) {
         (f) => f.id === selectedOptions.finish,
       );
 
-      const selectedOptionModifiers = [
-        paperOption,
-        sizeOption,
-        orientationOption,
-        colorOption,
-        coatingOption,
-        roundedCornerOption,
-        raisedPrintOption,
-        finishOption,
-      ].reduce((sum, option) => sum + (Number(option?.priceModifier) || 0), 0);
+      // Get custom option values and their price modifiers
+      const customOptionModifiers = Object.keys(
+        selectedOptions.customOptions || {},
+      ).reduce((sum, categoryKey) => {
+        const selectedId = selectedOptions.customOptions[categoryKey];
+        const options = getCustomOptionValues(categoryKey);
+        const selectedOption = options.find((opt) => opt.id === selectedId);
+        return sum + (Number(selectedOption?.priceModifier) || 0);
+      }, 0);
+
+      const selectedOptionModifiers =
+        [
+          paperOption,
+          sizeOption,
+          orientationOption,
+          colorOption,
+          coatingOption,
+          roundedCornerOption,
+          raisedPrintOption,
+          finishOption,
+        ].reduce(
+          (sum, option) => sum + (Number(option?.priceModifier) || 0),
+          0,
+        ) + customOptionModifiers;
 
       const baseTierPrice =
         qtyOption && qtyOption.priceModifier > 0
@@ -766,6 +853,27 @@ function ProductDetail({ products }) {
   };
 
   const handleAddToCart = () => {
+    // Validate size distribution if needed
+    if (needsSizeDistribution()) {
+      const totalDistributed = getTotalDistributed();
+      if (totalDistributed !== selectedOptions.quantity) {
+        setNotification({
+          message: `Please distribute all ${selectedOptions.quantity} items across sizes. Currently distributed: ${totalDistributed}`,
+          type: "error",
+        });
+        return;
+      }
+
+      // Check if at least one size has a quantity
+      if (totalDistributed === 0) {
+        setNotification({
+          message: "Please select at least one size",
+          type: "error",
+        });
+        return;
+      }
+    }
+
     const paperType = isBusinessCard
       ? BUSINESS_CARD_PAPER.find((p) => p.id === selectedOptions.paperType)
       : isFlyer
@@ -810,6 +918,34 @@ function ProductDetail({ products }) {
       ? BUSINESS_CARD_VELVET.find((v) => v.id === selectedOptions.velvetFinish)
       : null;
 
+    // Build custom options with human-readable names
+    const customOptionsForCart = {};
+    Object.keys(selectedOptions.customOptions || {}).forEach((categoryKey) => {
+      const categoryData = getCustomOptions()[categoryKey];
+      const selectedId = selectedOptions.customOptions[categoryKey];
+      const options = getCustomOptionValues(categoryKey);
+      const selectedOption = options.find((opt) => opt.id === selectedId);
+      if (selectedOption && categoryData) {
+        customOptionsForCart[categoryData.label || categoryKey] =
+          selectedOption.name;
+      }
+    });
+
+    // Build size distribution with human-readable names
+    const sizeDistributionForCart = {};
+    if (needsSizeDistribution()) {
+      const sizes = getProductSizes();
+      Object.keys(sizeDistribution).forEach((sizeId) => {
+        const qty = parseInt(sizeDistribution[sizeId]) || 0;
+        if (qty > 0) {
+          const sizeOption = sizes.find((s) => s.id === sizeId);
+          if (sizeOption) {
+            sizeDistributionForCart[sizeOption.name] = qty;
+          }
+        }
+      });
+    }
+
     addToCart({
       productId: product._id,
       name: product.name,
@@ -818,7 +954,13 @@ function ProductDetail({ products }) {
       options: {
         paperType: paperType?.name || "Standard",
         quantity: selectedOptions.quantity,
-        size: sizeOption?.name || selectedOptions.size || "",
+        size: needsSizeDistribution()
+          ? "Multiple Sizes"
+          : sizeOption?.name || selectedOptions.size || "",
+        sizeDistribution:
+          Object.keys(sizeDistributionForCart).length > 0
+            ? sizeDistributionForCart
+            : undefined,
         orientation: selectedOptions.orientation || "",
         color: colorOption?.name || "",
         roundedCorner:
@@ -829,6 +971,7 @@ function ProductDetail({ products }) {
         finish: finishOption?.name || "",
         zipCode: selectedOptions.zipCode || "",
         addressType: selectedOptions.addressType || "",
+        ...customOptionsForCart, // Spread custom options (e.g., "Materials": "Vinyl")
       },
       uploadedFile: uploadedFile
         ? {
@@ -1383,30 +1526,84 @@ function ProductDetail({ products }) {
                     </select>
                   </div>
 
-                  {getProductSizes().length > 0 && (
-                    <div className="product-detail__option">
-                      <label htmlFor="size" className="product-detail__label">
-                        Size
-                      </label>
-                      <select
-                        id="size"
-                        className="product-detail__select"
-                        value={selectedOptions.size}
-                        onChange={(e) =>
-                          setSelectedOptions({
-                            ...selectedOptions,
-                            size: e.target.value,
-                          })
-                        }
-                      >
-                        {getProductSizes().map((size) => (
-                          <option key={size.id} value={size.id}>
-                            {size.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                  {getProductSizes().length > 0 &&
+                    (needsSizeDistribution() ? (
+                      <div className="product-detail__option">
+                        <label className="product-detail__label">
+                          Size Distribution (Total: {selectedOptions.quantity})
+                        </label>
+                        <div className="product-detail__size-distribution">
+                          {getProductSizes().map((size) => (
+                            <div
+                              key={size.id}
+                              className="product-detail__size-row"
+                            >
+                              <label
+                                htmlFor={`size-${size.id}`}
+                                className="product-detail__size-label"
+                              >
+                                {size.name}
+                              </label>
+                              <input
+                                id={`size-${size.id}`}
+                                type="number"
+                                min="0"
+                                max={selectedOptions.quantity}
+                                className="product-detail__size-input"
+                                value={sizeDistribution[size.id] || 0}
+                                onChange={(e) => {
+                                  const value = parseInt(e.target.value) || 0;
+                                  setSizeDistribution({
+                                    ...sizeDistribution,
+                                    [size.id]: Math.max(
+                                      0,
+                                      Math.min(value, selectedOptions.quantity),
+                                    ),
+                                  });
+                                }}
+                              />
+                            </div>
+                          ))}
+                          <div className="product-detail__distribution-summary">
+                            <strong>Distributed:</strong>{" "}
+                            {getTotalDistributed()} / {selectedOptions.quantity}
+                            {getTotalDistributed() !==
+                              selectedOptions.quantity && (
+                              <span className="product-detail__distribution-warning">
+                                ⚠️{" "}
+                                {getTotalDistributed() <
+                                selectedOptions.quantity
+                                  ? `${selectedOptions.quantity - getTotalDistributed()} remaining`
+                                  : `${getTotalDistributed() - selectedOptions.quantity} too many`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="product-detail__option">
+                        <label htmlFor="size" className="product-detail__label">
+                          Size
+                        </label>
+                        <select
+                          id="size"
+                          className="product-detail__select"
+                          value={selectedOptions.size}
+                          onChange={(e) =>
+                            setSelectedOptions({
+                              ...selectedOptions,
+                              size: e.target.value,
+                            })
+                          }
+                        >
+                          {getProductSizes().map((size) => (
+                            <option key={size.id} value={size.id}>
+                              {size.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
 
                   {getProductOrientations().length > 0 && (
                     <div className="product-detail__option">
@@ -1595,6 +1792,48 @@ function ProductDetail({ products }) {
                       </select>
                     </div>
                   )}
+
+                  {/* Render custom option categories (e.g., Materials for banners) */}
+                  {Object.keys(getCustomOptions()).map((categoryKey) => {
+                    const categoryData = getCustomOptions()[categoryKey];
+                    const categoryLabel = categoryData?.label || categoryKey;
+                    const options = getCustomOptionValues(categoryKey);
+
+                    if (options.length === 0) return null;
+
+                    return (
+                      <div key={categoryKey} className="product-detail__option">
+                        <label
+                          htmlFor={categoryKey}
+                          className="product-detail__label"
+                        >
+                          {categoryLabel}
+                        </label>
+                        <select
+                          id={categoryKey}
+                          className="product-detail__select"
+                          value={
+                            selectedOptions.customOptions?.[categoryKey] || ""
+                          }
+                          onChange={(e) =>
+                            setSelectedOptions({
+                              ...selectedOptions,
+                              customOptions: {
+                                ...selectedOptions.customOptions,
+                                [categoryKey]: e.target.value,
+                              },
+                            })
+                          }
+                        >
+                          {options.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })}
                 </>
               )}
 

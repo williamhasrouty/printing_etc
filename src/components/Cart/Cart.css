@@ -291,3 +291,22 @@
     align-items: center;
   }
 }
+
+/* Size Distribution Styles */
+.cart__size-distribution {
+  list-style: none;
+  padding: 8px 0 0 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.cart__size-distribution li {
+  background: rgba(0, 180, 216, 0.2);
+  border: 1px solid rgba(0, 180, 216, 0.4);
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 14px;
+  color: #fff;
+}

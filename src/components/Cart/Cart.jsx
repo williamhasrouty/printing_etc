@@ -73,6 +73,20 @@ function Cart({ onLoginClick, onRegisterClick }) {
                         Size: {item.options.size}
                       </p>
                     )}
+                    {item.options.sizeDistribution && (
+                      <div className="cart__item-option">
+                        <strong>Sizes:</strong>
+                        <ul className="cart__size-distribution">
+                          {Object.entries(item.options.sizeDistribution).map(
+                            ([size, qty]) => (
+                              <li key={size}>
+                                {size}: {qty}
+                              </li>
+                            ),
+                          )}
+                        </ul>
+                      </div>
+                    )}
                     {item.options.orientation && (
                       <p className="cart__item-option">
                         Orientation: {item.options.orientation}
@@ -106,7 +120,8 @@ function Cart({ onLoginClick, onRegisterClick }) {
                     )}
                     {item.uploadedFile && (
                       <p className="cart__item-option">
-                        File: {item.uploadedFile.fileName || item.uploadedFile} ✓
+                        File: {item.uploadedFile.fileName || item.uploadedFile}{" "}
+                        ✓
                       </p>
                     )}
                     {item.shippingCost > 0 && (

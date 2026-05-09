@@ -985,6 +985,14 @@ function Checkout() {
                       {item.options.size && ` • ${item.options.size}`}
                       {item.options.color && ` • ${item.options.color}`}
                     </p>
+                    {item.options.sizeDistribution && (
+                      <p className="checkout__item-sizes">
+                        Sizes:{" "}
+                        {Object.entries(item.options.sizeDistribution)
+                          .map(([size, qty]) => `${size} (${qty})`)
+                          .join(", ")}
+                      </p>
+                    )}
                   </div>
                   <p className="checkout__item-price">
                     ${item.price.toFixed(2)}

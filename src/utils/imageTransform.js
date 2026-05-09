@@ -5,6 +5,9 @@
 
 import { pdfjs } from "react-pdf";
 
+// Set up PDF.js worker from public directory
+pdfjs.GlobalWorkerOptions.workerSrc = `${import.meta.env.BASE_URL}pdf.worker.min.mjs`;
+
 /**
  * Apply transformations to an image or PDF and return a new File object
  * @param {Object} fileData - File data including the original file and transform params

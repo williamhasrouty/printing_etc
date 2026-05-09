@@ -238,6 +238,14 @@ function Admin({ onProductsChange }) {
       return cleaned;
     };
 
+    // Filter out options with empty names
+    const filterValidOptions = (arr) => {
+      return arr.filter(
+        (item) =>
+          item && typeof item.name === "string" && item.name.trim() !== "",
+      );
+    };
+
     const cleanOptions = {};
     const optionArrayKeys = [
       "quantities",
@@ -252,19 +260,29 @@ function Admin({ onProductsChange }) {
     ];
     optionArrayKeys.forEach((key) => {
       if (productFormData.options[key]) {
-        cleanOptions[key] = stripIds(productFormData.options[key]).map(
+        const cleaned = stripIds(productFormData.options[key]).map(
           sanitizeOptionItem,
         );
+        const filtered = filterValidOptions(cleaned);
+        // Only include the option category if it has valid options
+        if (filtered.length > 0) {
+          cleanOptions[key] = filtered;
+        }
       }
     });
     if (productFormData.options.customOptions) {
       cleanOptions.customOptions = {};
       Object.entries(productFormData.options.customOptions).forEach(
         ([k, v]) => {
-          cleanOptions.customOptions[k] = {
-            label: v.label,
-            options: stripIds(v.options || []).map(sanitizeOptionItem),
-          };
+          const cleaned = stripIds(v.options || []).map(sanitizeOptionItem);
+          const filtered = filterValidOptions(cleaned);
+          // Only include custom categories that have valid options
+          if (filtered.length > 0) {
+            cleanOptions.customOptions[k] = {
+              label: v.label,
+              options: filtered,
+            };
+          }
         },
       );
     }
@@ -1002,6 +1020,27 @@ function Admin({ onProductsChange }) {
                                       {item.selectedOptions.size && (
                                         <li>
                                           Size: {item.selectedOptions.size}
+                                        </li>
+                                      )}
+                                      {item.selectedOptions
+                                        .sizeDistribution && (
+                                        <li>
+                                          <strong>Size Distribution:</strong>
+                                          <ul
+                                            style={{
+                                              paddingLeft: "20px",
+                                              marginTop: "5px",
+                                            }}
+                                          >
+                                            {Object.entries(
+                                              item.selectedOptions
+                                                .sizeDistribution,
+                                            ).map(([size, qty]) => (
+                                              <li key={size}>
+                                                {size}: {qty}
+                                              </li>
+                                            ))}
+                                          </ul>
                                         </li>
                                       )}
                                       {item.selectedOptions.color && (
