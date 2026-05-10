@@ -73,7 +73,7 @@ function ProductDetail({ products }) {
       });
     }
 
-    return BUSINESS_CARD_COATING;
+    return [];
   };
 
   // Returns the quantity list for non-business-card products from product options,
@@ -114,7 +114,7 @@ function ProductDetail({ products }) {
         priceModifier: Number(p.priceModifier) || 0,
       }));
     }
-    return FLYER_PAPER;
+    return [];
   };
 
   const getFlyerSizes = () => {
@@ -126,7 +126,7 @@ function ProductDetail({ products }) {
         priceModifier: Number(s.priceModifier) || 0,
       }));
     }
-    return FLYER_SIZES;
+    return [];
   };
 
   const getFlyerColors = () => {
@@ -138,7 +138,7 @@ function ProductDetail({ products }) {
         priceModifier: Number(c.priceModifier) || 0,
       }));
     }
-    return FLYER_COLORS;
+    return [];
   };
 
   const getFlyerCoatings = () => {
@@ -151,11 +151,7 @@ function ProductDetail({ products }) {
       }));
     }
 
-    return FLYER_COATING.map((c) => ({
-      id: c.id,
-      name: c.name,
-      priceModifier: Number(c.priceModifier) || 0,
-    }));
+    return [];
   };
 
   const mapOptionArray = (optionType, fallback = []) => {
@@ -171,7 +167,7 @@ function ProductDetail({ products }) {
     return fallback;
   };
 
-  const getProductPaperTypes = () => mapOptionArray("paperTypes", PAPER_TYPES);
+  const getProductPaperTypes = () => mapOptionArray("paperTypes", []);
   const getProductSizes = () => mapOptionArray("sizes", []);
   const getProductOrientations = () => mapOptionArray("orientations", []);
   const getProductColors = () => mapOptionArray("colors", []);
@@ -1309,28 +1305,30 @@ function ProductDetail({ products }) {
                     </select>
                   </div>
 
-                  <div className="product-detail__option">
-                    <label htmlFor="size" className="product-detail__label">
-                      Size
-                    </label>
-                    <select
-                      id="size"
-                      className="product-detail__select"
-                      value={selectedOptions.size}
-                      onChange={(e) =>
-                        setSelectedOptions({
-                          ...selectedOptions,
-                          size: e.target.value,
-                        })
-                      }
-                    >
-                      {getFlyerSizes().map((size) => (
-                        <option key={size.id} value={size.id}>
-                          {size.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {getFlyerSizes().length > 0 && (
+                    <div className="product-detail__option">
+                      <label htmlFor="size" className="product-detail__label">
+                        Size
+                      </label>
+                      <select
+                        id="size"
+                        className="product-detail__select"
+                        value={selectedOptions.size}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            size: e.target.value,
+                          })
+                        }
+                      >
+                        {getFlyerSizes().map((size) => (
+                          <option key={size.id} value={size.id}>
+                            {size.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   <div className="product-detail__option">
                     <label className="product-detail__label">Orientation</label>
@@ -1368,54 +1366,58 @@ function ProductDetail({ products }) {
                     </div>
                   </div>
 
-                  <div className="product-detail__option">
-                    <label
-                      htmlFor="paperType"
-                      className="product-detail__label"
-                    >
-                      Paper
-                    </label>
-                    <select
-                      id="paperType"
-                      className="product-detail__select"
-                      value={selectedOptions.paperType}
-                      onChange={(e) =>
-                        setSelectedOptions({
-                          ...selectedOptions,
-                          paperType: e.target.value,
-                        })
-                      }
-                    >
-                      {getFlyerPaperTypes().map((paper) => (
-                        <option key={paper.id} value={paper.id}>
-                          {paper.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {getFlyerPaperTypes().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="paperType"
+                        className="product-detail__label"
+                      >
+                        Paper
+                      </label>
+                      <select
+                        id="paperType"
+                        className="product-detail__select"
+                        value={selectedOptions.paperType}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            paperType: e.target.value,
+                          })
+                        }
+                      >
+                        {getFlyerPaperTypes().map((paper) => (
+                          <option key={paper.id} value={paper.id}>
+                            {paper.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
-                  <div className="product-detail__option">
-                    <label htmlFor="color" className="product-detail__label">
-                      Color Options
-                    </label>
-                    <select
-                      id="color"
-                      className="product-detail__select"
-                      value={selectedOptions.color}
-                      onChange={(e) =>
-                        setSelectedOptions({
-                          ...selectedOptions,
-                          color: e.target.value,
-                        })
-                      }
-                    >
-                      {getFlyerColors().map((color) => (
-                        <option key={color.id} value={color.id}>
-                          {color.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {getFlyerColors().length > 0 && (
+                    <div className="product-detail__option">
+                      <label htmlFor="color" className="product-detail__label">
+                        Color Options
+                      </label>
+                      <select
+                        id="color"
+                        className="product-detail__select"
+                        value={selectedOptions.color}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            color: e.target.value,
+                          })
+                        }
+                      >
+                        {getFlyerColors().map((color) => (
+                          <option key={color.id} value={color.id}>
+                            {color.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {getProductRoundedCorners().length > 0 && (
                     <div className="product-detail__option">
@@ -1633,31 +1635,33 @@ function ProductDetail({ products }) {
                     </div>
                   )}
 
-                  <div className="product-detail__option">
-                    <label
-                      htmlFor="paperType"
-                      className="product-detail__label"
-                    >
-                      Paper Type
-                    </label>
-                    <select
-                      id="paperType"
-                      className="product-detail__select"
-                      value={selectedOptions.paperType}
-                      onChange={(e) =>
-                        setSelectedOptions({
-                          ...selectedOptions,
-                          paperType: e.target.value,
-                        })
-                      }
-                    >
-                      {getProductPaperTypes().map((type) => (
-                        <option key={type.id} value={type.id}>
-                          {type.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                  {getProductPaperTypes().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="paperType"
+                        className="product-detail__label"
+                      >
+                        Paper Type
+                      </label>
+                      <select
+                        id="paperType"
+                        className="product-detail__select"
+                        value={selectedOptions.paperType}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            paperType: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductPaperTypes().map((type) => (
+                          <option key={type.id} value={type.id}>
+                            {type.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {getProductColors().length > 0 && (
                     <div className="product-detail__option">

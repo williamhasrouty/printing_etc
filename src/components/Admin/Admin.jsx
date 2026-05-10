@@ -264,10 +264,8 @@ function Admin({ onProductsChange }) {
           sanitizeOptionItem,
         );
         const filtered = filterValidOptions(cleaned);
-        // Only include the option category if it has valid options
-        if (filtered.length > 0) {
-          cleanOptions[key] = filtered;
-        }
+        // Always include the option category - send empty array to explicitly clear it
+        cleanOptions[key] = filtered;
       }
     });
     if (productFormData.options.customOptions) {
