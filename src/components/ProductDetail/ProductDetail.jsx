@@ -292,6 +292,7 @@ function ProductDetail({ products }) {
   const [shippingCalculated, setShippingCalculated] = useState(false);
   const [notification, setNotification] = useState(null);
   const [sizeDistribution, setSizeDistribution] = useState({}); // { "small": 2, "medium": 3, ... }
+  const [activeInfoTab, setActiveInfoTab] = useState("turnaround"); // 'turnaround' or 'file-prep'
 
   // Check if product needs size distribution (has multiple sizes and is apparel/shirts)
   const needsSizeDistribution = () => {
@@ -2101,17 +2102,6 @@ function ProductDetail({ products }) {
                 </div>
               )}
 
-              <div className="product-detail__turnaround">
-                <h4 className="product-detail__turnaround-title">
-                  Turnaround Times
-                </h4>
-                <ul className="product-detail__turnaround-list">
-                  <li>Standard Orders: 5-7 business days</li>
-                  <li>Custom Orders: 7-10 business days</li>
-                  <li>Rush Orders: Please call (661) 272-2869</li>
-                </ul>
-              </div>
-
               <button
                 onClick={handleAddToCart}
                 className="product-detail__add-button"
@@ -2120,6 +2110,171 @@ function ProductDetail({ products }) {
                 Add to Cart
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Info Tabs Section */}
+        <div className="product-detail__info-tabs">
+          <div className="product-detail__tab-buttons">
+            <button
+              className={`product-detail__tab-button ${
+                activeInfoTab === "turnaround"
+                  ? "product-detail__tab-button_active"
+                  : ""
+              }`}
+              onClick={() => setActiveInfoTab("turnaround")}
+              type="button"
+            >
+              Turnaround Times
+            </button>
+            <button
+              className={`product-detail__tab-button ${
+                activeInfoTab === "file-prep"
+                  ? "product-detail__tab-button_active"
+                  : ""
+              }`}
+              onClick={() => setActiveInfoTab("file-prep")}
+              type="button"
+            >
+              File Preparation
+            </button>
+          </div>
+
+          <div className="product-detail__tab-content">
+            {activeInfoTab === "turnaround" && (
+              <div className="product-detail__turnaround">
+                <ul className="product-detail__turnaround-list">
+                  <li>Standard Orders: 5-7 business days</li>
+                  <li>Custom Orders: 7-10 business days</li>
+                  <li>Rush Orders: Please call (661) 272-2869</li>
+                </ul>
+              </div>
+            )}
+
+            {activeInfoTab === "file-prep" && (
+              <div className="product-detail__file-prep">
+                <h4 className="product-detail__file-prep-title">
+                  File Preparation Guidelines
+                </h4>
+
+                <div className="product-detail__file-prep-section">
+                  <p>
+                    In order to ensure your files are print-ready, we recommend
+                    that you upload them in <strong>PDF format</strong>. When
+                    you generate a print-ready PDF, your computer will use the
+                    settings in Adobe Acrobat Distiller or any other PDF
+                    generating programs you may use. Please make sure that these
+                    are set properly before generating your PDF file.
+                  </p>
+
+                  <p>
+                    If you are uploading PDF files created in Photoshop, please
+                    be sure all layers are flattened.
+                  </p>
+
+                  <p>
+                    We also accept{" "}
+                    <strong>.JPG (JPEG), .EPS and .TIF (TIFF)</strong> file
+                    types, however PDF is the preferred format.
+                  </p>
+                  <p>AI file must be outlined or vectorized.</p>
+                </div>
+
+                <div className="product-detail__file-prep-section">
+                  <h5 className="product-detail__file-prep-subtitle">
+                    File Creation Guidelines
+                  </h5>
+                  <ul className="product-detail__file-prep-list">
+                    <li>
+                      <strong>Color Mode:</strong> Use the CMYK colorspace
+                      (Cyan, Magenta, Yellow, blacK). These are industry
+                      standard printing colors. CMYK colors are different than
+                      RGB (Red, Green, Blue), which are used to display colors
+                      on your screen.
+                    </li>
+                    <li>
+                      <strong>Resolution:</strong> Use a minimum resolution of
+                      150 dpi at 100% size for image files. 300-350 DPI is
+                      recommended for best results.
+                    </li>
+                    <li>
+                      <strong>Bleed:</strong> Artwork should have 1/8" (0.125")
+                      bleed extending past the trim line. This prevents minor
+                      cutting variations from leaving unintended results at the
+                      trim edge.
+                    </li>
+                    <li>
+                      <strong>Crop Marks:</strong> Specify trim area with crop
+                      marks. Don't place crop marks inside the work area.
+                    </li>
+                    <li>
+                      <strong>Safe Area:</strong> The 1/4" (0.25") area inside
+                      the trim line. Do not put critical information or images
+                      within the Safe Area to prevent minor cutting variations.
+                    </li>
+                    <li>
+                      <strong>Borders:</strong> If you want printed borders,
+                      they must be placed a minimum of 1/8" (0.125") inside the
+                      trim line and include bleed.
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="product-detail__file-prep-section">
+                  <h5 className="product-detail__file-prep-subtitle">
+                    Technical Specifications
+                  </h5>
+                  <ul className="product-detail__file-prep-list">
+                    <li>
+                      <strong>Bleed:</strong> 0.1" - 0.125"
+                    </li>
+                    <li>
+                      <strong>Resolution:</strong> 300-350 DPI
+                    </li>
+                    <li>
+                      <strong>Color Mode:</strong> CMYK
+                    </li>
+                    <li>
+                      <strong>File Formats:</strong> PDF (preferred), TIF, TIFF,
+                      EPS, AI, PSD, BMP, GIF, JPG, PNG
+                    </li>
+                    <li>
+                      <strong>Max File Upload Size:</strong> 75MB
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="product-detail__file-prep-section">
+                  <h5 className="product-detail__file-prep-subtitle">
+                    Proofing Options
+                  </h5>
+                  <ul className="product-detail__file-prep-list">
+                    <li>
+                      <strong>Instant Online Proof:</strong> An instant proof
+                      will be available for you to review and approve. You must
+                      check your files for errors, as we will not provide an
+                      additional proof.
+                    </li>
+                    <li>
+                      <strong>Manually Processed, PDF Proof:</strong> 24 Hours
+                      (Excluding Weekends and Holidays). We will check your
+                      files and ensure they have the correct specifications. If
+                      we find any problems, we'll contact you, otherwise you'll
+                      receive a link to your proof within 1 business day.
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="product-detail__file-prep-note">
+                  <p>
+                    <strong>Note:</strong> Prices include processing one set of
+                    uploaded files and creating a single proof. You can view the
+                    status of your order online 24/7 under "My Account." Files
+                    not built correctly may delay the order.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
