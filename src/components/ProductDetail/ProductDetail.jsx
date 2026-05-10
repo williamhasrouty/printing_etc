@@ -554,7 +554,105 @@ function ProductDetail({ products }) {
   }
 
   const calculatePrice = () => {
-    // First try pricing matrix lookup (new approach)
+    // First check if pricing table is enabled (newest approach - most accurate)
+    if (
+      product?.pricingTable?.enabled &&
+      product.pricingTable.variants?.length > 0
+    ) {
+      console.log("=== PRICING TABLE DEBUG ===");
+      console.log(
+        "Product pricing table:",
+        JSON.stringify(product.pricingTable, null, 2),
+      );
+
+      // Determine which variant to use based on selected paper type or material
+      const paperOption = isFlyer
+        ? getFlyerPaperTypes().find((p) => p.id === selectedOptions.paperType)
+        : getProductPaperTypes().find(
+            (p) => p.id === selectedOptions.paperType,
+          );
+
+      const paperName = paperOption?.name || selectedOptions.paperType || "";
+      const normalize = (str) =>
+        String(str || "")
+          .trim()
+          .toLowerCase();
+
+      console.log("Looking for paper type:", paperName);
+      console.log("Selected options:", selectedOptions);
+
+      // Find matching variant by paper type name
+      // If no paper types are configured, use the first variant
+      let variant;
+      if (paperName) {
+        variant = product.pricingTable.variants.find(
+          (v) =>
+            normalize(v.variantName) === normalize(paperName) ||
+            normalize(v.variantId) === normalize(paperName),
+        );
+      } else if (product.pricingTable.variants.length === 1) {
+        // If only one variant and no paper type, use it
+        variant = product.pricingTable.variants[0];
+      }
+
+      console.log("Variant found:", variant?.variantName);
+
+      if (variant) {
+        // Handle MongoDB Map format - prices might be an object or Map
+        let pricesObj = variant.prices;
+        if (pricesObj instanceof Map) {
+          pricesObj = Object.fromEntries(pricesObj);
+        }
+
+        console.log("Prices object:", pricesObj);
+
+        if (pricesObj && typeof pricesObj === "object") {
+          // Get size and quantity from selections
+          const sizeOption = isFlyer
+            ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
+            : getProductSizes().find((s) => s.id === selectedOptions.size);
+          const sizeName = sizeOption?.name || selectedOptions.size || "";
+          const quantity = selectedOptions.quantity;
+
+          // Normalize size name to match pricing table format
+          // Remove quotes, convert " x " to "x", remove spaces
+          const normalizedSize = sizeName
+            .replace(/"/g, "")
+            .replace(/\s*[x×]\s*/gi, "x")
+            .replace(/\s+/g, "")
+            .toLowerCase();
+
+          // Build lookup key: "size-quantity" (e.g., "4x6-250")
+          const priceKey = `${normalizedSize}-${quantity}`;
+          const price = pricesObj[priceKey];
+
+          console.log("Size:", sizeName);
+          console.log("Normalized size:", normalizedSize);
+          console.log("Quantity:", quantity);
+          console.log("Price key:", priceKey);
+          console.log("Price found:", price);
+          console.log("Available keys:", Object.keys(pricesObj));
+          console.log("=== END DEBUG ===");
+
+          if (price !== undefined && price > 0) {
+            // Apply 25% markup for Full Color Both Sides
+            const colorOption = isFlyer
+              ? getFlyerColors().find((c) => c.id === selectedOptions.color)
+              : getProductColors().find((c) => c.id === selectedOptions.color);
+
+            if (colorOption?.name?.toLowerCase().includes("both")) {
+              return (price * 1.25).toFixed(2);
+            }
+            return price.toFixed(2);
+          }
+        }
+      }
+
+      console.log("No price found in table, falling back to old system");
+      console.log("=== END DEBUG ===");
+    }
+
+    // Second try pricing matrix lookup (old approach)
     if (
       product?.pricing &&
       Array.isArray(product.pricing) &&
@@ -717,8 +815,8 @@ function ProductDetail({ products }) {
       if (match && match.price !== undefined) {
         let price = match.price;
 
-        // Apply 25% markup for Full Color Both Sides on flyers
-        if (isFlyer && colorOption?.name?.toLowerCase().includes("both")) {
+        // Apply 25% markup for Full Color Both Sides
+        if (colorOption?.name?.toLowerCase().includes("both")) {
           price = price * 1.25;
         }
 
@@ -840,8 +938,8 @@ function ProductDetail({ products }) {
           : product.basePrice;
       let price = baseTierPrice + selectedOptionModifiers;
 
-      // Apply 25% markup for Full Color Both Sides on flyers
-      if (isFlyer && colorOption?.name?.toLowerCase().includes("both")) {
+      // Apply 25% markup for Full Color Both Sides
+      if (colorOption?.name?.toLowerCase().includes("both")) {
         price = price * 1.25;
       }
 
@@ -1610,29 +1708,33 @@ function ProductDetail({ products }) {
 
                   {getProductOrientations().length > 0 && (
                     <div className="product-detail__option">
-                      <label
-                        htmlFor="orientation"
-                        className="product-detail__label"
-                      >
+                      <label className="product-detail__label">
                         Orientation
                       </label>
-                      <select
-                        id="orientation"
-                        className="product-detail__select"
-                        value={selectedOptions.orientation}
-                        onChange={(e) =>
-                          setSelectedOptions({
-                            ...selectedOptions,
-                            orientation: e.target.value,
-                          })
-                        }
-                      >
+                      <div className="product-detail__radio-group">
                         {getProductOrientations().map((orientation) => (
-                          <option key={orientation.id} value={orientation.id}>
+                          <label
+                            key={orientation.id}
+                            className="product-detail__radio-label"
+                          >
+                            <input
+                              type="radio"
+                              name="orientation"
+                              value={orientation.id}
+                              checked={
+                                selectedOptions.orientation === orientation.id
+                              }
+                              onChange={(e) =>
+                                setSelectedOptions({
+                                  ...selectedOptions,
+                                  orientation: e.target.value,
+                                })
+                              }
+                            />
                             {orientation.name}
-                          </option>
+                          </label>
                         ))}
-                      </select>
+                      </div>
                     </div>
                   )}
 

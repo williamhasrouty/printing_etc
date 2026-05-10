@@ -1402,3 +1402,141 @@
   border-radius: 8px;
   margin-top: 12px;
 }
+
+/* Pricing Table Styles */
+.admin__pricing-table-container {
+  margin-top: 20px;
+}
+
+.admin__pricing-variant {
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+  background-color: #f8f9fa;
+}
+
+.admin__variant-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.admin__variant-name-input {
+  flex: 1;
+  padding: 10px;
+  border: 2px solid #ced4da;
+  border-radius: 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.admin__table-dimensions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.admin__dimension-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin__dimension-group label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.admin__dimension-input {
+  padding: 8px 12px;
+  border: 2px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.admin__price-grid {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.admin__price-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 500px;
+}
+
+.admin__price-table th {
+  background-color: #00b4d8;
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+  border: 1px solid #0096b8;
+}
+
+.admin__price-table td {
+  padding: 8px;
+  text-align: center;
+  border: 1px solid #dee2e6;
+}
+
+.admin__row-label {
+  background-color: #e9ecef;
+  font-weight: 600;
+  color: #495057;
+}
+
+.admin__price-cell-input {
+  width: 100%;
+  padding: 6px 8px;
+  border: 2px solid #ced4da;
+  border-radius: 4px;
+  font-size: 14px;
+  text-align: center;
+}
+
+.admin__price-cell-input:focus {
+  outline: none;
+  border-color: #00b4d8;
+}
+
+.admin__checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin__checkbox-label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .admin__table-dimensions {
+    grid-template-columns: 1fr;
+  }
+
+  .admin__variant-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .admin__price-table {
+    font-size: 12px;
+  }
+
+  .admin__price-table th,
+  .admin__price-table td {
+    padding: 6px;
+  }
+}

@@ -64,6 +64,10 @@ function Admin({ onProductsChange }) {
       customOptions: {}, // For admin-defined option categories
     },
     pricing: [], // Price matrix entries
+    pricingTable: {
+      enabled: false,
+      variants: [],
+    },
   });
 
   // Redirect if not admin
@@ -171,6 +175,31 @@ function Admin({ onProductsChange }) {
   // Product management functions
   const handleEditProduct = (product) => {
     setEditingProduct(product);
+
+    // Convert pricing table arrays to text for editing
+    let pricingTableForEdit = product.pricingTable || {
+      enabled: false,
+      variants: [],
+    };
+    if (pricingTableForEdit.variants) {
+      pricingTableForEdit = {
+        ...pricingTableForEdit,
+        variants: pricingTableForEdit.variants.map((variant) => {
+          // Strip MongoDB fields like _id from variants
+          const { _id, __v, ...cleanVariant } = variant;
+          return {
+            ...cleanVariant,
+            rowsText: Array.isArray(variant.rows)
+              ? variant.rows.join(", ")
+              : variant.rowsText || "",
+            columnsText: Array.isArray(variant.columns)
+              ? variant.columns.join(", ")
+              : variant.columnsText || "",
+          };
+        }),
+      };
+    }
+
     setProductFormData({
       name: product.name || "",
       description: product.description || "",
@@ -189,6 +218,7 @@ function Admin({ onProductsChange }) {
         customOptions: product.options?.customOptions || {},
       },
       pricing: product.pricing || [],
+      pricingTable: pricingTableForEdit,
     });
     setIsAddingProduct(false);
   };
@@ -285,12 +315,44 @@ function Admin({ onProductsChange }) {
       );
     }
 
-    const cleanData = { ...productFormData, options: cleanOptions };
+    // Convert pricing table text inputs to arrays for storage
+    let cleanPricingTable = productFormData.pricingTable;
+    if (cleanPricingTable?.enabled && cleanPricingTable.variants) {
+      cleanPricingTable = {
+        ...cleanPricingTable,
+        variants: cleanPricingTable.variants.map((variant) => ({
+          variantName: variant.variantName,
+          variantId: variant.variantId,
+          rows: (variant.rowsText || "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s),
+          columns: (variant.columnsText || "")
+            .split(",")
+            .map((s) => s.trim())
+            .filter((s) => s && !isNaN(s))
+            .map(Number),
+          prices: variant.prices || {},
+        })),
+      };
+    }
+
+    // Don't send _id, __v, or other DB fields in the body
+    const { _id, __v, createdAt, updatedAt, ...cleanFormData } =
+      productFormData;
+
+    const cleanData = {
+      ...cleanFormData,
+      options: cleanOptions,
+      pricingTable: cleanPricingTable,
+    };
     console.log("Sending product data:", JSON.stringify(cleanData, null, 2));
 
     try {
       if (editingProduct) {
         // Update existing product
+        console.log("Editing product:", editingProduct);
+        console.log("Product ID:", editingProduct._id);
         const updated = await updateProduct(
           editingProduct._id,
           cleanData,
@@ -2486,6 +2548,264 @@ function Admin({ onProductsChange }) {
                             No pricing entries yet. Click "Add Pricing Entry" to
                             create your price matrix.
                           </p>
+                        )}
+                      </div>
+
+                      {/* Pricing Table Section */}
+                      <div className="admin__section">
+                        <div className="admin__section-header">
+                          <h3>Pricing Table (Recommended)</h3>
+                          <label className="admin__checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={
+                                productFormData.pricingTable?.enabled || false
+                              }
+                              onChange={(e) =>
+                                setProductFormData({
+                                  ...productFormData,
+                                  pricingTable: {
+                                    ...productFormData.pricingTable,
+                                    enabled: e.target.checked,
+                                  },
+                                })
+                              }
+                            />
+                            Enable Pricing Tables
+                          </label>
+                        </div>
+                        <p className="admin__help-text">
+                          Pricing tables let you set exact prices for each
+                          size/quantity combination. This replaces price
+                          modifiers and prevents compounding price issues.
+                        </p>
+
+                        {productFormData.pricingTable?.enabled && (
+                          <div className="admin__pricing-table-container">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newVariant = {
+                                  variantName: "",
+                                  variantId: "",
+                                  rowsText: "",
+                                  columnsText: "",
+                                  prices: {},
+                                };
+                                setProductFormData({
+                                  ...productFormData,
+                                  pricingTable: {
+                                    ...productFormData.pricingTable,
+                                    variants: [
+                                      ...(productFormData.pricingTable
+                                        .variants || []),
+                                      newVariant,
+                                    ],
+                                  },
+                                });
+                              }}
+                              className="admin__add-btn"
+                            >
+                              + Add Variant (Paper Type/Material)
+                            </button>
+
+                            {productFormData.pricingTable?.variants?.map(
+                              (variant, variantIndex) => (
+                                <div
+                                  key={variantIndex}
+                                  className="admin__pricing-variant"
+                                >
+                                  <div className="admin__variant-header">
+                                    <input
+                                      type="text"
+                                      placeholder="Variant Name (e.g., 100lb Gloss, Vinyl Material)"
+                                      value={variant.variantName || ""}
+                                      onChange={(e) => {
+                                        const updated = [
+                                          ...productFormData.pricingTable
+                                            .variants,
+                                        ];
+                                        updated[variantIndex].variantName =
+                                          e.target.value;
+                                        updated[variantIndex].variantId =
+                                          e.target.value
+                                            .toLowerCase()
+                                            .replace(/[^a-z0-9]+/g, "-")
+                                            .replace(/(^-|-$)/g, "");
+                                        setProductFormData({
+                                          ...productFormData,
+                                          pricingTable: {
+                                            ...productFormData.pricingTable,
+                                            variants: updated,
+                                          },
+                                        });
+                                      }}
+                                      className="admin__variant-name-input"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        const updated =
+                                          productFormData.pricingTable.variants.filter(
+                                            (_, i) => i !== variantIndex,
+                                          );
+                                        setProductFormData({
+                                          ...productFormData,
+                                          pricingTable: {
+                                            ...productFormData.pricingTable,
+                                            variants: updated,
+                                          },
+                                        });
+                                      }}
+                                      className="admin__remove-category-btn"
+                                    >
+                                      Remove Variant
+                                    </button>
+                                  </div>
+
+                                  <div className="admin__table-dimensions">
+                                    <div className="admin__dimension-group">
+                                      <label>
+                                        Sizes (rows) - comma separated:
+                                      </label>
+                                      <input
+                                        type="text"
+                                        placeholder="e.g., 4x6, 5x7, 8.5x11"
+                                        value={variant.rowsText || ""}
+                                        onChange={(e) => {
+                                          const updated = [
+                                            ...productFormData.pricingTable
+                                              .variants,
+                                          ];
+                                          updated[variantIndex].rowsText =
+                                            e.target.value;
+                                          setProductFormData({
+                                            ...productFormData,
+                                            pricingTable: {
+                                              ...productFormData.pricingTable,
+                                              variants: updated,
+                                            },
+                                          });
+                                        }}
+                                        className="admin__dimension-input"
+                                      />
+                                    </div>
+
+                                    <div className="admin__dimension-group">
+                                      <label>
+                                        Quantities (columns) - comma separated:
+                                      </label>
+                                      <input
+                                        type="text"
+                                        placeholder="e.g., 250, 500, 1000"
+                                        value={variant.columnsText || ""}
+                                        onChange={(e) => {
+                                          const updated = [
+                                            ...productFormData.pricingTable
+                                              .variants,
+                                          ];
+                                          updated[variantIndex].columnsText =
+                                            e.target.value;
+                                          setProductFormData({
+                                            ...productFormData,
+                                            pricingTable: {
+                                              ...productFormData.pricingTable,
+                                              variants: updated,
+                                            },
+                                          });
+                                        }}
+                                        className="admin__dimension-input"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  {(() => {
+                                    const rows = (variant.rowsText || "")
+                                      .split(",")
+                                      .map((s) => s.trim())
+                                      .filter((s) => s);
+                                    const columns = (variant.columnsText || "")
+                                      .split(",")
+                                      .map((s) => s.trim())
+                                      .filter((s) => s && !isNaN(s))
+                                      .map(Number);
+                                    return rows.length > 0 &&
+                                      columns.length > 0 ? (
+                                      <div className="admin__price-grid">
+                                        <table className="admin__price-table">
+                                          <thead>
+                                            <tr>
+                                              <th>Size / Qty</th>
+                                              {columns.map((qty) => (
+                                                <th key={qty}>{qty}</th>
+                                              ))}
+                                            </tr>
+                                          </thead>
+                                          <tbody>
+                                            {rows.map((size) => (
+                                              <tr key={size}>
+                                                <td className="admin__row-label">
+                                                  {size}
+                                                </td>
+                                                {columns.map((qty) => {
+                                                  const key = `${size}-${qty}`;
+                                                  return (
+                                                    <td key={key}>
+                                                      <input
+                                                        type="number"
+                                                        step="0.01"
+                                                        min="0"
+                                                        placeholder="Price"
+                                                        value={
+                                                          variant.prices?.[
+                                                            key
+                                                          ] || ""
+                                                        }
+                                                        onChange={(e) => {
+                                                          const updated = [
+                                                            ...productFormData
+                                                              .pricingTable
+                                                              .variants,
+                                                          ];
+                                                          if (
+                                                            !updated[
+                                                              variantIndex
+                                                            ].prices
+                                                          ) {
+                                                            updated[
+                                                              variantIndex
+                                                            ].prices = {};
+                                                          }
+                                                          updated[
+                                                            variantIndex
+                                                          ].prices[key] =
+                                                            parseFloat(
+                                                              e.target.value,
+                                                            ) || 0;
+                                                          setProductFormData({
+                                                            ...productFormData,
+                                                            pricingTable: {
+                                                              ...productFormData.pricingTable,
+                                                              variants: updated,
+                                                            },
+                                                          });
+                                                        }}
+                                                        className="admin__price-cell-input"
+                                                      />
+                                                    </td>
+                                                  );
+                                                })}
+                                              </tr>
+                                            ))}
+                                          </tbody>
+                                        </table>
+                                      </div>
+                                    ) : null;
+                                  })()}
+                                </div>
+                              ),
+                            )}
+                          </div>
                         )}
                       </div>
 
