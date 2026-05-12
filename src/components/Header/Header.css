@@ -188,6 +188,50 @@
   color: #d90051;
 }
 
+.header__admin-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.header__notification-badge {
+  background-color: rgba(255, 0, 110, 0.5);
+  color: #fff;
+  border-radius: 12px;
+  padding: 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 18px;
+  font-weight: 600;
+  min-width: 24px;
+  transition: all 0.3s ease;
+}
+
+.header__notification-badge_active {
+  background-color: #ff006e;
+  animation: pulse 2s infinite;
+}
+
+.header__notification-icon {
+  flex-shrink: 0;
+}
+
+.header__notification-count {
+  line-height: 1;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 0, 110, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(255, 0, 110, 0);
+  }
+}
+
 .header__cart {
   display: flex;
   align-items: center;
@@ -354,5 +398,96 @@
 
   .header__dropdown-item {
     font-size: 16px;
+  }
+}
+
+/* Notification Popup */
+.header__notification-popup {
+  position: fixed;
+  top: 100px;
+  right: 20px;
+  z-index: 1000;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(400px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.header__notification-content {
+  background: linear-gradient(135deg, #ff006e 0%, #d90051 100%);
+  color: white;
+  border-radius: 12px;
+  padding: 16px 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.header__notification-popup-icon {
+  flex-shrink: 0;
+  color: white;
+}
+
+.header__notification-text {
+  flex: 1;
+}
+
+.header__notification-text strong {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+  font-family: "BungeeInline", Arial, sans-serif;
+}
+
+.header__notification-text p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.header__notification-close {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  flex-shrink: 0;
+}
+
+.header__notification-close:hover {
+  opacity: 1;
+}
+
+@media screen and (max-width: 768px) {
+  .header__notification-popup {
+    top: 80px;
+    right: 10px;
+    left: 10px;
+  }
+
+  .header__notification-content {
+    min-width: auto;
+    max-width: none;
   }
 }

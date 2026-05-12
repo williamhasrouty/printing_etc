@@ -91,6 +91,25 @@ function App() {
       .finally(() => setIsLoading(false));
   }, []);
 
+  // Validate cart items against current products and remove invalid ones
+  useEffect(() => {
+    if (products.length > 0 && cartItems.length > 0 && isCartLoaded) {
+      const validProductIds = new Set(products.map((p) => p._id));
+      const validCartItems = cartItems.filter((item) => {
+        const productId = item.productId || item.product;
+        return validProductIds.has(productId);
+      });
+
+      // If any items were removed, update cart
+      if (validCartItems.length !== cartItems.length) {
+        console.log(
+          `Removed ${cartItems.length - validCartItems.length} invalid cart item(s)`,
+        );
+        setCartItems(validCartItems);
+      }
+    }
+  }, [products, isCartLoaded]); // Only run when products are loaded or cart is initialized
+
   // Check token on mount
   useEffect(() => {
     const token = getStoredToken();

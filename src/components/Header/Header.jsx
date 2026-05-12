@@ -1,8 +1,9 @@
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import CartContext from "../../contexts/CartContext";
-import { getProducts } from "../../utils/api";
+import { getProducts, getAllOrders } from "../../utils/api";
+import { getStoredToken } from "../../utils/auth";
 import "./Header.css";
 
 function Header({ onLoginClick, onRegisterClick, onLogout }) {
@@ -11,6 +12,10 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [products, setProducts] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [newOrdersCount, setNewOrdersCount] = useState(0);
+  const [showNotification, setShowNotification] = useState(false);
+  const prevOrdersCount = useRef(0);
+  const isInitialLoad = useRef(true);
   const navigate = useNavigate();
 
   const cartItemCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -20,6 +25,57 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
       .then((data) => setProducts(data))
       .catch((err) => console.error("Failed to fetch products:", err));
   }, []);
+
+  // Fetch new orders count for admin users
+  useEffect(() => {
+    const fetchNewOrders = () => {
+      if (currentUser?.role === "admin") {
+        const token = getStoredToken();
+        if (token) {
+          getAllOrders(token, "pending")
+            .then((orders) => {
+              const newCount = orders.length;
+
+              console.log(
+                "Fetching orders - Current:",
+                newCount,
+                "Previous:",
+                prevOrdersCount.current,
+                "Initial:",
+                isInitialLoad.current,
+              );
+
+              // Show notification on initial load if there are pending orders OR if count increased
+              if (isInitialLoad.current && newCount > 0) {
+                console.log("Showing notification - pending orders on load!");
+                setShowNotification(true);
+                setTimeout(() => setShowNotification(false), 5000);
+              } else if (
+                !isInitialLoad.current &&
+                newCount > prevOrdersCount.current
+              ) {
+                console.log("Showing notification - new orders detected!");
+                setShowNotification(true);
+                setTimeout(() => setShowNotification(false), 5000);
+              }
+
+              prevOrdersCount.current = newCount;
+              setNewOrdersCount(newCount);
+              isInitialLoad.current = false;
+            })
+            .catch((err) => console.error("Failed to fetch orders:", err));
+        }
+      }
+    };
+
+    fetchNewOrders();
+
+    // Poll for new orders every 30 seconds if user is admin
+    if (currentUser?.role === "admin") {
+      const interval = setInterval(fetchNewOrders, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [currentUser]);
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -117,10 +173,34 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
               {currentUser?.role === "admin" && (
                 <Link
                   to="/admin"
-                  className="header__link header__link_admin"
+                  state={{ tab: "orders" }}
+                  className="header__link header__link_admin header__admin-link"
                   onClick={closeMobileMenu}
                 >
                   Admin Dashboard
+                  <span
+                    className={`header__notification-badge ${newOrdersCount > 0 ? "header__notification-badge_active" : ""}`}
+                  >
+                    <svg
+                      className="header__notification-icon"
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    <span className="header__notification-count">
+                      {newOrdersCount}
+                    </span>
+                  </span>
                 </Link>
               )}
               <Link
@@ -176,6 +256,42 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
           />
         )}
       </div>
+
+      {/* New Order Notification Popup */}
+      {showNotification && (
+        <div className="header__notification-popup">
+          <div className="header__notification-content">
+            <svg
+              className="header__notification-popup-icon"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M9 5H7C5.89543 5 5 5.89543 5 7V19C5 20.1046 5.89543 21 7 21H17C18.1046 21 19 20.1046 19 19V7C19 5.89543 18.1046 5 17 5H15M9 5C9 6.10457 9.89543 7 11 7H13C14.1046 7 15 6.10457 15 5M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5M12 12H15M12 16H15M9 12H9.01M9 16H9.01"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="header__notification-text">
+              <strong>New Order!</strong>
+              <p>You have new pending orders to review</p>
+            </div>
+            <button
+              className="header__notification-close"
+              onClick={() => setShowNotification(false)}
+              type="button"
+              aria-label="Close notification"
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

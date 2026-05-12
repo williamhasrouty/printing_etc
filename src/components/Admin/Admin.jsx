@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import {
   getAllOrders,
@@ -15,13 +15,15 @@ import "./Admin.css";
 function Admin({ onProductsChange }) {
   const { currentUser, isCheckingAuth } = useContext(CurrentUserContext);
   const navigate = useNavigate();
+  const location = useLocation();
   const productFormRef = useRef(null);
   const tabsRef = useRef(null);
   const productControlsRef = useRef(null);
 
-  // Tab state - restore from localStorage
+  // Tab state - restore from localStorage or location state
   const [activeTab, setActiveTab] = useState(
-    () => localStorage.getItem("adminActiveTab") || "orders",
+    () =>
+      location.state?.tab || localStorage.getItem("adminActiveTab") || "orders",
   ); // "orders" or "products"
 
   // Orders state
@@ -79,6 +81,13 @@ function Admin({ onProductsChange }) {
       navigate("/");
     }
   }, [currentUser, isCheckingAuth, navigate]);
+
+  // Handle tab from location state (for navigation from header notification)
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+    }
+  }, [location.state]);
 
   // Save active tab to localStorage
   useEffect(() => {

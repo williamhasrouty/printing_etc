@@ -516,8 +516,21 @@ function Checkout() {
       navigate("/order-summary", { state: { orderData: result } });
     } catch (err) {
       console.error(err);
+      let errorMessage =
+        err.message || "Failed to place order. Please try again.";
+
+      // Handle invalid product ID errors
+      if (err.message && err.message.includes("invalid product")) {
+        errorMessage =
+          "Some items in your cart are no longer available. Your cart has been updated. Please review and try again.";
+        // Optionally, navigate to cart page
+        setTimeout(() => {
+          navigate("/cart");
+        }, 3000);
+      }
+
       setNotification({
-        message: err.message || "Failed to place order. Please try again.",
+        message: errorMessage,
         type: "error",
       });
     } finally {
