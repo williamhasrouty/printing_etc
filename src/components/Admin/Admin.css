@@ -756,8 +756,8 @@
   width: 40px;
   height: 40px;
   border: none;
-  border-radius: 999px;
-  background-color: #e9ecef;
+  border-radius: 8px;
+  background-color: #b9c5d5;
   color: #2c2c2c;
   font-size: 22px;
   line-height: 1;

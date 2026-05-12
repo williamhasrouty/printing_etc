@@ -50,7 +50,7 @@
       "name": "Decals",
       "description": "Durable vinyl decals for windows, vehicles, and equipment. Weather-resistant and long-lasting.",
       "basePrice": 0.5,
-      "imageUrl": "/src/assets/images/windowdecal.jpg",
+      "imageUrl": "/src/assets/images/window-decal.jpg",
       "category": "decals",
       "id": "d9e1"
     },

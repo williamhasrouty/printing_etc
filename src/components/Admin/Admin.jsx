@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
 import {
@@ -15,6 +15,9 @@ import "./Admin.css";
 function Admin({ onProductsChange }) {
   const { currentUser, isCheckingAuth } = useContext(CurrentUserContext);
   const navigate = useNavigate();
+  const productFormRef = useRef(null);
+  const tabsRef = useRef(null);
+  const productControlsRef = useRef(null);
 
   // Tab state - restore from localStorage
   const [activeTab, setActiveTab] = useState(
@@ -176,6 +179,19 @@ function Admin({ onProductsChange }) {
   const handleEditProduct = (product) => {
     setEditingProduct(product);
 
+    // Scroll to below product controls/search
+    setTimeout(() => {
+      if (productControlsRef.current) {
+        const controlsBottom =
+          productControlsRef.current.getBoundingClientRect().bottom;
+        const offsetPosition = controlsBottom + window.pageYOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "auto",
+        });
+      }
+    }, 50);
+
     // Convert pricing table arrays to text for editing
     let pricingTableForEdit = product.pricingTable || {
       enabled: false,
@@ -225,6 +241,19 @@ function Admin({ onProductsChange }) {
 
   const handleAddNewProduct = () => {
     setEditingProduct(null);
+
+    // Scroll to below product controls/search
+    setTimeout(() => {
+      if (productControlsRef.current) {
+        const controlsBottom =
+          productControlsRef.current.getBoundingClientRect().bottom;
+        const offsetPosition = controlsBottom + window.pageYOffset;
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "auto",
+        });
+      }
+    }, 50);
     setProductFormData({
       name: "",
       description: "",
@@ -886,7 +915,7 @@ function Admin({ onProductsChange }) {
         </div>
 
         {/* Tab Navigation */}
-        <div className="admin__tabs">
+        <div className="admin__tabs" ref={tabsRef}>
           <button
             className={`admin__tab ${activeTab === "orders" ? "admin__tab_active" : ""}`}
             onClick={() => setActiveTab("orders")}
@@ -1349,7 +1378,7 @@ function Admin({ onProductsChange }) {
         {/* Products Tab */}
         {activeTab === "products" && (
           <>
-            <div className="admin__controls">
+            <div className="admin__controls" ref={productControlsRef}>
               <div className="admin__search">
                 <input
                   type="text"
@@ -1370,7 +1399,7 @@ function Admin({ onProductsChange }) {
               <>
                 {/* Product Form */}
                 {(editingProduct || isAddingProduct) && (
-                  <div className="admin__product-form">
+                  <div className="admin__product-form" ref={productFormRef}>
                     <form onSubmit={handleSaveProduct} className="admin__form">
                       <div className="admin__form-top-bar">
                         <h3 className="admin__form-title">
