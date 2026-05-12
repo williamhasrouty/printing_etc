@@ -371,6 +371,12 @@ function App() {
     }
   };
 
+  const updateCartItem = (id, updatedItem) => {
+    setCartItems(
+      cartItems.map((item) => (item.id === id ? { ...updatedItem, id } : item)),
+    );
+  };
+
   const clearCart = () => {
     // Clean up blob URLs before clearing cart to prevent memory leaks
     cartItems.forEach((item) => {
@@ -394,6 +400,7 @@ function App() {
           addToCart,
           removeFromCart,
           updateCartItemQuantity,
+          updateCartItem,
           clearCart,
         }}
       >

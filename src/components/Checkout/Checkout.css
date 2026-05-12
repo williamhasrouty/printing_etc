@@ -432,11 +432,28 @@
   margin: 0;
 }
 
+.checkout__item-quantity {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2c2c2c;
+  margin: 4px 0 0 0;
+}
+
 .checkout__item-price {
   font-size: 16px;
-  font-weight: 400;
+  font-weight: 600;
   color: #00b4d8;
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.checkout__item-price-unit {
+  font-size: 12px;
+  font-weight: 400;
+  color: #666;
 }
 
 .checkout__totals {

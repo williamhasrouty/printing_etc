@@ -10,6 +10,12 @@ function Cart({ onLoginClick, onRegisterClick }) {
   const { isLoggedIn } = useContext(CurrentUserContext);
   const navigate = useNavigate();
 
+  const handleEditItem = (item) => {
+    navigate(`/products/${item.productId}`, {
+      state: { editingCartItem: item },
+    });
+  };
+
   const calculateTotal = () => {
     return cartItems
       .reduce((sum, item) => sum + item.price * item.quantity, 0)
@@ -129,11 +135,30 @@ function Cart({ onLoginClick, onRegisterClick }) {
                         Shipping: ${item.shippingCost.toFixed(2)}
                       </p>
                     )}
-                    {item.quantity > 1 && (
-                      <p className="cart__item-option">
-                        × {item.quantity} set{item.quantity !== 1 ? "s" : ""}
-                      </p>
-                    )}
+                  </div>
+
+                  {/* Quantity Controls */}
+                  <div className="cart__item-quantity">
+                    <label className="cart__item-quantity-label">Quantity:</label>
+                    <div className="cart__item-quantity-controls">
+                      <button
+                        onClick={() => updateCartItemQuantity(item.id, item.quantity - 1)}
+                        className="cart__item-quantity-btn"
+                        type="button"
+                        aria-label="Decrease quantity"
+                      >
+                        −
+                      </button>
+                      <span className="cart__item-quantity-value">{item.quantity}</span>
+                      <button
+                        onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}
+                        className="cart__item-quantity-btn"
+                        type="button"
+                        aria-label="Increase quantity"
+                      >
+                        +
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -147,13 +172,22 @@ function Cart({ onLoginClick, onRegisterClick }) {
                       </span>
                     )}
                   </p>
-                  <button
-                    onClick={() => removeFromCart(item.id)}
-                    className="cart__item-remove"
-                    type="button"
-                  >
-                    Remove
-                  </button>
+                  <div className="cart__item-buttons">
+                    <button
+                      onClick={() => handleEditItem(item)}
+                      className="cart__item-edit"
+                      type="button"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="cart__item-remove"
+                      type="button"
+                    >
+                      Remove
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

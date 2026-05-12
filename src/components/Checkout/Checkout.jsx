@@ -95,7 +95,7 @@ function Checkout() {
   }, [deliveryMethod]);
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((sum, item) => sum + item.price, 0);
+    return cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
   const calculateTax = () => {
@@ -1006,9 +1006,19 @@ function Checkout() {
                           .join(", ")}
                       </p>
                     )}
+                    {item.quantity > 1 && (
+                      <p className="checkout__item-quantity">
+                        × {item.quantity} {item.quantity === 1 ? "set" : "sets"}
+                      </p>
+                    )}
                   </div>
                   <p className="checkout__item-price">
-                    ${item.price.toFixed(2)}
+                    ${(item.price * item.quantity).toFixed(2)}
+                    {item.quantity > 1 && (
+                      <span className="checkout__item-price-unit">
+                        ${item.price.toFixed(2)} each
+                      </span>
+                    )}
                   </p>
                 </div>
               ))}

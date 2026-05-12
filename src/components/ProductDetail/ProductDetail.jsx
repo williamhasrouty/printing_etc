@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
@@ -29,7 +29,12 @@ import "./ProductDetail.css";
 function ProductDetail({ products }) {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { addToCart } = useContext(CartContext);
+  const location = useLocation();
+  const { addToCart, updateCartItem } = useContext(CartContext);
+
+  // Check if we're editing an existing cart item
+  const editingCartItem = location.state?.editingCartItem || null;
+  const isEditMode = !!editingCartItem;
 
   const product = products.find((p) => p._id === id);
   const isBusinessCard = product?.category === "business-cards";
@@ -412,6 +417,26 @@ function ProductDetail({ products }) {
       setSizeDistribution({});
     }
   }, [product, selectedOptions.quantity]);
+
+  // Pre-populate form when editing an existing cart item
+  useEffect(() => {
+    if (editingCartItem && editingCartItem.rawOptions) {
+      setSelectedOptions(editingCartItem.rawOptions);
+      if (editingCartItem.rawSizeDistribution) {
+        setSizeDistribution(editingCartItem.rawSizeDistribution);
+      }
+      if (editingCartItem.uploadedFile) {
+        setUploadedFile(editingCartItem.uploadedFile);
+      }
+      if (editingCartItem.uploadedBackFile) {
+        setUploadedBackFile(editingCartItem.uploadedBackFile);
+      }
+      if (editingCartItem.shippingCost !== undefined) {
+        setShippingCost(editingCartItem.shippingCost);
+        setShippingCalculated(editingCartItem.shippingCost > 0);
+      }
+    }
+  }, [editingCartItem]);
 
   // Get available coating options based on selected color and paper type
   const getAvailableCoating = () => {
@@ -1068,6 +1093,8 @@ function ProductDetail({ products }) {
         addressType: selectedOptions.addressType || "",
         ...customOptionsForCart, // Spread custom options (e.g., "Materials": "Vinyl")
       },
+      rawOptions: selectedOptions, // Store raw option IDs for editing
+      rawSizeDistribution: sizeDistribution, // Store size distribution for editing
       uploadedFile: uploadedFile
         ? {
             file: uploadedFile.file, // Store the File object
@@ -1100,7 +1127,175 @@ function ProductDetail({ products }) {
       price: parseFloat(calculatePrice()),
     });
 
-    navigate("/cart");
+    // Show success notification
+    setNotification({
+      message: isEditMode
+        ? "Cart item updated successfully!"
+        : "Product added to cart!",
+      type: "success",
+    });
+
+    // Navigate to cart after short delay
+    setTimeout(() => {
+      navigate("/cart");
+    }, 800);
+  };
+
+  const handleCartAction = () => {
+    if (isEditMode) {
+      // Update existing cart item
+      updateCartItem(editingCartItem.id, {
+        productId: product._id,
+        name: product.name,
+        imageUrl: product.imageUrl,
+        category: product.category,
+        options: buildCartOptions(),
+        rawOptions: selectedOptions, // Store raw option IDs for editing
+        rawSizeDistribution: sizeDistribution, // Store size distribution for editing
+        uploadedFile: buildUploadedFileData(),
+        uploadedBackFile: buildUploadedBackFileData(),
+        shippingCost: shippingCost || 0,
+        quantity: 1,
+        price: parseFloat(calculatePrice()),
+      });
+
+      setNotification({
+        message: "Cart item updated successfully!",
+        type: "success",
+      });
+
+      setTimeout(() => {
+        navigate("/cart");
+      }, 800);
+    } else {
+      // Add new item to cart
+      handleAddToCart();
+    }
+  };
+
+  // Helper function to build cart options
+  const buildCartOptions = () => {
+    const paperType = isBusinessCard
+      ? BUSINESS_CARD_PAPER.find((p) => p.id === selectedOptions.paperType)
+      : isFlyer
+        ? getFlyerPaperTypes().find((p) => p.id === selectedOptions.paperType)
+        : getProductPaperTypes().find(
+            (p) => p.id === selectedOptions.paperType,
+          );
+
+    const sizeOption = isFlyer
+      ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
+      : getProductSizes().find((s) => s.id === selectedOptions.size);
+
+    const colorOption = isBusinessCard
+      ? BUSINESS_CARD_COLORS.find((c) => c.id === selectedOptions.color)
+      : isFlyer
+        ? getFlyerColors().find((c) => c.id === selectedOptions.color)
+        : getProductColors().find((c) => c.id === selectedOptions.color);
+
+    const coatingOption = isBusinessCard
+      ? getBusinessCardCoatingOptions().find(
+          (c) => c.id === selectedOptions.coating,
+        )
+      : isFlyer
+        ? getFlyerCoatings().find((c) => c.id === selectedOptions.coating)
+        : getProductCoatings().find((c) => c.id === selectedOptions.coating);
+
+    const raisedPrintOption = isBusinessCard
+      ? BUSINESS_CARD_RAISED.find((r) => r.id === selectedOptions.raisedPrint)
+      : getProductRaisedPrint().find(
+          (r) => r.id === selectedOptions.raisedPrint,
+        );
+
+    const roundedCornerOption = getProductRoundedCorners().find(
+      (r) => r.id === selectedOptions.roundedCorner,
+    );
+
+    const finishOption = getProductFinishes().find(
+      (f) => f.id === selectedOptions.finish,
+    );
+
+    const velvetFinishOption = isBusinessCard
+      ? BUSINESS_CARD_VELVET.find((v) => v.id === selectedOptions.velvetFinish)
+      : null;
+
+    const customOptionsForCart = {};
+    Object.keys(selectedOptions.customOptions || {}).forEach((categoryKey) => {
+      const categoryData = getCustomOptions()[categoryKey];
+      const selectedId = selectedOptions.customOptions[categoryKey];
+      const options = getCustomOptionValues(categoryKey);
+      const selectedOption = options.find((opt) => opt.id === selectedId);
+      if (selectedOption && categoryData) {
+        customOptionsForCart[categoryData.label || categoryKey] =
+          selectedOption.name;
+      }
+    });
+
+    const sizeDistributionForCart = {};
+    if (needsSizeDistribution()) {
+      const sizes = getProductSizes();
+      Object.keys(sizeDistribution).forEach((sizeId) => {
+        const qty = parseInt(sizeDistribution[sizeId]) || 0;
+        if (qty > 0) {
+          const sizeOption = sizes.find((s) => s.id === sizeId);
+          if (sizeOption) {
+            sizeDistributionForCart[sizeOption.name] = qty;
+          }
+        }
+      });
+    }
+
+    return {
+      paperType: paperType?.name || "Standard",
+      quantity: selectedOptions.quantity,
+      size: needsSizeDistribution()
+        ? "Multiple Sizes"
+        : sizeOption?.name || selectedOptions.size || "",
+      sizeDistribution:
+        Object.keys(sizeDistributionForCart).length > 0
+          ? sizeDistributionForCart
+          : undefined,
+      orientation: selectedOptions.orientation || "",
+      color: colorOption?.name || "",
+      roundedCorner:
+        roundedCornerOption?.name || selectedOptions.roundedCorner || "none",
+      coating: coatingOption?.name || "",
+      raisedPrint: raisedPrintOption?.name || "",
+      velvetFinish: velvetFinishOption?.name || "",
+      finish: finishOption?.name || "",
+      zipCode: selectedOptions.zipCode || "",
+      addressType: selectedOptions.addressType || "",
+      ...customOptionsForCart,
+    };
+  };
+
+  const buildUploadedFileData = () => {
+    if (!uploadedFile) return null;
+    return {
+      file: uploadedFile.file,
+      base64: uploadedFile.base64,
+      previewUrl: uploadedFile.previewUrl,
+      fileName: uploadedFile.fileName,
+      fileSize: uploadedFile.fileSize,
+      fileType: uploadedFile.fileType,
+      resourceType: uploadedFile.resourceType,
+      pageNumber:
+        uploadedFile.fileType === "application/pdf" ? pageNumber : undefined,
+    };
+  };
+
+  const buildUploadedBackFileData = () => {
+    if (!uploadedBackFile) return null;
+    return {
+      file: uploadedBackFile.file,
+      base64: uploadedBackFile.base64,
+      previewUrl: uploadedBackFile.previewUrl,
+      fileName: uploadedBackFile.fileName,
+      fileSize: uploadedBackFile.fileSize,
+      fileType: uploadedBackFile.fileType,
+      resourceType: uploadedBackFile.resourceType,
+      applyGrayscale: selectedOptions.color === "full-front-grayscale",
+    };
   };
 
   return (
@@ -2205,11 +2400,11 @@ function ProductDetail({ products }) {
               )}
 
               <button
-                onClick={handleAddToCart}
+                onClick={handleCartAction}
                 className="product-detail__add-button"
                 type="button"
               >
-                Add to Cart
+                {isEditMode ? "Update Cart" : "Add to Cart"}
               </button>
             </div>
           </div>

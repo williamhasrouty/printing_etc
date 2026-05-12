@@ -197,15 +197,15 @@
 .header__notification-badge {
   background-color: rgba(255, 0, 110, 0.5);
   color: #fff;
-  border-radius: 12px;
-  padding: 8px 10px;
+  border-radius: 14px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  font-size: 18px;
+  gap: 6px;
+  font-size: 20px;
   font-weight: 600;
-  min-width: 24px;
+  min-width: 28px;
   transition: all 0.3s ease;
 }
 

@@ -9,11 +9,12 @@ import {
   updateProduct,
   deleteProduct,
 } from "../../utils/api";
-import { getStoredToken } from "../../utils/auth";
+import { getStoredToken, updateUser, updatePassword } from "../../utils/auth";
 import "./Admin.css";
 
 function Admin({ onProductsChange }) {
-  const { currentUser, isCheckingAuth } = useContext(CurrentUserContext);
+  const { currentUser, setCurrentUser, isCheckingAuth } =
+    useContext(CurrentUserContext);
   const navigate = useNavigate();
   const location = useLocation();
   const productFormRef = useRef(null);
@@ -74,6 +75,20 @@ function Admin({ onProductsChange }) {
       variants: [],
     },
   });
+
+  // Profile editing state
+  const [isEditingEmail, setIsEditingEmail] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [isEditingPassword, setIsEditingPassword] = useState(false);
+  const [profileEmail, setProfileEmail] = useState(currentUser?.email || "");
+  const [profileName, setProfileName] = useState(currentUser?.name || "");
+  const [profilePhone, setProfilePhone] = useState(currentUser?.phone || "");
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [profileMessage, setProfileMessage] = useState("");
+  const [profileError, setProfileError] = useState("");
 
   // Redirect if not admin
   useEffect(() => {
@@ -856,6 +871,146 @@ function Admin({ onProductsChange }) {
     }
   };
 
+  // Profile management functions
+  useEffect(() => {
+    setProfileEmail(currentUser?.email || "");
+    setProfileName(currentUser?.name || "");
+    setProfilePhone(currentUser?.phone || "");
+  }, [currentUser]);
+
+  const isValidEmail = (value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(value);
+  };
+
+  const formatPhone = (value) => {
+    const digits = value.replace(/\D/g, "").slice(0, 10);
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+  };
+
+  const handleUpdateName = (e) => {
+    e.preventDefault();
+    setProfileError("");
+    setProfileMessage("");
+
+    if (!profileName.trim()) {
+      setProfileError("Name cannot be empty");
+      return;
+    }
+
+    const token = getStoredToken();
+    updateUser({ name: profileName }, token)
+      .then((updatedUser) => {
+        if (setCurrentUser) {
+          setCurrentUser(updatedUser);
+        }
+        setProfileMessage("Name updated successfully");
+        setIsEditingName(false);
+        setTimeout(() => setProfileMessage(""), 3000);
+      })
+      .catch((err) => {
+        setProfileError("Failed to update name");
+        console.error(err);
+      });
+  };
+
+  const handleUpdatePhone = (e) => {
+    e.preventDefault();
+    setProfileError("");
+    setProfileMessage("");
+
+    const digitsOnly = profilePhone.replace(/\D/g, "");
+    if (digitsOnly.length > 0 && digitsOnly.length < 10) {
+      setProfileError("Please enter a valid 10-digit phone number");
+      return;
+    }
+
+    const token = getStoredToken();
+    updateUser({ phone: profilePhone }, token)
+      .then((updatedUser) => {
+        if (setCurrentUser) {
+          setCurrentUser(updatedUser);
+        }
+        setProfilePhone(updatedUser?.phone || "");
+        setProfileMessage("Phone number updated successfully");
+        setIsEditingPhone(false);
+        setTimeout(() => setProfileMessage(""), 3000);
+      })
+      .catch((err) => {
+        setProfileError("Failed to update phone number");
+        console.error(err);
+      });
+  };
+
+  const handleUpdateEmail = (e) => {
+    e.preventDefault();
+    setProfileError("");
+    setProfileMessage("");
+
+    if (!profileEmail.trim() || !isValidEmail(profileEmail)) {
+      setProfileError("Please enter a valid email address");
+      return;
+    }
+
+    const token = getStoredToken();
+    updateUser({ email: profileEmail }, token)
+      .then((updatedUser) => {
+        if (setCurrentUser) {
+          setCurrentUser(updatedUser);
+        }
+        setProfileEmail(updatedUser?.email || "");
+        setProfileMessage("Email updated successfully");
+        setIsEditingEmail(false);
+        setTimeout(() => setProfileMessage(""), 3000);
+      })
+      .catch((err) => {
+        const msg = String(err);
+        if (msg.includes("409") || msg.toLowerCase().includes("exists")) {
+          setProfileError("This email is already in use.");
+        } else {
+          setProfileError("Failed to update email");
+        }
+        console.error(err);
+      });
+  };
+
+  const handleUpdatePassword = (e) => {
+    e.preventDefault();
+    setProfileError("");
+    setProfileMessage("");
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setProfileError("All password fields are required");
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setProfileError("New passwords do not match");
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      setProfileError("Password must be at least 8 characters");
+      return;
+    }
+
+    const token = getStoredToken();
+    updatePassword(currentPassword, newPassword, token)
+      .then(() => {
+        setProfileMessage("Password updated successfully");
+        setIsEditingPassword(false);
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
+        setTimeout(() => setProfileMessage(""), 3000);
+      })
+      .catch((err) => {
+        setProfileError(err);
+      });
+  };
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString("en-US", {
@@ -925,6 +1080,12 @@ function Admin({ onProductsChange }) {
             onClick={() => setActiveTab("products")}
           >
             Products
+          </button>
+          <button
+            className={`admin__tab ${activeTab === "profile" ? "admin__tab_active" : ""}`}
+            onClick={() => setActiveTab("profile")}
+          >
+            Profile
           </button>
         </div>
 
@@ -2982,6 +3143,244 @@ function Admin({ onProductsChange }) {
               </>
             )}
           </>
+        )}
+
+        {/* Profile Tab */}
+        {activeTab === "profile" && (
+          <div className="admin__profile">
+            <div className="admin__profile-card">
+              <h2 className="admin__profile-title">Account Information</h2>
+
+              {profileMessage && (
+                <p className="admin__profile-message admin__profile-message_success">
+                  {profileMessage}
+                </p>
+              )}
+              {profileError && (
+                <p className="admin__profile-message admin__profile-message_error">
+                  {profileError}
+                </p>
+              )}
+
+              <div className="admin__profile-info">
+                {/* Name Field */}
+                <div className="admin__profile-field">
+                  <label className="admin__profile-label">Name:</label>
+                  {!isEditingName ? (
+                    <div className="admin__profile-content">
+                      <span className="admin__profile-value">
+                        {currentUser?.name || "User"}
+                      </span>
+                      <button
+                        className="admin__profile-edit-btn"
+                        onClick={() => setIsEditingName(true)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={handleUpdateName}
+                      className="admin__profile-edit-form"
+                    >
+                      <input
+                        type="text"
+                        value={profileName}
+                        onChange={(e) => setProfileName(e.target.value)}
+                        className="admin__profile-input"
+                      />
+                      <button type="submit" className="admin__profile-save-btn">
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="admin__profile-cancel-btn"
+                        onClick={() => {
+                          setIsEditingName(false);
+                          setProfileName(currentUser?.name || "");
+                          setProfileError("");
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                {/* Email Field */}
+                <div className="admin__profile-field">
+                  <label className="admin__profile-label">Email:</label>
+                  {!isEditingEmail ? (
+                    <div className="admin__profile-content">
+                      <span className="admin__profile-value">
+                        {currentUser?.email || ""}
+                      </span>
+                      <button
+                        className="admin__profile-edit-btn"
+                        onClick={() => setIsEditingEmail(true)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={handleUpdateEmail}
+                      className="admin__profile-edit-form"
+                    >
+                      <input
+                        type="email"
+                        value={profileEmail}
+                        onChange={(e) => setProfileEmail(e.target.value)}
+                        className="admin__profile-input"
+                        placeholder="Email"
+                      />
+                      <button type="submit" className="admin__profile-save-btn">
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="admin__profile-cancel-btn"
+                        onClick={() => {
+                          setIsEditingEmail(false);
+                          setProfileEmail(currentUser?.email || "");
+                          setProfileError("");
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                {/* Phone Field */}
+                <div className="admin__profile-field">
+                  <label className="admin__profile-label">Phone:</label>
+                  {!isEditingPhone ? (
+                    <div className="admin__profile-content">
+                      <span className="admin__profile-value">
+                        {currentUser?.phone || "Not added"}
+                      </span>
+                      <button
+                        className="admin__profile-edit-btn"
+                        onClick={() => setIsEditingPhone(true)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={handleUpdatePhone}
+                      className="admin__profile-edit-form"
+                    >
+                      <input
+                        type="tel"
+                        value={profilePhone}
+                        onChange={(e) =>
+                          setProfilePhone(formatPhone(e.target.value))
+                        }
+                        className="admin__profile-input"
+                        placeholder="(123) 456-7890"
+                      />
+                      <button type="submit" className="admin__profile-save-btn">
+                        Save
+                      </button>
+                      <button
+                        type="button"
+                        className="admin__profile-cancel-btn"
+                        onClick={() => {
+                          setIsEditingPhone(false);
+                          setProfilePhone(currentUser?.phone || "");
+                          setProfileError("");
+                        }}
+                      >
+                        Cancel
+                      </button>
+                    </form>
+                  )}
+                </div>
+
+                {/* Password Field */}
+                <div className="admin__profile-field">
+                  <label className="admin__profile-label">Password:</label>
+                  {!isEditingPassword ? (
+                    <div className="admin__profile-content">
+                      <span className="admin__profile-value">••••••••</span>
+                      <button
+                        className="admin__profile-edit-btn"
+                        onClick={() => setIsEditingPassword(true)}
+                      >
+                        Change Password
+                      </button>
+                    </div>
+                  ) : (
+                    <form
+                      onSubmit={handleUpdatePassword}
+                      className="admin__profile-password-form"
+                    >
+                      <input
+                        type="password"
+                        placeholder="Current Password*"
+                        value={currentPassword}
+                        onChange={(e) => setCurrentPassword(e.target.value)}
+                        className="admin__profile-input"
+                      />
+                      <input
+                        type="password"
+                        placeholder="New Password (min 8 characters)*"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="admin__profile-input"
+                        minLength={8}
+                      />
+                      {newPassword.length > 0 && newPassword.length < 8 && (
+                        <span className="admin__profile-error-hint">
+                          Password must be at least 8 characters
+                        </span>
+                      )}
+                      <input
+                        type="password"
+                        placeholder="Confirm New Password*"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="admin__profile-input"
+                      />
+                      <div className="admin__profile-password-buttons">
+                        <button
+                          type="submit"
+                          className="admin__profile-save-btn"
+                        >
+                          Update Password
+                        </button>
+                        <button
+                          type="button"
+                          className="admin__profile-cancel-btn"
+                          onClick={() => {
+                            setIsEditingPassword(false);
+                            setCurrentPassword("");
+                            setNewPassword("");
+                            setConfirmPassword("");
+                            setProfileError("");
+                          }}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </form>
+                  )}
+                </div>
+
+                {/* Role Field (Read-only) */}
+                <div className="admin__profile-field">
+                  <label className="admin__profile-label">Role:</label>
+                  <div className="admin__profile-content">
+                    <span className="admin__profile-value admin__profile-value_admin">
+                      Administrator
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         )}
       </div>
 

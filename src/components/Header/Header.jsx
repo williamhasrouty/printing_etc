@@ -49,14 +49,12 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
               if (isInitialLoad.current && newCount > 0) {
                 console.log("Showing notification - pending orders on load!");
                 setShowNotification(true);
-                setTimeout(() => setShowNotification(false), 5000);
               } else if (
                 !isInitialLoad.current &&
                 newCount > prevOrdersCount.current
               ) {
                 console.log("Showing notification - new orders detected!");
                 setShowNotification(true);
-                setTimeout(() => setShowNotification(false), 5000);
               }
 
               prevOrdersCount.current = newCount;
@@ -183,8 +181,8 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
                   >
                     <svg
                       className="header__notification-icon"
-                      width="12"
-                      height="12"
+                      width="18"
+                      height="18"
                       viewBox="0 0 24 24"
                       fill="none"
                       xmlns="http://www.w3.org/2000/svg"
@@ -203,13 +201,15 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
                   </span>
                 </Link>
               )}
-              <Link
-                to="/profile"
-                className="header__link header__link_profile"
-                onClick={closeMobileMenu}
-              >
-                {currentUser?.name || "Profile"}
-              </Link>
+              {currentUser?.role !== "admin" && (
+                <Link
+                  to="/profile"
+                  className="header__link header__link_profile"
+                  onClick={closeMobileMenu}
+                >
+                  {currentUser?.name || "Profile"}
+                </Link>
+              )}
               <button
                 onClick={() => {
                   onLogout();
