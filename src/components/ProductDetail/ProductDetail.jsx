@@ -2474,7 +2474,7 @@ function ProductDetail({ products }) {
                     <strong>.JPG (JPEG), .EPS and .TIF (TIFF)</strong> file
                     types, however PDF is the preferred format.
                   </p>
-                  <p>AI file must be outlined or vectorized.</p>
+                  <p>AI files must be outlined or vectorized.</p>
                 </div>
 
                 <div className="product-detail__file-prep-section">
@@ -2484,7 +2484,7 @@ function ProductDetail({ products }) {
                   <ul className="product-detail__file-prep-list">
                     <li>
                       <strong>Color Mode:</strong> Use the CMYK colorspace
-                      (Cyan, Magenta, Yellow, blacK). These are industry
+                      (Cyan, Magenta, Yellow, black). These are industry
                       standard printing colors. CMYK colors are different than
                       RGB (Red, Green, Blue), which are used to display colors
                       on your screen.

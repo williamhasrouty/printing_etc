@@ -56,7 +56,10 @@ function Contact() {
                 <h3 className="contact__detail-title">Phone</h3>
                 <p className="contact__detail-text-phone">(661) 272-2869</p>
               </div>
-
+               <div className="contact__detail">
+                <h3 className="contact__detail-title">Email</h3>
+                <p className="contact__detail-text-email">avprintingetc@gmail.com</p>
+              </div>
               <div className="contact__detail">
                 <h3 className="contact__detail-title">Address</h3>
                 <p className="contact__detail-text">
