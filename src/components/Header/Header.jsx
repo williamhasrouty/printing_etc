@@ -36,18 +36,28 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
             .then((orders) => {
               const newCount = orders.length;
 
+              // Get last acknowledged order count from localStorage
+              const lastAcknowledgedCount = parseInt(
+                localStorage.getItem("lastAcknowledgedOrderCount") || "0",
+                10,
+              );
+
               console.log(
                 "Fetching orders - Current:",
                 newCount,
                 "Previous:",
                 prevOrdersCount.current,
+                "Last Acknowledged:",
+                lastAcknowledgedCount,
                 "Initial:",
                 isInitialLoad.current,
               );
 
-              // Show notification on initial load if there are pending orders OR if count increased
-              if (isInitialLoad.current && newCount > 0) {
-                console.log("Showing notification - pending orders on load!");
+              // Show notification only if count increased beyond last acknowledged
+              if (isInitialLoad.current && newCount > lastAcknowledgedCount) {
+                console.log(
+                  "Showing notification - new orders since last visit!",
+                );
                 setShowNotification(true);
               } else if (
                 !isInitialLoad.current &&
@@ -86,11 +96,21 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
 
   const handleAdminDashboardClick = () => {
     setShowNotification(false);
+    // Save current order count as acknowledged when navigating to admin/orders
+    localStorage.setItem(
+      "lastAcknowledgedOrderCount",
+      newOrdersCount.toString(),
+    );
     closeMobileMenu();
   };
 
   const handleNotificationClick = () => {
     setShowNotification(false);
+    // Save current order count as acknowledged when clicking notification
+    localStorage.setItem(
+      "lastAcknowledgedOrderCount",
+      newOrdersCount.toString(),
+    );
     closeMobileMenu();
     navigate("/admin", { state: { tab: "orders" } });
   };
@@ -304,6 +324,11 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
               onClick={(e) => {
                 e.stopPropagation();
                 setShowNotification(false);
+                // Save current order count as acknowledged when closing notification
+                localStorage.setItem(
+                  "lastAcknowledgedOrderCount",
+                  newOrdersCount.toString(),
+                );
               }}
               type="button"
               aria-label="Close notification"
