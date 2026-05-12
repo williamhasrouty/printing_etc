@@ -84,6 +84,17 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
     setIsDropdownOpen(false);
   };
 
+  const handleAdminDashboardClick = () => {
+    setShowNotification(false);
+    closeMobileMenu();
+  };
+
+  const handleNotificationClick = () => {
+    setShowNotification(false);
+    closeMobileMenu();
+    navigate("/admin", { state: { tab: "orders" } });
+  };
+
   const handleProductsClick = (e) => {
     // On mobile, toggle dropdown; on desktop, navigate to home
     if (window.innerWidth <= 768) {
@@ -173,11 +184,15 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
                   to="/admin"
                   state={{ tab: "orders" }}
                   className="header__link header__link_admin header__admin-link"
-                  onClick={closeMobileMenu}
+                  onClick={handleAdminDashboardClick}
                 >
                   Admin Dashboard
                   <span
                     className={`header__notification-badge ${newOrdersCount > 0 ? "header__notification-badge_active" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNotificationClick();
+                    }}
                   >
                     <svg
                       className="header__notification-icon"
@@ -260,7 +275,10 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
       {/* New Order Notification Popup */}
       {showNotification && (
         <div className="header__notification-popup">
-          <div className="header__notification-content">
+          <div
+            className="header__notification-content"
+            onClick={handleNotificationClick}
+          >
             <svg
               className="header__notification-popup-icon"
               width="24"
@@ -283,7 +301,10 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
             </div>
             <button
               className="header__notification-close"
-              onClick={() => setShowNotification(false)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowNotification(false);
+              }}
               type="button"
               aria-label="Close notification"
             >

@@ -207,6 +207,11 @@
   font-weight: 600;
   min-width: 28px;
   transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.header__notification-badge:hover {
+  transform: scale(1.05);
 }
 
 .header__notification-badge_active {
@@ -432,6 +437,15 @@
   gap: 12px;
   min-width: 300px;
   max-width: 400px;
+  cursor: pointer;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.header__notification-content:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
 }
 
 .header__notification-popup-icon {

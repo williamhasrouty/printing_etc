@@ -139,19 +139,27 @@ function Cart({ onLoginClick, onRegisterClick }) {
 
                   {/* Quantity Controls */}
                   <div className="cart__item-quantity">
-                    <label className="cart__item-quantity-label">Quantity:</label>
+                    <label className="cart__item-quantity-label">
+                      Quantity:
+                    </label>
                     <div className="cart__item-quantity-controls">
                       <button
-                        onClick={() => updateCartItemQuantity(item.id, item.quantity - 1)}
+                        onClick={() =>
+                          updateCartItemQuantity(item.id, item.quantity - 1)
+                        }
                         className="cart__item-quantity-btn"
                         type="button"
                         aria-label="Decrease quantity"
                       >
                         −
                       </button>
-                      <span className="cart__item-quantity-value">{item.quantity}</span>
+                      <span className="cart__item-quantity-value">
+                        {item.quantity}
+                      </span>
                       <button
-                        onClick={() => updateCartItemQuantity(item.id, item.quantity + 1)}
+                        onClick={() =>
+                          updateCartItemQuantity(item.id, item.quantity + 1)
+                        }
                         className="cart__item-quantity-btn"
                         type="button"
                         aria-label="Increase quantity"
