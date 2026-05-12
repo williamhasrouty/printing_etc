@@ -175,22 +175,23 @@ function Admin({ onProductsChange }) {
     setFilteredProducts(filtered);
   }, [products, productSearchQuery]);
 
-  // Product management functions
-  const handleEditProduct = (product) => {
-    setEditingProduct(product);
-
-    // Scroll to below product controls/search
-    setTimeout(() => {
-      if (productControlsRef.current) {
-        const controlsBottom =
-          productControlsRef.current.getBoundingClientRect().bottom;
-        const offsetPosition = controlsBottom + window.pageYOffset;
+  // Scroll to product form when it opens
+  useEffect(() => {
+    if ((editingProduct || isAddingProduct) && productFormRef.current) {
+      setTimeout(() => {
+        const formTop = productFormRef.current.getBoundingClientRect().top;
+        const offsetPosition = formTop + window.pageYOffset - 150;
         window.scrollTo({
           top: offsetPosition,
           behavior: "auto",
         });
-      }
-    }, 50);
+      }, 150);
+    }
+  }, [editingProduct, isAddingProduct]);
+
+  // Product management functions
+  const handleEditProduct = (product) => {
+    setEditingProduct(product);
 
     // Convert pricing table arrays to text for editing
     let pricingTableForEdit = product.pricingTable || {
@@ -242,18 +243,6 @@ function Admin({ onProductsChange }) {
   const handleAddNewProduct = () => {
     setEditingProduct(null);
 
-    // Scroll to below product controls/search
-    setTimeout(() => {
-      if (productControlsRef.current) {
-        const controlsBottom =
-          productControlsRef.current.getBoundingClientRect().bottom;
-        const offsetPosition = controlsBottom + window.pageYOffset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: "auto",
-        });
-      }
-    }, 50);
     setProductFormData({
       name: "",
       description: "",
@@ -1418,7 +1407,7 @@ function Admin({ onProductsChange }) {
                             aria-label="Close product form"
                             title="Close"
                           >
-                            x
+                            ×
                           </button>
                         </div>
                       </div>
