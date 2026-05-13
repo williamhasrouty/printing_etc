@@ -579,7 +579,9 @@ function Profile() {
                           {order.deliveryMethod === "pickup" && (
                             <>
                               <br />
-                              <em style={{ fontSize: "14px", color: "#666" }}>
+                              <em
+                                style={{ fontSize: "14px", color: "#6f6e6e" }}
+                              >
                                 (Store Pickup - FREE)
                               </em>
                             </>

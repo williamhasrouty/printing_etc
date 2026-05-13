@@ -12,7 +12,7 @@
   margin: 0 auto;
   padding: 20px 0;
   /* background: linear-gradient(180deg, #2c2c2c 0%, #00b4d8 50%, #2c2c2c 100%); */
-  background-color: rgba(0, 180, 216, 0.5);
+  background-color: rgba(0, 180, 216, 0.1);
   /* background-image:
     linear-gradient(180deg, #2c2c2c 0%, #00b4d8 50%, #2c2c2c 100%),
     radial-gradient(circle, rgba(0, 180, 216, 0.4) 2px, transparent 2px),
@@ -55,12 +55,29 @@
   color: #fff;
 }
 
+.main__hero-logo {
+  margin-top: 24px;
+  height: 120px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+}
+
 .main__hero-ticker {
   width: 100%;
   overflow-x: hidden;
   overflow-y: visible;
   position: relative;
-  padding: 20px 0;
+  padding: 10px 0 20px;
+}
+
+.main__hero-ticker-text {
+  font-size: 20px;
+  font-weight: 500;
+  color: #fff;
+  margin: 0 0 16px;
+  font-family: "BungeeInline", Arial, sans-serif;
+  text-align: center;
 }
 
 .main__hero-ticker-track {
@@ -100,7 +117,7 @@
 }
 
 .main__hero-title {
-  font-size: 48px;
+  font-size: 36px;
   font-weight: 400;
   margin: 10px 0 20px;
   color: #fff;
@@ -112,6 +129,9 @@
   margin: 0;
   opacity: 0.95;
   color: #fff;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  
 }
 
 .main__products {
@@ -171,7 +191,7 @@
 .main__loading {
   text-align: center;
   font-size: 18px;
-  color: #666;
+  color: #6f6e6e;
   padding: 40px 0;
 }
 

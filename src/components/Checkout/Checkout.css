@@ -72,7 +72,7 @@
 
 .checkout__section-description {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   margin: -16px 0 20px;
   font-family: "Roboto", Arial, sans-serif;
   line-height: 1.5;
@@ -183,7 +183,7 @@
 
 .checkout__radio-description {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .checkout__pickup-info {
@@ -214,7 +214,7 @@
 }
 
 .checkout__pickup-address em {
-  color: #666;
+  color: #6f6e6e;
   font-style: normal;
   font-weight: 500;
 }
@@ -247,7 +247,7 @@
 
 .checkout__terms-text {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   margin: 0 0 12px 0;
   line-height: 1.5;
   font-family: "Roboto", Arial, sans-serif;
@@ -292,7 +292,7 @@
 
 .checkout__terms-agreement {
   font-size: 15px;
-  color: #666;
+  color: #6f6e6e;
   font-weight: 500;
 }
 
@@ -319,7 +319,7 @@
 
 .checkout__turnaround-item {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   margin: 0;
   line-height: 1.5;
 }
@@ -428,7 +428,7 @@
 
 .checkout__item-details {
   font-size: 12px;
-  color: #666;
+  color: #6f6e6e;
   margin: 0;
 }
 
@@ -453,7 +453,7 @@
 .checkout__item-price-unit {
   font-size: 12px;
   font-weight: 400;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .checkout__totals {
@@ -467,17 +467,17 @@
   justify-content: space-between;
   align-items: center;
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .checkout__total-row .checkout__total-label {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .checkout__total-row .checkout__total-value {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .checkout__calculating {

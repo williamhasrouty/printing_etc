@@ -29,11 +29,12 @@ function Main({ products, isLoading }) {
           <div className="main__hero-content">
             <h1 className="main__hero-title">Professional Printing Services</h1>
             <p className="main__hero-text">
-              Quality Printing & Affordable Prices. <br></br>
-              Serving the Antelope Valley since 2008.
+              Quality Printing & Affordable Prices. Serving the Antelope Valley
+              since 2008.
             </p>
           </div>
           <div className="main__hero-ticker">
+            <p className="main__hero-ticker-text">Our Loyal Customers</p>
             <div className="main__hero-ticker-track">
               {images.map((img, index) => (
                 <img

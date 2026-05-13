@@ -158,7 +158,7 @@
 .modal__guest-checkout {
   background: none;
   border: none;
-  color: #666;
+  color: #6f6e6e;
   font-size: 18px;
   cursor: pointer;
 
@@ -217,7 +217,7 @@
 .modal__forgot-text {
   margin: 0 0 16px;
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   line-height: 1.5;
 }
 
@@ -249,7 +249,7 @@
 
 .modal__forgot-btn_cancel {
   background-color: #fff;
-  color: #666;
+  color: #6f6e6e;
   border: 2px solid #ddd;
 }
 

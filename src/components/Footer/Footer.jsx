@@ -1,7 +1,10 @@
+import { useState } from "react";
+import TermsOfUse from "../TermsOfUse/TermsOfUse";
 import "./Footer.css";
 
 function Footer() {
   const currentYear = new Date().getFullYear();
+  const [showTerms, setShowTerms] = useState(false);
 
   return (
     <footer className="footer">
@@ -53,6 +56,30 @@ function Footer() {
       <div className="footer__copyright">
         © {currentYear} Printing Etc, LLC - All rights reserved.
       </div>
+<div className="footer__legal">
+        <button
+          className="footer__terms-button"
+          onClick={() => setShowTerms(true)}
+          type="button"
+        >
+          Terms of Use
+        </button>
+      </div>
+      <div className="footer__disclaimer">
+        <strong>Product Image Disclaimer:</strong> Product images displayed on this website are
+        for illustrative and example purposes only. Certain mockups, sample
+        designs, and preview images may include third-party artwork, stock
+        imagery, or customer-provided examples used to demonstrate print
+        products and capabilities. All trademarks, logos, and copyrighted
+        materials shown remain the property of their respective owners. If you
+        believe any content displayed on this website infringes upon your
+        copyright or intellectual property rights, please contact us and we will
+        promptly review and address the matter.
+      </div>
+
+      
+
+      {showTerms && <TermsOfUse onClose={() => setShowTerms(false)} />}
     </footer>
   );
 }

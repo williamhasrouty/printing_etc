@@ -57,6 +57,13 @@
   text-transform: uppercase;
   display: flex;
   align-items: center;
+  gap: 12px;
+}
+
+.header__logo-image {
+  height: 100px;
+  width: auto;
+  object-fit: contain;
 }
 
 .header__logo:hover {

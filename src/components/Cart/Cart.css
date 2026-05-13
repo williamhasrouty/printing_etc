@@ -55,7 +55,7 @@
 
 .cart__empty-text {
   font-size: 18px;
-  color: #666;
+  color: #6f6e6e;
   margin: 0 0 24px;
   font-family: "BungeeInline", "Roboto", Arial, sans-serif;
 }
@@ -128,7 +128,7 @@
 
 .cart__item-option {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   margin: 0;
 }
 
@@ -148,7 +148,7 @@
 
 .cart__item-price-unit {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   font-weight: 400;
   display: block;
   margin-top: 4px;
@@ -281,7 +281,7 @@
 
 .cart__summary-label {
   font-size: 16px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .cart__summary-row_type_total .cart__summary-label {

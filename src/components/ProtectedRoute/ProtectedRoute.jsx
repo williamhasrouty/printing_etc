@@ -15,7 +15,7 @@ function ProtectedRoute({ children }) {
           alignItems: "center",
           minHeight: "60vh",
           fontSize: "18px",
-          color: "#666",
+          color: "#6f6e6e",
         }}
       >
         Loading...

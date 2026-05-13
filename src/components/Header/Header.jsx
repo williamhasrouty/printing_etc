@@ -4,6 +4,7 @@ import CurrentUserContext from "../../contexts/CurrentUserContext";
 import CartContext from "../../contexts/CartContext";
 import { getProducts, getAllOrders } from "../../utils/api";
 import { getStoredToken } from "../../utils/auth";
+import petcLogo from "../../assets/images/petc-logo.png";
 import "./Header.css";
 
 function Header({ onLoginClick, onRegisterClick, onLogout }) {
@@ -130,6 +131,11 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
     <header className="header">
       <div className="header__container">
         <Link to="/" className="header__logo">
+          <img
+            src={petcLogo}
+            alt="Printing Etc Logo"
+            className="header__logo-image"
+          />
           Printing Etc.
         </Link>
 

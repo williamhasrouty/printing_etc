@@ -38,7 +38,7 @@
   margin: 0 0 10px;
   font-family: "BungeeInline", "Roboto", Arial, sans-serif;
   color: #d90051;
-  text-shadow: 0 0 10px rgba(0, 180, 216, 0.5);
+  /* text-shadow: 0 0 10px rgba(0, 180, 216, 0.5); */
 }
 
 .admin__subtitle {
@@ -155,7 +155,7 @@
   padding: 60px 20px;
   background-color: rgba(255, 255, 255, 0.95);
   border-radius: 12px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .admin__orders {
@@ -201,7 +201,7 @@
 
 .admin__order-date {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .admin__order-meta {
@@ -367,7 +367,7 @@
 
 .admin__options-list li {
   font-size: 13px;
-  color: #666;
+  color: #6f6e6e;
   padding: 4px 8px;
   background-color: #f8f9fa;
   border-radius: 4px;
@@ -910,7 +910,7 @@
 
 .admin__product-category {
   font-size: 13px;
-  color: #666;
+  color: #6f6e6e;
   text-transform: capitalize;
   margin: 0 0 8px;
 }
@@ -924,7 +924,7 @@
 
 .admin__product-description {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   margin: 0 0 16px;
   line-height: 1.5;
 }

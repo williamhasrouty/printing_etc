@@ -90,7 +90,7 @@
 .product-detail__description {
   font-size: 16px;
   line-height: 1.6;
-  color: #666;
+  color: #6f6e6e;
   margin: 0;
   font-family: "Roboto", Arial, sans-serif;
 }
@@ -241,7 +241,7 @@
 .product-detail__pdf-error {
   padding: 40px;
   text-align: center;
-  color: #666;
+  color: #6f6e6e;
   font-size: 14px;
 }
 
@@ -280,7 +280,7 @@
 
 .product-detail__pdf-page-info {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   font-weight: 500;
 }
 
@@ -379,7 +379,7 @@
 
 .product-detail__guide-text {
   font-size: 13px;
-  color: #666;
+  color: #6f6e6e;
   font-weight: 500;
 }
 
@@ -465,7 +465,7 @@
 .product-detail__error {
   text-align: center;
   font-size: 18px;
-  color: #666;
+  color: #6f6e6e;
   padding: 60px 0;
 }
 
@@ -689,7 +689,7 @@
 .position-modal__error {
   padding: 40px;
   text-align: center;
-  color: #666;
+  color: #6f6e6e;
   font-size: 14px;
 }
 

@@ -81,7 +81,7 @@
 
 .profile__detail-label {
   font-weight: 600;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .profile__detail-value {
@@ -173,7 +173,7 @@
 
 .profile__cancel-btn {
   padding: 8px 16px;
-  background-color: #666;
+  background-color: #6f6e6e;
   color: #fff;
   border: none;
   border-radius: 4px;
@@ -205,7 +205,7 @@
 .profile__empty {
   text-align: center;
   font-size: 16px;
-  color: #666;
+  color: #6f6e6e;
   padding: 40px 0;
   margin: 0;
 }
@@ -255,7 +255,7 @@
 
 .profile__order-date {
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .profile__order-status {
@@ -265,7 +265,7 @@
   font-weight: 600;
   text-transform: capitalize;
   background-color: #f0f0f0;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .profile__order-status_pending {
@@ -339,7 +339,7 @@
 .profile__order-item-category {
   margin: 0;
   font-size: 13px;
-  color: #666;
+  color: #6f6e6e;
   text-transform: capitalize;
 }
 
@@ -392,7 +392,7 @@
 .profile__order-address {
   margin: 0;
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
   line-height: 1.6;
 }
 
@@ -417,7 +417,7 @@
   justify-content: space-between;
   gap: 4px;
   font-size: 14px;
-  color: #666;
+  color: #6f6e6e;
 }
 
 .profile__order-summary-total {

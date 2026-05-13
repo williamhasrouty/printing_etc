@@ -5,7 +5,7 @@ import "./PaymentForm.css";
 const CARD_ELEMENT_OPTIONS = {
   style: {
     base: {
-      color: "#666",
+      color: "#6f6e6e",
       fontFamily: '"Roboto", Arial, sans-serif',
       fontSmoothing: "antialiased",
       fontSize: "16px",
