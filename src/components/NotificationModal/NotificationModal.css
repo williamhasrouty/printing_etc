@@ -7,7 +7,8 @@
   background-color: rgba(0, 0, 0, 0.3);
   display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
+  padding-top: 25vh;
   z-index: 9999;
   animation: fadeIn 0.2s ease-in;
 }
@@ -96,6 +97,10 @@
 }
 
 @media (max-width: 768px) {
+  .notification-modal {
+    padding-top: 20vh;
+  }
+
   .notification-modal__content {
     padding: 20px 28px;
     border-radius: 10px;

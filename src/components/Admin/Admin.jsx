@@ -1288,13 +1288,13 @@ function Admin({ onProductsChange }) {
                       {order.items?.map((item, index) => (
                         <div key={index} className="admin__item">
                           <div className="admin__item-header">
-                            {item.productImage && (
+                            {/* {item.productImage && (
                               <img
                                 src={item.productImage}
                                 alt={item.productName}
                                 className="admin__item-image"
                               />
-                            )}
+                            )} */}
                             <div className="admin__item-details">
                               <div className="admin__item-info">
                                 <span className="admin__item-name">

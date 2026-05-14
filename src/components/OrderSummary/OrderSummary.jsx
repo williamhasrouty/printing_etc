@@ -63,7 +63,9 @@ function OrderSummary() {
               </div>
               <div className="order-summary__info-row">
                 <span className="order-summary__label">Order Total:</span>
-                <span className="order-summary__value">${orderData.total}</span>
+                <span className="order-summary__value">
+                  ${Number(orderData.total).toFixed(2)}
+                </span>
               </div>
             </div>
           </section>

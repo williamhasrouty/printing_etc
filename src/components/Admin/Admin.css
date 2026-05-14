@@ -293,7 +293,7 @@
 
 .admin__item {
   padding: 16px;
-  background-color: #f8f9fa;
+  background-color: rgba(0, 180, 216, 0.1);
   border-radius: 8px;
   margin-bottom: 12px;
   border: 1px solid #e0e0e0;
