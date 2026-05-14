@@ -30,34 +30,57 @@ function Admin({ onProductsChange }) {
   // Handle product edit from navigation state
   useEffect(() => {
     if (location.state?.editProduct) {
-      setEditingProduct(location.state.editProduct);
-      setActiveTab("products");
-      // Populate form with product data
       const product = location.state.editProduct;
+      setEditingProduct(product);
+      setActiveTab("products");
+
+      // Convert pricing table arrays to text for editing (same as handleEditProduct)
+      let pricingTableForEdit = product.pricingTable || {
+        enabled: false,
+        variants: [],
+      };
+      if (pricingTableForEdit.variants) {
+        pricingTableForEdit = {
+          ...pricingTableForEdit,
+          variants: pricingTableForEdit.variants.map((variant) => {
+            // Strip MongoDB fields like _id from variants
+            const { _id, __v, ...cleanVariant } = variant;
+            return {
+              ...cleanVariant,
+              rowsText: Array.isArray(variant.rows)
+                ? variant.rows.join(", ")
+                : variant.rowsText || "",
+              columnsText: Array.isArray(variant.columns)
+                ? variant.columns.join(", ")
+                : variant.columnsText || "",
+            };
+          }),
+        };
+      }
+
+      // Populate form with product data
       setProductFormData({
         name: product.name || "",
         description: product.description || "",
         basePrice: product.basePrice || "",
         imageUrl: product.imageUrl || "",
         category: product.category || "",
-        options: product.options || {
-          quantities: [],
-          sizes: [],
-          orientations: [],
-          colors: [],
-          paperTypes: [],
-          roundedCorners: [],
-          coatings: [],
-          raisedPrint: [],
-          finishes: [],
-          customOptions: {},
+        options: {
+          quantities: product.options?.quantities || [],
+          sizes: product.options?.sizes || [],
+          orientations: product.options?.orientations || [],
+          colors: product.options?.colors || [],
+          paperTypes: product.options?.paperTypes || [],
+          roundedCorners: product.options?.roundedCorners || [],
+          coatings: product.options?.coatings || [],
+          raisedPrint: product.options?.raisedPrint || [],
+          finishes: product.options?.finishes || [],
+          customOptions: product.options?.customOptions || {},
         },
         pricing: product.pricing || [],
-        pricingTable: product.pricingTable || {
-          enabled: false,
-          variants: [],
-        },
+        pricingTable: pricingTableForEdit,
       });
+      setIsAddingProduct(false);
     }
   }, [location.state?.editProduct]);
 
