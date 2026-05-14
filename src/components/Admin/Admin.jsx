@@ -27,6 +27,40 @@ function Admin({ onProductsChange }) {
       location.state?.tab || localStorage.getItem("adminActiveTab") || "orders",
   ); // "orders" or "products"
 
+  // Handle product edit from navigation state
+  useEffect(() => {
+    if (location.state?.editProduct) {
+      setEditingProduct(location.state.editProduct);
+      setActiveTab("products");
+      // Populate form with product data
+      const product = location.state.editProduct;
+      setProductFormData({
+        name: product.name || "",
+        description: product.description || "",
+        basePrice: product.basePrice || "",
+        imageUrl: product.imageUrl || "",
+        category: product.category || "",
+        options: product.options || {
+          quantities: [],
+          sizes: [],
+          orientations: [],
+          colors: [],
+          paperTypes: [],
+          roundedCorners: [],
+          coatings: [],
+          raisedPrint: [],
+          finishes: [],
+          customOptions: {},
+        },
+        pricing: product.pricing || [],
+        pricingTable: product.pricingTable || {
+          enabled: false,
+          variants: [],
+        },
+      });
+    }
+  }, [location.state?.editProduct]);
+
   // Orders state
   const [orders, setOrders] = useState([]);
   const [filteredOrders, setFilteredOrders] = useState([]);

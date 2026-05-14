@@ -4,6 +4,7 @@ import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
 import CartContext from "../../contexts/CartContext";
+import CurrentUserContext from "../../contexts/CurrentUserContext";
 import NotificationModal from "../NotificationModal/NotificationModal";
 import FileUpload from "../FileUpload/FileUpload";
 
@@ -31,6 +32,7 @@ function ProductDetail({ products }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { addToCart, updateCartItem } = useContext(CartContext);
+  const { currentUser } = useContext(CurrentUserContext);
 
   // Check if we're editing an existing cart item
   const editingCartItem = location.state?.editingCartItem || null;
@@ -1301,13 +1303,28 @@ function ProductDetail({ products }) {
   return (
     <main className="product-detail">
       <div className="product-detail__container">
-        <button
-          onClick={() => navigate("/")}
-          className="product-detail__back"
-          type="button"
-        >
-          ← Back to Products
-        </button>
+        <div className="product-detail__header">
+          <button
+            onClick={() => navigate("/")}
+            className="product-detail__back"
+            type="button"
+          >
+            ← Back to Products
+          </button>
+          {currentUser?.role === "admin" && (
+            <button
+              onClick={() =>
+                navigate("/admin", {
+                  state: { tab: "products", editProduct: product },
+                })
+              }
+              className="product-detail__edit"
+              type="button"
+            >
+              ✎ Edit Product
+            </button>
+          )}
+        </div>
 
         <div className="product-detail__content">
           <div className="product-detail__image-section">
