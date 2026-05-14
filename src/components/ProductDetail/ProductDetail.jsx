@@ -1140,7 +1140,7 @@ function ProductDetail({ products }) {
     // Navigate to cart after short delay
     setTimeout(() => {
       navigate("/cart");
-    }, 800);
+    }, 1500);
   };
 
   const handleCartAction = () => {
@@ -1168,7 +1168,7 @@ function ProductDetail({ products }) {
 
       setTimeout(() => {
         navigate("/cart");
-      }, 800);
+      }, 1500);
     } else {
       // Add new item to cart
       handleAddToCart();

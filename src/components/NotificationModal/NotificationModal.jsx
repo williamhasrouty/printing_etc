@@ -32,17 +32,7 @@ function NotificationModal({ message, type = "success", onClose }) {
         >
           ×
         </button>
-        <div className="notification-modal__icon">
-          {type === "success" ? "✓" : "⚠"}
-        </div>
         <p className="notification-modal__message">{message}</p>
-        <button
-          onClick={onClose}
-          className="notification-modal__button"
-          type="button"
-        >
-          OK
-        </button>
       </div>
     </div>
   );
