@@ -582,14 +582,18 @@ function ProductDetail({ products }) {
     }
 
     // Scale to fit in preview
-    // Smaller products (like business cards, door hangers) get larger scale for visibility
-    const isSmallProduct = Math.max(width, height) <= 4;
-    const maxSize = isSmallProduct ? 800 : 400;
-    const minScale = isSmallProduct ? 80 : 40;
-    const scale = Math.min(
-      maxSize / Math.max(width, height),
-      isSmallProduct ? 120 : 60,
-    );
+    // Define maximum preview dimensions (container size accounting for padding)
+    const MAX_PREVIEW_WIDTH = 450;
+    const MAX_PREVIEW_HEIGHT = 450;
+
+    // Calculate scale to fit within container while maintaining aspect ratio
+    const widthScale = MAX_PREVIEW_WIDTH / width;
+    const heightScale = MAX_PREVIEW_HEIGHT / height;
+    const scale = Math.min(widthScale, heightScale);
+
+    // For very small products, ensure minimum visibility
+    const minDimension = Math.min(width, height);
+    const minScale = minDimension < 4 ? 60 : 0;
     const finalScale = Math.max(scale, minScale);
 
     return {
