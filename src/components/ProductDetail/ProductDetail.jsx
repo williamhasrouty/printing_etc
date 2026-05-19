@@ -42,6 +42,7 @@ function ProductDetail({ products }) {
   const isBusinessCard = product?.category === "business-cards";
   const isFlyer = product?.category === "flyers";
   const isPostcard = product?.category === "postcards";
+  const isDoorHanger = product?.category === "door-hangers";
 
   const getBusinessCardCoatingOptions = () => {
     const productCoatings = product?.options?.coatings;
@@ -264,7 +265,9 @@ function ProductDetail({ products }) {
         : getProductSizes()[0]?.id || "",
     orientation: isFlyer
       ? "horizontal"
-      : getProductOrientations()[0]?.id || "horizontal",
+      : isDoorHanger
+        ? "vertical"
+        : getProductOrientations()[0]?.id || "horizontal",
     color: isBusinessCard
       ? BUSINESS_CARD_COLORS[0].id
       : isFlyer
@@ -527,44 +530,71 @@ function ProductDetail({ products }) {
   const getPreviewDimensions = () => {
     let width, height;
 
+    // Try to get dimensions from selected size
+    let dimensionsStr = null;
+
     if (isBusinessCard) {
-      // Business cards are 2" x 3.5"
-      width = 2;
-      height = 3.5;
-    } else if (isFlyer && selectedOptions.size) {
-      // Parse flyer size (e.g., "8.5x11" -> width: 8.5, height: 11)
-      const [w, h] = selectedOptions.size.split("x").map(parseFloat);
+      // Business cards: use selected size ID as dimensions (e.g., "2x3.5")
+      dimensionsStr = selectedOptions.size;
+    } else if (isFlyer || product?.options?.sizes?.length > 0) {
+      // For products with size options, find the selected size and get its dimensions
+      const sizes = isFlyer ? getFlyerSizes() : getProductSizes();
+      const selectedSize = sizes.find((s) => s.id === selectedOptions.size);
+      dimensionsStr = selectedSize?.dimensions;
+    }
+
+    // Parse dimensions string (format: "3.5x8.5" or "2x3.5")
+    if (dimensionsStr && dimensionsStr.includes("x")) {
+      const [w, h] = dimensionsStr.split("x").map(parseFloat);
       width = w;
       height = h;
     } else {
-      // Default fallback
+      // Default fallback if no dimensions found
       width = 8.5;
       height = 11;
     }
 
-    // Apply orientation
-    if (selectedOptions.orientation === "vertical") {
-      // For vertical, ensure height > width
+    // Apply orientation if applicable
+    // Door hangers are always vertical by default
+    if (isDoorHanger) {
+      // For door hangers, ensure height > width (vertical)
       if (width > height) {
         [width, height] = [height, width];
       }
-    } else {
-      // For horizontal, ensure width > height
-      if (height > width) {
-        [width, height] = [height, width];
+    } else if (selectedOptions.orientation) {
+      if (
+        selectedOptions.orientation === "vertical" ||
+        selectedOptions.orientation.toLowerCase() === "vertical"
+      ) {
+        // For vertical, ensure height > width
+        if (width > height) {
+          [width, height] = [height, width];
+        }
+      } else if (
+        selectedOptions.orientation === "horizontal" ||
+        selectedOptions.orientation.toLowerCase() === "horizontal"
+      ) {
+        // For horizontal, ensure width > height
+        if (height > width) {
+          [width, height] = [height, width];
+        }
       }
     }
 
-    // Scale to fit in preview - business cards get larger scale for visibility
-    const maxSize = isBusinessCard ? 800 : 400;
+    // Scale to fit in preview
+    // Smaller products (like business cards, door hangers) get larger scale for visibility
+    const isSmallProduct = Math.max(width, height) <= 4;
+    const maxSize = isSmallProduct ? 800 : 400;
+    const minScale = isSmallProduct ? 80 : 40;
     const scale = Math.min(
       maxSize / Math.max(width, height),
-      isBusinessCard ? 100 : 50,
+      isSmallProduct ? 120 : 60,
     );
+    const finalScale = Math.max(scale, minScale);
 
     return {
-      width: Math.round(width * scale),
-      height: Math.round(height * scale),
+      width: Math.round(width * finalScale),
+      height: Math.round(height * finalScale),
     };
   };
 
