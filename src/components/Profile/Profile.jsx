@@ -45,6 +45,12 @@ function Profile() {
   };
 
   const handleReorder = (order) => {
+    // Check if any items had uploaded files
+    const hasUploadedFiles = order.items.some(
+      (item) =>
+        item.customizations?.files && item.customizations.files.length > 0,
+    );
+
     // Convert order items to cart format
     order.items.forEach((item) => {
       const cartItem = {
@@ -62,13 +68,19 @@ function Profile() {
       addToCart(cartItem);
     });
 
-    // Show success message
-    setMessage("Items added to cart! Redirecting...");
+    // Show appropriate message based on whether files were present
+    if (hasUploadedFiles) {
+      setMessage(
+        "Items added to cart! ⚠️ Please note: You'll need to re-upload your design files for each item in the cart. Redirecting...",
+      );
+    } else {
+      setMessage("Items added to cart! Redirecting...");
+    }
 
-    // Navigate to cart after a short delay
+    // Navigate to cart after a delay
     setTimeout(() => {
       navigate("/cart");
-    }, 1000);
+    }, 2000); // Increased to 2 seconds to give time to read the file upload warning
   };
 
   useEffect(() => {

@@ -125,9 +125,15 @@ function Cart({ onLoginClick, onRegisterClick }) {
                       </p>
                     )}
                     {item.uploadedFile && (
-                      <p className="cart__item-option">
+                      <p className="cart__item-option cart__item-option_success">
                         File: {item.uploadedFile.fileName || item.uploadedFile}{" "}
                         ✓
+                      </p>
+                    )}
+                    {!item.uploadedFile && (
+                      <p className="cart__item-option cart__item-option_warning">
+                        ⚠️ File Required: Please edit this item to upload your
+                        design file
                       </p>
                     )}
                     {item.shippingCost > 0 && (

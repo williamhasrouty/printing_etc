@@ -236,6 +236,12 @@ function Checkout() {
       return emailRegex.test(email);
     };
 
+    // Validate that all items have uploaded files
+    const itemsWithoutFiles = cartItems.filter((item) => !item.uploadedFile);
+    if (itemsWithoutFiles.length > 0) {
+      newErrors.files = `${itemsWithoutFiles.length} item(s) missing design file(s). Please go back to your cart and edit each item to upload your design.`;
+    }
+
     // Validate guest customer information if not logged in
     if (!currentUser) {
       if (!formData.customerName.trim()) {
@@ -545,6 +551,34 @@ function Checkout() {
 
         <div className="checkout__content">
           <form onSubmit={handleSubmit} className="checkout__form">
+            {errors.files && (
+              <div className="checkout__file-error">
+                <svg
+                  className="checkout__file-error-icon"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                  />
+                </svg>
+                <div className="checkout__file-error-content">
+                  <p className="checkout__file-error-text">{errors.files}</p>
+                  <button
+                    type="button"
+                    className="checkout__file-error-button"
+                    onClick={() => navigate("/cart")}
+                  >
+                    Go to Cart
+                  </button>
+                </div>
+              </div>
+            )}
+
             {!currentUser && (
               <section className="checkout__section">
                 <h2 className="checkout__section-title">
