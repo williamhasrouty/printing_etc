@@ -602,7 +602,91 @@ function ProductDetail({ products }) {
     };
   };
 
-  const previewDimensions = getPreviewDimensions();
+  // Get selected shape info to adjust dimensions if needed
+  const getSelectedShape = () => {
+    const customOpts = getCustomOptions();
+    const shapesCategory = customOpts.shapes;
+
+    if (!shapesCategory || !selectedOptions.customOptions?.shapes) {
+      return null;
+    }
+
+    const selectedShapeId = selectedOptions.customOptions.shapes;
+    const shapeOptions = getCustomOptionValues("shapes");
+    const selectedShape = shapeOptions.find((s) => s.id === selectedShapeId);
+
+    return selectedShape;
+  };
+
+  const selectedShape = getSelectedShape();
+  const shapeName = selectedShape?.name?.toLowerCase() || "";
+
+  // Adjust preview dimensions based on shape
+  let previewDimensions = getPreviewDimensions();
+
+  if (selectedShape) {
+    // Override dimensions for shape-based products to show clear shape distinction
+    const MAX_SIZE = 400; // Base size for shapes
+
+    if (shapeName.includes("circle")) {
+      // Perfect circle - equal dimensions
+      previewDimensions = { width: MAX_SIZE, height: MAX_SIZE };
+    } else if (shapeName.includes("oval")) {
+      // Oval - clearly taller than wide (portrait orientation)
+      previewDimensions = {
+        width: Math.round(MAX_SIZE * 0.7),
+        height: MAX_SIZE,
+      };
+    } else if (shapeName.includes("square")) {
+      // Perfect square - equal dimensions
+      previewDimensions = { width: MAX_SIZE, height: MAX_SIZE };
+    } else if (shapeName.includes("rectangle")) {
+      // Rectangle - clearly wider than tall (landscape orientation)
+      previewDimensions = {
+        width: Math.round(MAX_SIZE * 1.5),
+        height: MAX_SIZE,
+      };
+    }
+  }
+
+  // Get preview shape styling based on selected shape (for stickers, decals, etc.)
+  const getPreviewShapeStyle = () => {
+    if (!selectedShape) {
+      return {}; // No shape styling needed
+    }
+
+    if (shapeName.includes("circle")) {
+      return {
+        borderRadius: "50%",
+        overflow: "hidden",
+      };
+    } else if (shapeName.includes("oval")) {
+      return {
+        borderRadius: "50%",
+        overflow: "hidden",
+      };
+    } else if (shapeName.includes("square")) {
+      return {
+        borderRadius: "0",
+        overflow: "hidden",
+      };
+    } else if (shapeName.includes("rectangle")) {
+      return {
+        borderRadius: "0",
+        overflow: "hidden",
+      };
+    } else if (shapeName.includes("custom") || shapeName.includes("die-cut")) {
+      return {
+        borderRadius: "8px",
+        border: "2px dashed #999",
+        overflow: "hidden",
+      };
+    }
+
+    return {};
+  };
+
+  const previewShapeStyle = getPreviewShapeStyle();
 
   if (!product) {
     return (
@@ -2225,9 +2309,13 @@ function ProductDetail({ products }) {
                         style={{
                           width: `${previewDimensions.width}px`,
                           height: `${previewDimensions.height}px`,
+                          ...previewShapeStyle,
                         }}
                       >
-                        <div className="product-detail__static-content">
+                        <div
+                          className="product-detail__static-content"
+                          style={previewShapeStyle}
+                        >
                           {uploadedFile.fileType === "application/pdf" ? (
                             <Document
                               file={uploadedFile.previewUrl}
@@ -2346,6 +2434,7 @@ function ProductDetail({ products }) {
                           style={{
                             width: `${previewDimensions.width}px`,
                             height: `${previewDimensions.height}px`,
+                            ...previewShapeStyle,
                           }}
                         >
                           <div
@@ -2355,6 +2444,7 @@ function ProductDetail({ products }) {
                                 selectedOptions.color === "full-front-grayscale"
                                   ? "grayscale(100%)"
                                   : "none",
+                              ...previewShapeStyle,
                             }}
                           >
                             {uploadedBackFile.fileType === "application/pdf" ? (

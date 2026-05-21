@@ -46,6 +46,9 @@ function App() {
   // This prevents re-running merge on every render
   const initializedUserIdRef = useRef(null);
 
+  // Track which cart key was used for initial load to prevent double-loading
+  const initialCartKeyRef = useRef(null);
+
   // Helper function to get cart key for current user
   const getCartKey = (user) => {
     return user ? `cart_${user._id}` : "cart_guest";
@@ -70,6 +73,9 @@ function App() {
           console.log("Using guest cart");
         }
       }
+
+      // Store which key we used for initial load
+      initialCartKeyRef.current = cartKey;
 
       const savedCart = localStorage.getItem(cartKey);
       return savedCart ? JSON.parse(savedCart) : [];
@@ -151,6 +157,14 @@ function App() {
     const guestCartKey = "cart_guest";
 
     try {
+      // If the cart was initially loaded with the user's key (page refresh while logged in),
+      // we don't need to merge - the cart is already the user's cart
+      if (initialCartKeyRef.current === userCartKey) {
+        console.log("Cart already loaded with user key, skipping merge");
+        initializedUserIdRef.current = currentUser._id;
+        return;
+      }
+
       // Mark as initialized first to prevent this effect from running again
       initializedUserIdRef.current = currentUser._id;
 
