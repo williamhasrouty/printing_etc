@@ -154,14 +154,25 @@ function App() {
       // Mark as initialized first to prevent this effect from running again
       initializedUserIdRef.current = currentUser._id;
 
-      // If cart already has items (page refresh scenario), don't reload
-      if (cartItems.length > 0) {
-        return;
-      }
+      // Get current cart items in memory (these are guest items if user just logged in)
+      const currentCartItems = [...cartItems];
 
       // Get guest cart from localStorage
       const savedGuestCart = localStorage.getItem(guestCartKey);
       const guestCart = savedGuestCart ? JSON.parse(savedGuestCart) : [];
+
+      // Combine in-memory guest items with localStorage guest items
+      const allGuestItems = [...currentCartItems];
+      guestCart.forEach((guestItem) => {
+        const existingIndex = allGuestItems.findIndex(
+          (item) =>
+            item.productId === guestItem.productId &&
+            JSON.stringify(item.options) === JSON.stringify(guestItem.options),
+        );
+        if (existingIndex === -1) {
+          allGuestItems.push(guestItem);
+        }
+      });
 
       // Get user's saved cart from localStorage
       const savedUserCart = localStorage.getItem(userCartKey);
@@ -170,9 +181,9 @@ function App() {
       // Start with user's saved cart
       const mergedCart = [...userCart];
 
-      // If there's a guest cart, merge it with user cart
-      if (guestCart.length > 0) {
-        guestCart.forEach((guestItem) => {
+      // Merge all guest items with user cart
+      if (allGuestItems.length > 0) {
+        allGuestItems.forEach((guestItem) => {
           const existingIndex = mergedCart.findIndex(
             (item) =>
               item.productId === guestItem.productId &&
@@ -197,8 +208,8 @@ function App() {
         localStorage.removeItem(guestCartKey);
       }
 
-      // Update state with user's cart (merged with guest if applicable)
-      if (mergedCart.length > 0) {
+      // Update state with merged cart
+      if (mergedCart.length !== cartItems.length || allGuestItems.length > 0) {
         setCartItems(mergedCart);
       }
     } catch (error) {
