@@ -10,6 +10,7 @@ import {
   deleteProduct,
 } from "../../utils/api";
 import { getStoredToken, updateUser, updatePassword } from "../../utils/auth";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
 import "./Admin.css";
 
 function Admin({ onProductsChange }) {
@@ -109,6 +110,7 @@ function Admin({ onProductsChange }) {
     optionType: "",
     categoryLabel: "",
   });
+  const [deleteProductConfirm, setDeleteProductConfirm] = useState(null);
   const [productFormData, setProductFormData] = useState({
     name: "",
     description: "",
@@ -833,22 +835,24 @@ function Admin({ onProductsChange }) {
     });
   };
 
-  const handleDeleteProduct = async (productId) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) {
-      return;
-    }
-
-    const token = getStoredToken();
-    try {
-      await deleteProduct(productId, token);
-      const deletedList = products.filter((p) => p._id !== productId);
-      setProducts(deletedList);
-      if (onProductsChange) onProductsChange(deletedList);
-      setUpdateSuccess("Product deleted successfully");
-      setTimeout(() => setUpdateSuccess(""), 3000);
-    } catch (err) {
-      setUpdateError("Failed to delete product: " + err);
-    }
+  const handleDeleteProduct = (productId) => {
+    setDeleteProductConfirm({
+      productId,
+      onConfirm: async () => {
+        const token = getStoredToken();
+        try {
+          await deleteProduct(productId, token);
+          const deletedList = products.filter((p) => p._id !== productId);
+          setProducts(deletedList);
+          if (onProductsChange) onProductsChange(deletedList);
+          setUpdateSuccess("Product deleted successfully");
+          setTimeout(() => setUpdateSuccess(""), 3000);
+        } catch (err) {
+          setUpdateError("Failed to delete product: " + err);
+        }
+        setDeleteProductConfirm(null);
+      },
+    });
   };
 
   const handleStatusUpdate = async (
@@ -3473,6 +3477,13 @@ function Admin({ onProductsChange }) {
             </div>
           </div>
         </div>
+      )}
+      {deleteProductConfirm && (
+        <ConfirmModal
+          message="Are you sure you want to delete this product? This action cannot be undone."
+          onConfirm={deleteProductConfirm.onConfirm}
+          onCancel={() => setDeleteProductConfirm(null)}
+        />
       )}
     </main>
   );

@@ -2625,7 +2625,7 @@ function ProductDetail({ products }) {
                   <ul className="product-detail__file-prep-list">
                     <li>
                       <strong>Color Mode:</strong> Use the CMYK colorspace
-                      (Cyan, Magenta, Yellow, black). These are industry
+                      (Cyan, Magenta, Yellow, Black). These are industry
                       standard printing colors. CMYK colors are different than
                       RGB (Red, Green, Blue), which are used to display colors
                       on your screen.
