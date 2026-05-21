@@ -1,7 +1,8 @@
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import CartContext from "../../contexts/CartContext";
 import CurrentUserContext from "../../contexts/CurrentUserContext";
+import ConfirmModal from "../ConfirmModal/ConfirmModal";
 import "./Cart.css";
 
 function Cart({ onLoginClick, onRegisterClick }) {
@@ -9,11 +10,27 @@ function Cart({ onLoginClick, onRegisterClick }) {
     useContext(CartContext);
   const { isLoggedIn } = useContext(CurrentUserContext);
   const navigate = useNavigate();
+  const [itemToDelete, setItemToDelete] = useState(null);
 
   const handleEditItem = (item) => {
     navigate(`/products/${item.productId}`, {
       state: { editingCartItem: item },
     });
+  };
+
+  const handleRemoveItem = (item) => {
+    setItemToDelete(item);
+  };
+
+  const confirmRemove = () => {
+    if (itemToDelete) {
+      removeFromCart(itemToDelete.id);
+      setItemToDelete(null);
+    }
+  };
+
+  const cancelRemove = () => {
+    setItemToDelete(null);
   };
 
   const calculateTotal = () => {
@@ -195,7 +212,7 @@ function Cart({ onLoginClick, onRegisterClick }) {
                       Edit
                     </button>
                     <button
-                      onClick={() => removeFromCart(item.id)}
+                      onClick={() => handleRemoveItem(item)}
                       className="cart__item-remove"
                       type="button"
                     >
@@ -250,6 +267,14 @@ function Cart({ onLoginClick, onRegisterClick }) {
           </div>
         </div>
       </div>
+
+      {itemToDelete && (
+        <ConfirmModal
+          message={`Are you sure you want to remove "${itemToDelete.name}" from your cart?`}
+          onConfirm={confirmRemove}
+          onCancel={cancelRemove}
+        />
+      )}
     </main>
   );
 }
