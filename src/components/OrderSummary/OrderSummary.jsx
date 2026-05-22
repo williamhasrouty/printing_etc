@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useLocation, useNavigate, Link } from "react-router-dom";
+import petcLogo from "../../assets/images/petc-logo.png";
 import "./OrderSummary.css";
 
 function OrderSummary() {
@@ -32,6 +33,11 @@ function OrderSummary() {
   return (
     <main className="order-summary">
       <div className="order-summary__container">
+        <img
+          src={petcLogo}
+          alt="Printing Etc Logo"
+          className="order-summary__logo"
+        />
         <div className="order-summary__success-icon">✓</div>
         <h1 className="order-summary__title">Order Placed Successfully!</h1>
         <p className="order-summary__subtitle">
