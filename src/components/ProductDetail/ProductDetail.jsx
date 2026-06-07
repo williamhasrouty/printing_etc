@@ -186,6 +186,23 @@ function ProductDetail({ products }) {
   const getProductRoundedCorners = () => mapOptionArray("roundedCorners", []);
   const getProductRaisedPrint = () => mapOptionArray("raisedPrint", []);
 
+  // Filter paper types for door hangers - exclude Gloss Cover (100 lb) for 3.5x11 Rip BC size
+  const getDoorHangerPaperTypes = () => {
+    const allPaperTypes = getProductPaperTypes();
+    const selectedSize = getProductSizes().find(
+      (s) => s.id === selectedOptions.size,
+    );
+
+    // If the size is "3.5" x 11" Rip BC + Door Hanger", exclude "Gloss Cover (100 lb)"
+    if (selectedSize?.name?.toLowerCase().includes("rip bc")) {
+      return allPaperTypes.filter(
+        (paper) => !paper.name.toLowerCase().includes("gloss cover"),
+      );
+    }
+
+    return allPaperTypes;
+  };
+
   // Get custom option categories (e.g., Materials for banners)
   const getCustomOptions = () => {
     return product?.options?.customOptions || {};
@@ -334,6 +351,7 @@ function ProductDetail({ products }) {
     if (product) {
       const isBC = product.category === "business-cards";
       const isFly = product.category === "flyers";
+      const isDH = product.category === "door-hangers";
 
       const getQty = () => {
         const productQtys = getProductQuantities();
@@ -356,12 +374,32 @@ function ProductDetail({ products }) {
         }
       });
 
+      // Get initial paper type
+      let initialPaperType;
+      if (isBC) {
+        initialPaperType = BUSINESS_CARD_PAPER[0].id;
+      } else if (isFly) {
+        initialPaperType = getFlyerPaperTypes()[0]?.id || "";
+      } else if (isDH) {
+        // For door hangers, check if first size is Rip BC - if so, skip Gloss Cover
+        const firstSize = getProductSizes()[0];
+        const paperTypes = getProductPaperTypes();
+
+        if (firstSize?.name?.toLowerCase().includes("rip bc")) {
+          // Find first non-gloss-cover paper type
+          const nonGlossCover = paperTypes.find(
+            (p) => !p.name.toLowerCase().includes("gloss cover"),
+          );
+          initialPaperType = nonGlossCover?.id || paperTypes[0]?.id || "";
+        } else {
+          initialPaperType = paperTypes[0]?.id || "";
+        }
+      } else {
+        initialPaperType = getProductPaperTypes()[0]?.id || PAPER_TYPES[0].id;
+      }
+
       setSelectedOptions({
-        paperType: isBC
-          ? BUSINESS_CARD_PAPER[0].id
-          : isFly
-            ? getFlyerPaperTypes()[0]?.id || ""
-            : getProductPaperTypes()[0]?.id || PAPER_TYPES[0].id,
+        paperType: initialPaperType,
         quantity: getQty(),
         size: isBC
           ? getProductSizes()[0]?.id || "2x3.5"
@@ -2335,12 +2373,47 @@ function ProductDetail({ products }) {
                           id="size"
                           className="product-detail__select"
                           value={selectedOptions.size}
-                          onChange={(e) =>
-                            setSelectedOptions({
+                          onChange={(e) => {
+                            const newSize = e.target.value;
+                            const newOptions = {
                               ...selectedOptions,
-                              size: e.target.value,
-                            })
-                          }
+                              size: newSize,
+                            };
+
+                            // For door hangers, check if paper type needs to be adjusted
+                            if (isDoorHanger) {
+                              const selectedSize = getProductSizes().find(
+                                (s) => s.id === newSize,
+                              );
+                              const currentPaperType =
+                                getProductPaperTypes().find(
+                                  (p) => p.id === selectedOptions.paperType,
+                                );
+
+                              // If switching to Rip BC size and current paper is Gloss Cover, change it
+                              if (
+                                selectedSize?.name
+                                  ?.toLowerCase()
+                                  .includes("rip bc") &&
+                                currentPaperType?.name
+                                  ?.toLowerCase()
+                                  .includes("gloss cover")
+                              ) {
+                                // Find first non-gloss-cover paper type
+                                const altPaper = getProductPaperTypes().find(
+                                  (p) =>
+                                    !p.name
+                                      .toLowerCase()
+                                      .includes("gloss cover"),
+                                );
+                                if (altPaper) {
+                                  newOptions.paperType = altPaper.id;
+                                }
+                              }
+                            }
+
+                            setSelectedOptions(newOptions);
+                          }}
                         >
                           {getProductSizes().map((size) => (
                             <option key={size.id} value={size.id}>
@@ -2402,7 +2475,10 @@ function ProductDetail({ products }) {
                           })
                         }
                       >
-                        {getProductPaperTypes().map((type) => (
+                        {(isDoorHanger
+                          ? getDoorHangerPaperTypes()
+                          : getProductPaperTypes()
+                        ).map((type) => (
                           <option key={type.id} value={type.id}>
                             {type.name}
                           </option>
