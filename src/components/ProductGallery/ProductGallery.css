@@ -1,7 +1,10 @@
 .product-gallery {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  display: flex;
+  flex-wrap: wrap;
   gap: 30px;
+  justify-content: center;
+  margin: 0 auto;
+  max-width: 100%;
 }
 
 .product-gallery__empty {

@@ -165,6 +165,12 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
               <div className="header__dropdown-menu">
                 <div className="header__dropdown-content">
                   {[...products]
+                    .filter(
+                      (product) =>
+                        product.category !== "decals" &&
+                        !product.name.toLowerCase().includes("t-shirt") &&
+                        !product.name.toLowerCase().includes("invoice"),
+                    )
                     .sort((a, b) => a.name.localeCompare(b.name))
                     .map((product) => (
                       <button

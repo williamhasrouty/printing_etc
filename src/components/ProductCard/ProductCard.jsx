@@ -16,7 +16,7 @@ function ProductCard({ product }) {
         <p className="product-card__description">{product.description}</p>
         <div className="product-card__footer">
           <span className="product-card__price">
-            Starting at ${product.basePrice.toFixed(2)}
+            Starting at <br /> ${product.basePrice.toFixed(2)}
           </span>
           <span className="product-card__link-text">View Details →</span>
         </div>

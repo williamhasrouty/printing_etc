@@ -46,6 +46,12 @@ function ProductDetail({ products }) {
   const isBanner = product?.category === "banners";
   const isCarMagnet = product?.name === "Car Magnets";
 
+  // Check if product is call-to-order only (no online ordering)
+  const isCallToOrderOnly =
+    product?.category === "decals" ||
+    product?.name?.toLowerCase().includes("t-shirt") ||
+    product?.name?.toLowerCase().includes("invoice");
+
   const getBusinessCardCoatingOptions = () => {
     const productCoatings = product?.options?.coatings;
 
@@ -1369,6 +1375,16 @@ function ProductDetail({ products }) {
   };
 
   const handleAddToCart = () => {
+    // Check if product is call-to-order only
+    if (isCallToOrderOnly) {
+      setNotification({
+        message:
+          "This product requires a custom quote. Please call us at (661) 272-2869 to place your order.",
+        type: "error",
+      });
+      return;
+    }
+
     // Check if "call for size" option is selected
     const sizeOption = isFlyer
       ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
@@ -1548,6 +1564,16 @@ function ProductDetail({ products }) {
   };
 
   const handleCartAction = () => {
+    // Check if product is call-to-order only
+    if (isCallToOrderOnly) {
+      setNotification({
+        message:
+          "This product requires a custom quote. Please call us at (661) 272-2869 to place your order.",
+        type: "error",
+      });
+      return;
+    }
+
     // Check if "call for size" option is selected
     if (requiresCallForSize()) {
       setNotification({
@@ -2951,13 +2977,41 @@ function ProductDetail({ products }) {
                 </div>
               )}
 
+              {isCallToOrderOnly && (
+                <div
+                  style={{
+                    backgroundColor: "#d4edda",
+                    border: "1px solid #28a745",
+                    borderRadius: "4px",
+                    padding: "16px",
+                    marginBottom: "15px",
+                    color: "#155724",
+                  }}
+                >
+                  <strong>📞 Call to Order:</strong> This product requires a
+                  custom quote. Please call us at{" "}
+                  <strong>(661) 272-2869</strong> or{" "}
+                  <a
+                    href="/contact"
+                    style={{
+                      color: "#155724",
+                      textDecoration: "underline",
+                      fontWeight: "600",
+                    }}
+                  >
+                    contact us
+                  </a>{" "}
+                  for pricing and to place your order.
+                </div>
+              )}
+
               <button
                 onClick={handleCartAction}
                 className="product-detail__add-button"
                 type="button"
-                disabled={requiresCallForSize()}
+                disabled={requiresCallForSize() || isCallToOrderOnly}
                 style={
-                  requiresCallForSize()
+                  requiresCallForSize() || isCallToOrderOnly
                     ? {
                         opacity: 0.5,
                         cursor: "not-allowed",

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import ProductGallery from "../ProductGallery/ProductGallery";
 import "./Main.css";
 
@@ -63,21 +64,68 @@ function Main({ products, isLoading }) {
           {isLoading ? (
             <p className="main__loading">Loading products...</p>
           ) : (
-            <ProductGallery products={products} />
+            <ProductGallery
+              products={products.filter(
+                (product) =>
+                  product.category !== "decals" &&
+                  !product.name.toLowerCase().includes("t-shirt") &&
+                  !product.name.toLowerCase().includes("invoice"),
+              )}
+            />
           )}
-          <p className="main__additional-products">
-            We also offer a wide range of other printing services including:
-            <br />
-            Copies, Labels, Invoices, Brochures, Menus, A-Frames, Yard Signs,
-            Booklets, Letterheads, Envelopes, Presentation Folders, etc.
-            <br />
-            <br />
-            Contact us for a custom quote on any printing project!
-            <br />
-            <strong>We'll match any competitors' prices with proof.</strong>
-          </p>
         </div>
       </section>
+
+      {/* Advertisement Section for Call-to-Order Products */}
+      <section className="main__featured">
+        <div className="main__container">
+          <h2 className="main__section-title">
+            Also Available - Call to Order
+          </h2>
+          <p className="main__featured-subtitle">
+            Contact us for custom quotes on these specialty items
+          </p>
+          <div className="main__featured-grid">
+            {products
+              .filter(
+                (product) =>
+                  product.category === "decals" ||
+                  product.name.toLowerCase().includes("t-shirt") ||
+                  product.name.toLowerCase().includes("invoice"),
+              )
+              .map((product) => (
+                <div key={product._id} className="main__featured-card">
+                  <img
+                    src={product.imageUrl}
+                    alt={product.name}
+                    className="main__featured-image"
+                  />
+                  <div className="main__featured-content">
+                    <h3 className="main__featured-title">{product.name}</h3>
+                    <p className="main__featured-description">
+                      {product.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        </div>
+      </section>
+
+      <p className="main__additional-products">
+        We offer a wide range of other printing services including:
+        <br />
+        Copies, Labels, Menus, A-Frames, Yard Signs, Booklets, Letterheads,
+        Envelopes, Presentation Folders, etc.
+        <br />
+        <br />
+        Contact us for a custom quote on any printing project!
+        <br />
+        <strong>We'll match any competitors' prices with proof.</strong>
+        <br />
+        <br />
+        <em>Set up charge may apply to all products.</em>
+      </p>
     </main>
   );
 }
