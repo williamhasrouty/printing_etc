@@ -320,6 +320,15 @@ function ProductDetail({ products }) {
     );
   };
 
+  // Check if selected size requires calling for a quote
+  const requiresCallForSize = () => {
+    const sizeOption = isFlyer
+      ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
+      : getProductSizes().find((s) => s.id === selectedOptions.size);
+
+    return sizeOption?.name && sizeOption.name.toLowerCase().includes("call");
+  };
+
   // Reset options when product changes or loads
   useEffect(() => {
     if (product) {
@@ -1322,6 +1331,20 @@ function ProductDetail({ products }) {
   };
 
   const handleAddToCart = () => {
+    // Check if "call for size" option is selected
+    const sizeOption = isFlyer
+      ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
+      : getProductSizes().find((s) => s.id === selectedOptions.size);
+
+    if (sizeOption?.name && sizeOption.name.toLowerCase().includes("call")) {
+      setNotification({
+        message:
+          "Please call us to order this custom size. We'll be happy to provide a quote!",
+        type: "error",
+      });
+      return;
+    }
+
     // Validate size distribution if needed
     if (needsSizeDistribution()) {
       const totalDistributed = getTotalDistributed();
@@ -1350,10 +1373,6 @@ function ProductDetail({ products }) {
         : getProductPaperTypes().find(
             (p) => p.id === selectedOptions.paperType,
           );
-
-    const sizeOption = isFlyer
-      ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
-      : getProductSizes().find((s) => s.id === selectedOptions.size);
 
     const colorOption = isBusinessCard
       ? BUSINESS_CARD_COLORS.find((c) => c.id === selectedOptions.color)
@@ -1491,6 +1510,16 @@ function ProductDetail({ products }) {
   };
 
   const handleCartAction = () => {
+    // Check if "call for size" option is selected
+    if (requiresCallForSize()) {
+      setNotification({
+        message:
+          "Please call us to order this custom size. We'll be happy to provide a quote!",
+        type: "error",
+      });
+      return;
+    }
+
     if (isEditMode) {
       // Update existing cart item
       updateCartItem(editingCartItem.id, {
@@ -2829,10 +2858,37 @@ function ProductDetail({ products }) {
                 </div>
               )}
 
+              {requiresCallForSize() && (
+                <div
+                  style={{
+                    backgroundColor: "#fff3cd",
+                    border: "1px solid #ffc107",
+                    borderRadius: "4px",
+                    padding: "12px",
+                    marginBottom: "15px",
+                    color: "#856404",
+                  }}
+                >
+                  <strong>Custom Size Selected:</strong> Please call us at{" "}
+                  <strong>(661) 272-2869</strong> to place your order and
+                  receive a custom quote for this size.
+                </div>
+              )}
+
               <button
                 onClick={handleCartAction}
                 className="product-detail__add-button"
                 type="button"
+                disabled={requiresCallForSize()}
+                style={
+                  requiresCallForSize()
+                    ? {
+                        opacity: 0.5,
+                        cursor: "not-allowed",
+                        backgroundColor: "#ccc",
+                      }
+                    : {}
+                }
               >
                 {isEditMode ? "Update Cart" : "Add to Cart"}
               </button>
