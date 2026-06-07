@@ -165,28 +165,45 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
               <div className="header__dropdown-menu">
                 <div className="header__dropdown-content">
                   {[...products]
-                    .filter(
-                      (product) =>
-                        product.category !== "decals" &&
-                        !product.name.toLowerCase().includes("t-shirt") &&
-                        !product.name.toLowerCase().includes("invoice"),
-                    )
                     .sort((a, b) => a.name.localeCompare(b.name))
-                    .map((product) => (
-                      <button
-                        key={product._id}
-                        className="header__dropdown-item"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/products/${product._id}`);
-                          setIsDropdownOpen(false);
-                          closeMobileMenu();
-                        }}
-                        type="button"
-                      >
-                        {product.name}
-                      </button>
-                    ))}
+                    .map((product) => {
+                      const isCallToOrder =
+                        product.category === "decals" ||
+                        product.name.toLowerCase().includes("t-shirt") ||
+                        product.name.toLowerCase().includes("invoice");
+
+                      return (
+                        <button
+                          key={product._id}
+                          className="header__dropdown-item"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (isCallToOrder) {
+                              navigate("/");
+                              setIsDropdownOpen(false);
+                              closeMobileMenu();
+                              // Scroll to featured section after navigation
+                              setTimeout(() => {
+                                const featuredSection =
+                                  document.querySelector(".main__featured");
+                                if (featuredSection) {
+                                  const yOffset = -190; // Offset for header
+                                  const y = featuredSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
+                                  window.scrollTo({ top: y, behavior: "smooth" });
+                                }
+                              }, 100);
+                            } else {
+                              navigate(`/products/${product._id}`);
+                              setIsDropdownOpen(false);
+                              closeMobileMenu();
+                            }
+                          }}
+                          type="button"
+                        >
+                          {product.name}
+                        </button>
+                      );
+                    })}
                 </div>
               </div>
             )}
