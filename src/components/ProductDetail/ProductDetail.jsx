@@ -204,13 +204,6 @@ function ProductDetail({ products }) {
 
   // Get initial quantity from first available option for selected paper
   const getInitialQuantity = () => {
-    if (isBusinessCard) {
-      const firstPaper = BUSINESS_CARD_PAPER[0];
-      if (firstPaper.pricing) {
-        return parseInt(Object.keys(firstPaper.pricing)[0]);
-      }
-      return BUSINESS_CARD_QUANTITIES[0];
-    }
     // Use first product quantity if available
     const productQtys = getProductQuantities();
     return productQtys[0]?.value ?? QUANTITIES[2];
@@ -259,7 +252,7 @@ function ProductDetail({ products }) {
         : getProductPaperTypes()[0]?.id || PAPER_TYPES[0].id,
     quantity: getInitialQuantity(),
     size: isBusinessCard
-      ? "2x3.5"
+      ? getProductSizes()[0]?.id || "2x3.5"
       : isFlyer
         ? getFlyerSizes()[0]?.id || ""
         : getProductSizes()[0]?.id || "",
@@ -332,13 +325,6 @@ function ProductDetail({ products }) {
       const isFly = product.category === "flyers";
 
       const getQty = () => {
-        if (isBC) {
-          const firstPaper = BUSINESS_CARD_PAPER[0];
-          if (firstPaper.pricing) {
-            return parseInt(Object.keys(firstPaper.pricing)[0]);
-          }
-          return BUSINESS_CARD_QUANTITIES[0];
-        }
         const productQtys = getProductQuantities();
         return productQtys[0]?.value ?? QUANTITIES[2];
       };
@@ -367,7 +353,7 @@ function ProductDetail({ products }) {
             : getProductPaperTypes()[0]?.id || PAPER_TYPES[0].id,
         quantity: getQty(),
         size: isBC
-          ? "2x3.5"
+          ? getProductSizes()[0]?.id || "2x3.5"
           : isFly
             ? getFlyerSizes()[0]?.id || ""
             : getProductSizes()[0]?.id || "",
@@ -710,33 +696,103 @@ function ProductDetail({ products }) {
         JSON.stringify(product.pricingTable, null, 2),
       );
 
-      // Determine which variant to use based on selected paper type or material
-      const paperOption = isFlyer
-        ? getFlyerPaperTypes().find((p) => p.id === selectedOptions.paperType)
-        : getProductPaperTypes().find(
-            (p) => p.id === selectedOptions.paperType,
-          );
+      // For business cards, extract shape from size name to find variant
+      let variantKey = null;
+      let shapeKey = null;
+      let paperKey = null;
 
-      const paperName = paperOption?.name || selectedOptions.paperType || "";
+      if (isBusinessCard) {
+        // Get the selected size name
+        const sizeOption = getProductSizes().find(
+          (s) => s.id === selectedOptions.size,
+        );
+        const sizeName = sizeOption?.name || selectedOptions.size || "";
+
+        // Extract shape from size name: "Square (2" x 2")" -> "square"
+        const lowerName = sizeName.toLowerCase();
+        if (lowerName.includes("square")) {
+          shapeKey = "square";
+        } else if (lowerName.includes("circle")) {
+          shapeKey = "circle";
+        } else if (lowerName.includes("standard")) {
+          shapeKey = "standard";
+        } else {
+          // Default to standard if no shape keyword found
+          shapeKey = "standard";
+        }
+
+        // Get paper type - normalize to match variant IDs
+        const selectedPaper = BUSINESS_CARD_PAPER.find(
+          (p) => p.id === selectedOptions.paperType,
+        );
+        if (selectedPaper) {
+          // Normalize paper name: "16pt Gloss" -> "16pt-gloss"
+          paperKey = selectedPaper.name
+            .toLowerCase()
+            .replace(/\s+/g, "-")
+            .replace(/[^a-z0-9-]/g, "");
+        }
+      } else {
+        // For other products, use paper type or material as variant
+        const paperOption = isFlyer
+          ? getFlyerPaperTypes().find((p) => p.id === selectedOptions.paperType)
+          : getProductPaperTypes().find(
+              (p) => p.id === selectedOptions.paperType,
+            );
+        variantKey = paperOption?.name || selectedOptions.paperType || "";
+      }
+
       const normalize = (str) =>
         String(str || "")
           .trim()
           .toLowerCase();
 
-      console.log("Looking for paper type:", paperName);
+      console.log("Looking for variants:", { shapeKey, paperKey, variantKey });
       console.log("Selected options:", selectedOptions);
 
-      // Find matching variant by paper type name
-      // If no paper types are configured, use the first variant
+      // Find matching variant with fallback priority
       let variant;
-      if (paperName) {
+      if (isBusinessCard && (shapeKey || paperKey)) {
+        // Try multiple variant keys in order of priority
+        const variantKeysToTry = [];
+
+        // 1. Try shape + paper combination
+        if (shapeKey && paperKey) {
+          variantKeysToTry.push(`${shapeKey}-${paperKey}`);
+        }
+
+        // 2. Try paper type only
+        if (paperKey) {
+          variantKeysToTry.push(paperKey);
+        }
+
+        // 3. Try shape only
+        if (shapeKey) {
+          variantKeysToTry.push(shapeKey);
+        }
+
+        console.log("Trying variant keys:", variantKeysToTry);
+
+        // Find first matching variant
+        for (const key of variantKeysToTry) {
+          variant = product.pricingTable.variants.find(
+            (v) =>
+              normalize(v.variantName) === normalize(key) ||
+              normalize(v.variantId) === normalize(key),
+          );
+          if (variant) {
+            console.log("Found variant using key:", key);
+            break;
+          }
+        }
+      } else if (variantKey) {
         variant = product.pricingTable.variants.find(
           (v) =>
-            normalize(v.variantName) === normalize(paperName) ||
-            normalize(v.variantId) === normalize(paperName),
+            normalize(v.variantName) === normalize(variantKey) ||
+            normalize(v.variantId) === normalize(variantKey),
         );
       } else if (product.pricingTable.variants.length === 1) {
-        // If only one variant and no paper type, use it
+        // If only one variant and no variant key, use it
         variant = product.pricingTable.variants[0];
       }
 
@@ -757,15 +813,29 @@ function ProductDetail({ products }) {
             ? getFlyerSizes().find((s) => s.id === selectedOptions.size)
             : getProductSizes().find((s) => s.id === selectedOptions.size);
           const sizeName = sizeOption?.name || selectedOptions.size || "";
+          const sizeDimensions = sizeOption?.dimensions || "";
           const quantity = selectedOptions.quantity;
 
-          // Normalize size name to match pricing table format
-          // Remove quotes, convert " x " to "x", remove spaces
-          const normalizedSize = sizeName
-            .replace(/"/g, "")
-            .replace(/\s*[x×]\s*/gi, "x")
-            .replace(/\s+/g, "")
-            .toLowerCase();
+          // Extract dimensions from size name or use dimensions field
+          // Examples: "Square (2.5\" x 2.5\")" -> "2.5x2.5"
+          //           "Standard (3.5\" x 2\")" -> "3.5x2"
+          let normalizedSize = "";
+          if (sizeDimensions) {
+            normalizedSize = sizeDimensions.toLowerCase();
+          } else {
+            // Extract from name: look for pattern like "2x2" or "2.5 x 2.5"
+            const match = sizeName.match(/([0-9.]+)\s*[x×]\s*([0-9.]+)/i);
+            if (match) {
+              normalizedSize = `${match[1]}x${match[2]}`;
+            } else {
+              // Fallback: remove quotes and spaces
+              normalizedSize = sizeName
+                .replace(/"/g, "")
+                .replace(/\s*[x×]\s*/gi, "x")
+                .replace(/\s+/g, "")
+                .toLowerCase();
+            }
+          }
 
           // Build lookup key: "size-quantity" (e.g., "4x6-250")
           const priceKey = `${normalizedSize}-${quantity}`;
@@ -780,15 +850,41 @@ function ProductDetail({ products }) {
           console.log("=== END DEBUG ===");
 
           if (price !== undefined && price > 0) {
+            let finalPrice = price;
+
+            // Apply upcharges for premium papers (business cards)
+            if (isBusinessCard) {
+              const selectedPaper = BUSINESS_CARD_PAPER.find(
+                (p) => p.id === selectedOptions.paperType,
+              );
+              const paperName = selectedPaper?.name || "";
+
+              if (paperName.includes("13pt Premium Linen")) {
+                console.log("Applying 100% upcharge for 13pt Premium Linen");
+                finalPrice = price * 2;
+              } else if (paperName.includes("24 pt. Trifecta Green")) {
+                console.log("Applying 125% upcharge for 24pt Trifecta Green");
+                finalPrice = price * 2.25;
+              } else if (paperName.includes("38 pt. Trifecta")) {
+                console.log("Applying 150% upcharge for 38pt Trifecta");
+                finalPrice = price * 2.5;
+              }
+            }
+
             // Apply 25% markup for Full Color Both Sides
-            const colorOption = isFlyer
-              ? getFlyerColors().find((c) => c.id === selectedOptions.color)
-              : getProductColors().find((c) => c.id === selectedOptions.color);
+            const colorOption = isBusinessCard
+              ? BUSINESS_CARD_COLORS.find((c) => c.id === selectedOptions.color)
+              : isFlyer
+                ? getFlyerColors().find((c) => c.id === selectedOptions.color)
+                : getProductColors().find(
+                    (c) => c.id === selectedOptions.color,
+                  );
 
             if (colorOption?.name?.toLowerCase().includes("both")) {
-              return (price * 1.25).toFixed(2);
+              console.log("Applying 25% upcharge for Full Color Both Sides");
+              return (finalPrice * 1.25).toFixed(2);
             }
-            return price.toFixed(2);
+            return finalPrice.toFixed(2);
           }
         }
       }
@@ -1471,37 +1567,53 @@ function ProductDetail({ products }) {
                       onChange={(e) =>
                         setSelectedOptions({
                           ...selectedOptions,
-                          quantity: parseInt(e.target.value),
+                          quantity: parseInt(e.target.value) || e.target.value,
                         })
                       }
                     >
-                      {(() => {
-                        const paperType = BUSINESS_CARD_PAPER.find(
-                          (p) => p.id === selectedOptions.paperType,
-                        );
-                        const availableQtys =
-                          paperType && paperType.pricing
-                            ? Object.keys(paperType.pricing).map(Number)
-                            : BUSINESS_CARD_QUANTITIES;
-                        return availableQtys.map((qty) => (
-                          <option key={qty} value={qty}>
-                            {qty.toLocaleString()}
-                          </option>
-                        ));
-                      })()}
+                      {getProductQuantities().map((qty) => (
+                        <option key={qty.value} value={qty.value}>
+                          {qty.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
-                  <div className="product-detail__option">
-                    <label className="product-detail__label">Size</label>
-                    <input
-                      type="text"
-                      className="product-detail__select"
-                      value='2" x 3.5" U.S. Standard'
-                      disabled
-                      style={{ backgroundColor: "#f5f5f5" }}
-                    />
-                  </div>
+                  {getProductSizes().length > 0 ? (
+                    <div className="product-detail__option">
+                      <label htmlFor="size" className="product-detail__label">
+                        Size
+                      </label>
+                      <select
+                        id="size"
+                        className="product-detail__select"
+                        value={selectedOptions.size}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            size: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductSizes().map((size) => (
+                          <option key={size.id} value={size.id}>
+                            {size.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  ) : (
+                    <div className="product-detail__option">
+                      <label className="product-detail__label">Size</label>
+                      <input
+                        type="text"
+                        className="product-detail__select"
+                        value='2" x 3.5" U.S. Standard'
+                        disabled
+                        style={{ backgroundColor: "#f5f5f5" }}
+                      />
+                    </div>
+                  )}
 
                   <div className="product-detail__option">
                     <label className="product-detail__label">Orientation</label>
@@ -1549,20 +1661,6 @@ function ProductDetail({ products }) {
                       value={selectedOptions.paperType}
                       onChange={(e) => {
                         const newPaperType = e.target.value;
-                        const newPaper = BUSINESS_CARD_PAPER.find(
-                          (p) => p.id === newPaperType,
-                        );
-                        // Get available quantities for new paper type
-                        const availableQtys =
-                          newPaper && newPaper.pricing
-                            ? Object.keys(newPaper.pricing).map(Number)
-                            : BUSINESS_CARD_QUANTITIES;
-                        // If current quantity is not available, reset to first available
-                        const newQuantity = availableQtys.includes(
-                          selectedOptions.quantity,
-                        )
-                          ? selectedOptions.quantity
-                          : availableQtys[0];
 
                         // Determine coating type based on new paper
                         const availableCoatings =
@@ -1574,7 +1672,6 @@ function ProductDetail({ products }) {
                         setSelectedOptions({
                           ...selectedOptions,
                           paperType: newPaperType,
-                          quantity: newQuantity,
                           coating: availableCoatings[0]?.id || "",
                         });
                       }}
@@ -1708,6 +1805,51 @@ function ProductDetail({ products }) {
                       />
                     </div>
                   )}
+
+                  {/* Render custom option categories (e.g., Velvet Finish) */}
+                  {Object.keys(getCustomOptions()).map((categoryKey) => {
+                    const categoryData = getCustomOptions()[categoryKey];
+                    const categoryLabel = categoryData?.label || categoryKey;
+                    const options = getCustomOptionValues(categoryKey);
+
+                    if (options.length === 0) return null;
+
+                    return (
+                      <div key={categoryKey} className="product-detail__option">
+                        <label
+                          htmlFor={categoryKey}
+                          className="product-detail__label"
+                        >
+                          {categoryLabel}
+                        </label>
+                        <select
+                          id={categoryKey}
+                          className="product-detail__select"
+                          value={
+                            selectedOptions.customOptions?.[categoryKey] || ""
+                          }
+                          onChange={(e) =>
+                            setSelectedOptions({
+                              ...selectedOptions,
+                              customOptions: {
+                                ...selectedOptions.customOptions,
+                                [categoryKey]: e.target.value,
+                              },
+                            })
+                          }
+                        >
+                          {options.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.name}
+                              {option.priceModifier > 0
+                                ? ` (+$${option.priceModifier})`
+                                : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    );
+                  })}
                 </>
               ) : isFlyer ? (
                 <>
