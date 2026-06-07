@@ -78,7 +78,48 @@ function App() {
       initialCartKeyRef.current = cartKey;
 
       const savedCart = localStorage.getItem(cartKey);
-      return savedCart ? JSON.parse(savedCart) : [];
+      if (!savedCart) return [];
+
+      const cartData = JSON.parse(savedCart);
+
+      // Migrate old rounded corner values in cart items
+      let migrationOccurred = false;
+      const migratedCart = cartData.map((item) => {
+        if (item.rawOptions && item.rawOptions.roundedCorner) {
+          const oldValue = item.rawOptions.roundedCorner;
+          // Map old hardcoded values to new database IDs
+          if (oldValue === "rounded" || oldValue === "yes") {
+            item.rawOptions.roundedCorner = "yes"; // Will be validated against actual product options later
+            console.log(
+              "Migrated cart item rounded corner from",
+              oldValue,
+              "to yes",
+            );
+            migrationOccurred = true;
+          } else if (oldValue === "none") {
+            item.rawOptions.roundedCorner = "no"; // Will be validated against actual product options later
+            console.log(
+              "Migrated cart item rounded corner from",
+              oldValue,
+              "to no",
+            );
+            migrationOccurred = true;
+          }
+        }
+        return item;
+      });
+
+      // Save migrated cart back to localStorage
+      if (migrationOccurred) {
+        try {
+          localStorage.setItem(cartKey, JSON.stringify(migratedCart));
+          console.log("Saved migrated cart to localStorage");
+        } catch (e) {
+          console.error("Error saving migrated cart:", e);
+        }
+      }
+
+      return migratedCart;
     } catch (error) {
       console.error("Error loading cart from localStorage:", error);
       return [];

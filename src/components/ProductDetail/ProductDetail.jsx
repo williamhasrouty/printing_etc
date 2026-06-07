@@ -43,6 +43,8 @@ function ProductDetail({ products }) {
   const isFlyer = product?.category === "flyers";
   const isPostcard = product?.category === "postcards";
   const isDoorHanger = product?.category === "door-hangers";
+  const isBanner = product?.category === "banners";
+  const isCarMagnet = product?.name === "Car Magnets";
 
   const getBusinessCardCoatingOptions = () => {
     const productCoatings = product?.options?.coatings;
@@ -267,7 +269,7 @@ function ProductDetail({ products }) {
         ? getFlyerColors()[0]?.id || ""
         : getProductColors()[0]?.id || "",
     roundedCorner: isBusinessCard
-      ? "none"
+      ? getProductRoundedCorners()[0]?.id || "none"
       : getProductRoundedCorners()[0]?.id || "none",
     coating: isBusinessCard
       ? getAvailableCoatingBySelection(
@@ -366,7 +368,7 @@ function ProductDetail({ products }) {
             ? getFlyerColors()[0]?.id || ""
             : getProductColors()[0]?.id || "",
         roundedCorner: isBC
-          ? "none"
+          ? getProductRoundedCorners()[0]?.id || "none"
           : getProductRoundedCorners()[0]?.id || "none",
         coating: isBC
           ? getAvailableCoatingBySelection(
@@ -412,7 +414,47 @@ function ProductDetail({ products }) {
   // Pre-populate form when editing an existing cart item
   useEffect(() => {
     if (editingCartItem && editingCartItem.rawOptions) {
-      setSelectedOptions(editingCartItem.rawOptions);
+      const options = { ...editingCartItem.rawOptions };
+
+      // Migrate old rounded corner values to new database IDs
+      if (options.roundedCorner) {
+        const availableCorners = getProductRoundedCorners();
+        const cornerExists = availableCorners.some(
+          (c) => c.id === options.roundedCorner,
+        );
+
+        if (!cornerExists) {
+          console.log(
+            "Migrating old rounded corner value:",
+            options.roundedCorner,
+          );
+          // Map old values to new database IDs
+          if (
+            options.roundedCorner === "rounded" ||
+            options.roundedCorner === "yes"
+          ) {
+            options.roundedCorner =
+              availableCorners.find((c) => c.name.toLowerCase() === "yes")
+                ?.id ||
+              availableCorners[0]?.id ||
+              "none";
+          } else if (
+            options.roundedCorner === "none" ||
+            options.roundedCorner === "no"
+          ) {
+            options.roundedCorner =
+              availableCorners.find((c) => c.name.toLowerCase() === "no")?.id ||
+              availableCorners[0]?.id ||
+              "none";
+          } else {
+            // Unknown value, default to first option
+            options.roundedCorner = availableCorners[0]?.id || "none";
+          }
+          console.log("Migrated to:", options.roundedCorner);
+        }
+      }
+
+      setSelectedOptions(options);
       if (editingCartItem.rawSizeDistribution) {
         setSizeDistribution(editingCartItem.rawSizeDistribution);
       }
@@ -869,6 +911,63 @@ function ProductDetail({ products }) {
                 console.log("Applying 150% upcharge for 38pt Trifecta");
                 finalPrice = price * 2.5;
               }
+
+              // Add rounded corner cost
+              const roundedCornerOption = getProductRoundedCorners().find(
+                (r) => r.id === selectedOptions.roundedCorner,
+              );
+              console.log("=== ROUNDED CORNER DEBUG ===");
+              console.log(
+                "Selected rounded corner ID:",
+                selectedOptions.roundedCorner,
+              );
+              console.log(
+                "All rounded corner options:",
+                JSON.stringify(
+                  getProductRoundedCorners().map((r) => ({
+                    id: r.id,
+                    name: r.name,
+                    priceModifier: r.priceModifier,
+                  })),
+                  null,
+                  2,
+                ),
+              );
+              console.log("Found roundedCornerOption:", roundedCornerOption);
+              console.log("=== END ROUNDED CORNER DEBUG ===");
+              if (
+                roundedCornerOption &&
+                roundedCornerOption.priceModifier > 0
+              ) {
+                console.log(
+                  "Adding $" +
+                    roundedCornerOption.priceModifier +
+                    " for rounded corners",
+                );
+                finalPrice += roundedCornerOption.priceModifier;
+              }
+
+              // Add raised print cost
+              const raisedOption = BUSINESS_CARD_RAISED.find(
+                (r) => r.id === selectedOptions.raisedPrint,
+              );
+              if (raisedOption && raisedOption.price > 0) {
+                console.log(
+                  "Adding $" + raisedOption.price + " for " + raisedOption.name,
+                );
+                finalPrice += raisedOption.price;
+              }
+
+              // Add velvet finish cost
+              const velvetOption = BUSINESS_CARD_VELVET.find(
+                (v) => v.id === selectedOptions.velvetFinish,
+              );
+              if (velvetOption && velvetOption.price > 0) {
+                console.log(
+                  "Adding $" + velvetOption.price + " for " + velvetOption.name,
+                );
+                finalPrice += velvetOption.price;
+              }
             }
 
             // Apply 25% markup for Full Color Both Sides
@@ -1093,8 +1192,11 @@ function ProductDetail({ products }) {
       }
 
       // Add rounded corner cost
-      if (selectedOptions.roundedCorner === "rounded") {
-        price += 15;
+      const roundedCornerOption = getProductRoundedCorners().find(
+        (r) => r.id === selectedOptions.roundedCorner,
+      );
+      if (roundedCornerOption && roundedCornerOption.priceModifier > 0) {
+        price += roundedCornerOption.priceModifier;
       }
 
       // Add raised print cost
@@ -1115,6 +1217,37 @@ function ProductDetail({ products }) {
 
       return price.toFixed(2);
     } else {
+      // Special handling for banners/car magnets: size price × quantity + custom options
+      if (isBanner || isCarMagnet) {
+        const sizeOption = getProductSizes().find(
+          (s) => s.id === selectedOptions.size,
+        );
+        const sizePrice = Number(sizeOption?.priceModifier) || 0;
+        const quantity = Number(selectedOptions.quantity) || 1;
+
+        // Add custom option modifiers (materials, grommets, etc.)
+        const customOptionModifiers = Object.keys(
+          selectedOptions.customOptions || {},
+        ).reduce((sum, categoryKey) => {
+          const selectedId = selectedOptions.customOptions[categoryKey];
+          const options = getCustomOptionValues(categoryKey);
+          const selectedOption = options.find((opt) => opt.id === selectedId);
+          return sum + (Number(selectedOption?.priceModifier) || 0);
+        }, 0);
+
+        const totalPrice = (sizePrice + customOptionModifiers) * quantity;
+
+        console.log(isBanner ? "Banner pricing:" : "Car Magnet pricing:", {
+          size: sizeOption?.name,
+          sizePrice,
+          customOptionModifiers,
+          quantity,
+          totalPrice,
+        });
+
+        return totalPrice.toFixed(2);
+      }
+
       // Use the priceModifier on the selected quantity as the full price.
       // Falls back to basePrice if no quantity option is matched.
       const qtyOption = getProductQuantities().find(
@@ -1714,28 +1847,36 @@ function ProductDetail({ products }) {
                     </select>
                   </div>
 
-                  <div className="product-detail__option">
-                    <label
-                      htmlFor="roundedCorner"
-                      className="product-detail__label"
-                    >
-                      Rounded Corner
-                    </label>
-                    <select
-                      id="roundedCorner"
-                      className="product-detail__select"
-                      value={selectedOptions.roundedCorner}
-                      onChange={(e) =>
-                        setSelectedOptions({
-                          ...selectedOptions,
-                          roundedCorner: e.target.value,
-                        })
-                      }
-                    >
-                      <option value="none">None</option>
-                      <option value="rounded">Rounded Corner (+$15)</option>
-                    </select>
-                  </div>
+                  {getProductRoundedCorners().length > 0 && (
+                    <div className="product-detail__option">
+                      <label
+                        htmlFor="roundedCorner"
+                        className="product-detail__label"
+                      >
+                        Rounded Corners
+                      </label>
+                      <select
+                        id="roundedCorner"
+                        className="product-detail__select"
+                        value={selectedOptions.roundedCorner}
+                        onChange={(e) =>
+                          setSelectedOptions({
+                            ...selectedOptions,
+                            roundedCorner: e.target.value,
+                          })
+                        }
+                      >
+                        {getProductRoundedCorners().map((corner) => (
+                          <option key={corner.id} value={corner.id}>
+                            {corner.name}
+                            {corner.priceModifier > 0
+                              ? ` (+$${corner.priceModifier})`
+                              : ""}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {getAvailableCoating().length > 0 && (
                     <div className="product-detail__option">
@@ -2012,6 +2153,9 @@ function ProductDetail({ products }) {
                         {getProductRoundedCorners().map((corner) => (
                           <option key={corner.id} value={corner.id}>
                             {corner.name}
+                            {corner.priceModifier > 0
+                              ? ` (+$${corner.priceModifier})`
+                              : ""}
                           </option>
                         ))}
                       </select>
@@ -2285,6 +2429,9 @@ function ProductDetail({ products }) {
                         {getProductRoundedCorners().map((corner) => (
                           <option key={corner.id} value={corner.id}>
                             {corner.name}
+                            {corner.priceModifier > 0
+                              ? ` (+$${corner.priceModifier})`
+                              : ""}
                           </option>
                         ))}
                       </select>
