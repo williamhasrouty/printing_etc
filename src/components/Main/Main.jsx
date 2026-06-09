@@ -83,8 +83,14 @@ function Main({ products, isLoading }) {
             Also Available - Call to Order
           </h2>
           <p className="main__featured-subtitle">
-            Contact us for custom quotes on these specialty items
+            Need a custom quote? We're here to help with these specialty items
           </p>
+          <Link to="/contact" className="main__featured-cta-button">
+            <span className="main__featured-cta-icon">📞</span>
+            <span className="main__featured-cta-text">
+              Contact Us for Quote
+            </span>
+          </Link>
           <div className="main__featured-grid">
             {products
               .filter(
