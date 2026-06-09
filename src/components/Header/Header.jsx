@@ -136,7 +136,7 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
             alt="Printing Etc Logo"
             className="header__logo-image"
           />
-          Printing Etc.
+          <span className="header__logo-text">Printing Etc.</span>
         </Link>
 
         <button
@@ -188,8 +188,15 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
                                   document.querySelector(".main__featured");
                                 if (featuredSection) {
                                   const yOffset = -190; // Offset for header
-                                  const y = featuredSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                                  window.scrollTo({ top: y, behavior: "smooth" });
+                                  const y =
+                                    featuredSection.getBoundingClientRect()
+                                      .top +
+                                    window.pageYOffset +
+                                    yOffset;
+                                  window.scrollTo({
+                                    top: y,
+                                    behavior: "smooth",
+                                  });
                                 }
                               }, 100);
                             } else {
