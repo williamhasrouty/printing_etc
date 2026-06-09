@@ -80,10 +80,10 @@ function Main({ products, isLoading }) {
       <section className="main__featured">
         <div className="main__container">
           <h2 className="main__section-title">
-            Also Available - Call to Order
+            Also Available - <span className="main__blink">Call to Order</span>
           </h2>
           <p className="main__featured-subtitle">
-            Need a custom quote? We're here to help with these specialty items
+            Need a custom quote? We're here to help with these specialty items.
           </p>
           <Link to="/contact" className="main__featured-cta-button">
             <span className="main__featured-cta-icon">📞</span>
