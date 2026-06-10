@@ -45,6 +45,7 @@ function ProductDetail({ products }) {
   const isDoorHanger = product?.category === "door-hangers";
   const isBanner = product?.category === "banners";
   const isCarMagnet = product?.name === "Car Magnets";
+  const isBlueprint = product?.name === "Blueprints/Floor Plans";
 
   // Check if product is call-to-order only (no online ordering)
   const isCallToOrderOnly =
@@ -827,6 +828,12 @@ function ProductDetail({ products }) {
             .replace(/\s+/g, "-")
             .replace(/[^a-z0-9-]/g, "");
         }
+      } else if (isBlueprint) {
+        // For blueprints, use color selection as variant
+        const colorOption = getProductColors().find(
+          (c) => c.id === selectedOptions.color,
+        );
+        variantKey = colorOption?.name || selectedOptions.color || "";
       } else {
         // For other products, use paper type or material as variant
         const paperOption = isFlyer
@@ -1036,6 +1043,13 @@ function ProductDetail({ products }) {
               console.log("Applying 25% upcharge for Full Color Both Sides");
               return (finalPrice * 1.25).toFixed(2);
             }
+
+            // For blueprints, multiply per-sheet price by quantity
+            if (isBlueprint) {
+              const quantity = Number(selectedOptions.quantity) || 1;
+              return (finalPrice * quantity).toFixed(2);
+            }
+
             return finalPrice.toFixed(2);
           }
         }
