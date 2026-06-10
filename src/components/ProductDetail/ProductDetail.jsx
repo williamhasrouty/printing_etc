@@ -3197,7 +3197,7 @@ function ProductDetail({ products }) {
                     <strong>Note:</strong> Prices include processing one set of
                     uploaded files and creating a single proof. You can view the
                     status of your order online 24/7 under "My Account." Files
-                    not built correctly may delay the order.
+                    not built correctly may delay the order. Set up charge may apply to all products.
                   </p>
                 </div>
               </div>
