@@ -127,10 +127,14 @@ function Header({ onLoginClick, onRegisterClick, onLogout }) {
     }
   };
 
+  const handleLogoClick = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <header className="header">
       <div className="header__container">
-        <Link to="/" className="header__logo">
+        <Link to="/" className="header__logo" onClick={handleLogoClick}>
           <img
             src={petcLogo}
             alt="Printing Etc Logo"

@@ -3075,132 +3075,351 @@ function Admin({ onProductsChange }) {
                 )}
 
                 {/* Products List */}
-                <div className="admin__products-grid">
-                  {filteredProducts.length === 0 ? (
-                    <p className="admin__empty">No products found</p>
-                  ) : (
-                    filteredProducts.map((product) => (
-                      <div
-                        key={product._id}
-                        className="admin__product-card admin__product-card_draggable"
-                        draggable
-                        onDragStart={() => handleProductDragStart(product._id)}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={() => handleProductDrop(product._id)}
-                      >
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="admin__product-image"
-                        />
-                        <div className="admin__product-info">
-                          <h4 className="admin__product-name">
-                            {product.name}
-                          </h4>
-                          <p className="admin__product-category">
-                            {product.category}
-                          </p>
-                          <p className="admin__product-price">
-                            ${parseFloat(product.basePrice || 0).toFixed(2)}
-                          </p>
-                          <p className="admin__product-description">
-                            {product.description?.substring(0, 100)}...
-                          </p>
-                          <div className="admin__product-options-summary">
-                            {product.options?.quantities?.length > 0 && (
-                              <span className="admin__option-badge">
-                                {product.options.quantities.length} Quantit
-                                {product.options.quantities.length !== 1
-                                  ? "ies"
-                                  : "y"}
-                              </span>
-                            )}
-                            {product.options?.sizes?.length > 0 && (
-                              <span className="admin__option-badge">
-                                {product.options.sizes.length} Size
-                                {product.options.sizes.length !== 1 ? "s" : ""}
-                              </span>
-                            )}
-                            {product.options?.orientations?.length > 0 && (
-                              <span className="admin__option-badge">
-                                {product.options.orientations.length}{" "}
-                                Orientation
-                                {product.options.orientations.length !== 1
-                                  ? "s"
-                                  : ""}
-                              </span>
-                            )}
-                            {product.options?.colors?.length > 0 && (
-                              <span className="admin__option-badge">
-                                {product.options.colors.length} Color
-                                {product.options.colors.length !== 1 ? "s" : ""}
-                              </span>
-                            )}
-                            {product.options?.paperTypes?.length > 0 && (
-                              <span className="admin__option-badge">
-                                {product.options.paperTypes.length} Paper
-                                {product.options.paperTypes.length !== 1
-                                  ? "s"
-                                  : ""}
-                              </span>
-                            )}
-                            {product.options?.roundedCorners?.length > 0 && (
-                              <span className="admin__option-badge">
-                                Rounded Corners
-                              </span>
-                            )}
-                            {product.options?.coatings?.length > 0 && (
-                              <span className="admin__option-badge">
-                                {product.options.coatings.length} Coating
-                                {product.options.coatings.length !== 1
-                                  ? "s"
-                                  : ""}
-                              </span>
-                            )}
-                            {product.options?.raisedPrint?.length > 0 && (
-                              <span className="admin__option-badge">
-                                Raised Print
-                              </span>
-                            )}
-                            {product.options?.finishes?.length > 0 && (
-                              <span className="admin__option-badge">
-                                {product.options.finishes.length} Finish
-                                {product.options.finishes.length !== 1
-                                  ? "es"
-                                  : ""}
-                              </span>
-                            )}
-                            {product.options?.customOptions &&
-                              Object.keys(product.options.customOptions)
-                                .length > 0 && (
-                                <span className="admin__option-badge admin__option-badge_custom">
-                                  {
-                                    Object.keys(product.options.customOptions)
-                                      .length
-                                  }{" "}
-                                  Custom
-                                </span>
-                              )}
-                          </div>
-                          <div className="admin__product-actions">
-                            <button
-                              onClick={() => handleEditProduct(product)}
-                              className="admin__edit-btn"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteProduct(product._id)}
-                              className="admin__delete-btn"
-                            >
-                              Delete
-                            </button>
-                          </div>
+                {filteredProducts.length === 0 ? (
+                  <p className="admin__empty">No products found</p>
+                ) : (
+                  <>
+                    {/* Shop Our Products Section */}
+                    {filteredProducts.filter(
+                      (product) =>
+                        product.category !== "decals" &&
+                        !product.name.toLowerCase().includes("t-shirt") &&
+                        !product.name.toLowerCase().includes("invoice"),
+                    ).length > 0 && (
+                      <>
+                        <h3 className="admin__products-section-title">
+                          Shop Our Products
+                        </h3>
+                        <div className="admin__products-grid">
+                          {filteredProducts
+                            .filter(
+                              (product) =>
+                                product.category !== "decals" &&
+                                !product.name
+                                  .toLowerCase()
+                                  .includes("t-shirt") &&
+                                !product.name.toLowerCase().includes("invoice"),
+                            )
+                            .map((product) => (
+                              <div
+                                key={product._id}
+                                className="admin__product-card admin__product-card_draggable"
+                                draggable
+                                onDragStart={() =>
+                                  handleProductDragStart(product._id)
+                                }
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={() => handleProductDrop(product._id)}
+                              >
+                                <img
+                                  src={product.imageUrl}
+                                  alt={product.name}
+                                  className="admin__product-image"
+                                />
+                                <div className="admin__product-info">
+                                  <h4 className="admin__product-name">
+                                    {product.name}
+                                  </h4>
+                                  <p className="admin__product-category">
+                                    {product.category}
+                                  </p>
+                                  <p className="admin__product-price">
+                                    $
+                                    {parseFloat(product.basePrice || 0).toFixed(
+                                      2,
+                                    )}
+                                  </p>
+                                  <p className="admin__product-description">
+                                    {product.description?.substring(0, 100)}...
+                                  </p>
+                                  <div className="admin__product-options-summary">
+                                    {product.options?.quantities?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.quantities.length}{" "}
+                                        Quantit
+                                        {product.options.quantities.length !== 1
+                                          ? "ies"
+                                          : "y"}
+                                      </span>
+                                    )}
+                                    {product.options?.sizes?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.sizes.length} Size
+                                        {product.options.sizes.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.orientations?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.orientations.length}{" "}
+                                        Orientation
+                                        {product.options.orientations.length !==
+                                        1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.colors?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.colors.length} Color
+                                        {product.options.colors.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.paperTypes?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.paperTypes.length}{" "}
+                                        Paper
+                                        {product.options.paperTypes.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.roundedCorners?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        Rounded Corners
+                                      </span>
+                                    )}
+                                    {product.options?.coatings?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.coatings.length}{" "}
+                                        Coating
+                                        {product.options.coatings.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.raisedPrint?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        Raised Print
+                                      </span>
+                                    )}
+                                    {product.options?.finishes?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.finishes.length} Finish
+                                        {product.options.finishes.length !== 1
+                                          ? "es"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.customOptions &&
+                                      Object.keys(product.options.customOptions)
+                                        .length > 0 && (
+                                        <span className="admin__option-badge admin__option-badge_custom">
+                                          {
+                                            Object.keys(
+                                              product.options.customOptions,
+                                            ).length
+                                          }{" "}
+                                          Custom
+                                        </span>
+                                      )}
+                                  </div>
+                                  <div className="admin__product-actions">
+                                    <button
+                                      onClick={() => handleEditProduct(product)}
+                                      className="admin__edit-btn"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteProduct(product._id)
+                                      }
+                                      className="admin__delete-btn"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
                         </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+                      </>
+                    )}
+
+                    {/* Call to Order Section */}
+                    {filteredProducts.filter(
+                      (product) =>
+                        product.category === "decals" ||
+                        product.name.toLowerCase().includes("t-shirt") ||
+                        product.name.toLowerCase().includes("invoice"),
+                    ).length > 0 && (
+                      <>
+                        <div className="admin__section-header">
+                          <h3 className="admin__products-section-title admin__products-section-title_call-to-order">
+                            Call to Order
+                          </h3>
+                          <button
+                            className="admin__add-btn admin__add-btn_call-to-order"
+                            onClick={handleAddNewProduct}
+                          >
+                            + Add New Product
+                          </button>
+                        </div>
+                        <div className="admin__products-grid">
+                          {filteredProducts
+                            .filter(
+                              (product) =>
+                                product.category === "decals" ||
+                                product.name
+                                  .toLowerCase()
+                                  .includes("t-shirt") ||
+                                product.name.toLowerCase().includes("invoice"),
+                            )
+                            .map((product) => (
+                              <div
+                                key={product._id}
+                                className="admin__product-card admin__product-card_draggable"
+                                draggable
+                                onDragStart={() =>
+                                  handleProductDragStart(product._id)
+                                }
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={() => handleProductDrop(product._id)}
+                              >
+                                <img
+                                  src={product.imageUrl}
+                                  alt={product.name}
+                                  className="admin__product-image"
+                                />
+                                <div className="admin__product-info">
+                                  <h4 className="admin__product-name">
+                                    {product.name}
+                                  </h4>
+                                  <p className="admin__product-category">
+                                    {product.category}
+                                  </p>
+                                  <p className="admin__product-price">
+                                    $
+                                    {parseFloat(product.basePrice || 0).toFixed(
+                                      2,
+                                    )}
+                                  </p>
+                                  <p className="admin__product-description">
+                                    {product.description?.substring(0, 100)}...
+                                  </p>
+                                  <div className="admin__product-options-summary">
+                                    {product.options?.quantities?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.quantities.length}{" "}
+                                        Quantit
+                                        {product.options.quantities.length !== 1
+                                          ? "ies"
+                                          : "y"}
+                                      </span>
+                                    )}
+                                    {product.options?.sizes?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.sizes.length} Size
+                                        {product.options.sizes.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.orientations?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.orientations.length}{" "}
+                                        Orientation
+                                        {product.options.orientations.length !==
+                                        1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.colors?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.colors.length} Color
+                                        {product.options.colors.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.paperTypes?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.paperTypes.length}{" "}
+                                        Paper
+                                        {product.options.paperTypes.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.roundedCorners?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        Rounded Corners
+                                      </span>
+                                    )}
+                                    {product.options?.coatings?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.coatings.length}{" "}
+                                        Coating
+                                        {product.options.coatings.length !== 1
+                                          ? "s"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.raisedPrint?.length >
+                                      0 && (
+                                      <span className="admin__option-badge">
+                                        Raised Print
+                                      </span>
+                                    )}
+                                    {product.options?.finishes?.length > 0 && (
+                                      <span className="admin__option-badge">
+                                        {product.options.finishes.length} Finish
+                                        {product.options.finishes.length !== 1
+                                          ? "es"
+                                          : ""}
+                                      </span>
+                                    )}
+                                    {product.options?.customOptions &&
+                                      Object.keys(product.options.customOptions)
+                                        .length > 0 && (
+                                        <span className="admin__option-badge admin__option-badge_custom">
+                                          {
+                                            Object.keys(
+                                              product.options.customOptions,
+                                            ).length
+                                          }{" "}
+                                          Custom
+                                        </span>
+                                      )}
+                                  </div>
+                                  <div className="admin__product-actions">
+                                    <button
+                                      onClick={() => handleEditProduct(product)}
+                                      className="admin__edit-btn"
+                                    >
+                                      Edit
+                                    </button>
+                                    <button
+                                      onClick={() =>
+                                        handleDeleteProduct(product._id)
+                                      }
+                                      className="admin__delete-btn"
+                                    >
+                                      Delete
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
+                      </>
+                    )}
+                  </>
+                )}
               </>
             )}
           </>
