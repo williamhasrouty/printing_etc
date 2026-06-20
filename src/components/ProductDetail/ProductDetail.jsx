@@ -533,6 +533,30 @@ function ProductDetail({ products }) {
     );
   };
 
+  // Get available raised print options based on selected coating
+  const getAvailableRaisedPrint = () => {
+    const allRaisedPrint = isBusinessCard
+      ? BUSINESS_CARD_RAISED
+      : getProductRaisedPrint();
+
+    // If Spot UV coating is selected, only allow "None"
+    const coatingOption = isBusinessCard
+      ? getBusinessCardCoatingOptions().find(
+          (c) => c.id === selectedOptions.coating,
+        )
+      : isFlyer
+        ? getFlyerCoatings().find((c) => c.id === selectedOptions.coating)
+        : getProductCoatings().find((c) => c.id === selectedOptions.coating);
+
+    if (coatingOption?.name?.includes("Spot UV")) {
+      return allRaisedPrint.filter((r) =>
+        r.name.toLowerCase().includes("none"),
+      );
+    }
+
+    return allRaisedPrint;
+  };
+
   const calculateShipping = () => {
     const zip = selectedOptions.zipCode.trim();
     if (!zip) {
@@ -1041,7 +1065,54 @@ function ProductDetail({ products }) {
 
             if (colorOption?.name?.toLowerCase().includes("both")) {
               console.log("Applying 25% upcharge for Full Color Both Sides");
-              return (finalPrice * 1.25).toFixed(2);
+              finalPrice = finalPrice * 1.25;
+            }
+
+            // Add rounded corner cost for non-business-card products
+            if (!isBusinessCard) {
+              const roundedCornerOption = getProductRoundedCorners().find(
+                (r) => r.id === selectedOptions.roundedCorner,
+              );
+              if (
+                roundedCornerOption &&
+                roundedCornerOption.priceModifier > 0
+              ) {
+                console.log(
+                  "Adding $" +
+                    roundedCornerOption.priceModifier +
+                    " for rounded corners",
+                );
+                finalPrice += roundedCornerOption.priceModifier;
+              }
+            }
+
+            // Apply 50% upcharge for postcards with Spot UV Coating
+            if (isPostcard) {
+              const coatingOption = getProductCoatings().find(
+                (c) => c.id === selectedOptions.coating,
+              );
+              if (coatingOption?.name?.includes("Spot UV")) {
+                console.log(
+                  "Applying 50% upcharge for Spot UV Coating on postcards",
+                );
+                finalPrice = finalPrice * 1.5;
+              }
+            }
+
+            // Apply 50% upcharge for postcards with raised print
+            if (isPostcard) {
+              const raisedOption = getProductRaisedPrint().find(
+                (r) => r.id === selectedOptions.raisedPrint,
+              );
+              if (
+                raisedOption?.name &&
+                !raisedOption.name.toLowerCase().includes("none")
+              ) {
+                console.log(
+                  "Applying 50% upcharge for raised print on postcards",
+                );
+                finalPrice = finalPrice * 1.5;
+              }
             }
 
             // For blueprints, multiply per-sheet price by quantity
@@ -1227,6 +1298,43 @@ function ProductDetail({ products }) {
           price = price * 1.25;
         }
 
+        // Add rounded corner cost if applicable
+        if (roundedCornerOption && roundedCornerOption.priceModifier > 0) {
+          console.log(
+            "Adding $" +
+              roundedCornerOption.priceModifier +
+              " for rounded corners",
+          );
+          price += roundedCornerOption.priceModifier;
+        }
+
+        // Apply 50% upcharge for postcards with Spot UV Coating
+        if (isPostcard) {
+          const coatingOpt = getProductCoatings().find(
+            (c) => c.id === selectedOptions.coating,
+          );
+          if (coatingOpt?.name?.includes("Spot UV")) {
+            console.log(
+              "Applying 50% upcharge for Spot UV Coating on postcards",
+            );
+            price = price * 1.5;
+          }
+        }
+
+        // Apply 50% upcharge for postcards with raised print
+        if (isPostcard) {
+          const raisedOpt = getProductRaisedPrint().find(
+            (r) => r.id === selectedOptions.raisedPrint,
+          );
+          if (
+            raisedOpt?.name &&
+            !raisedOpt.name.toLowerCase().includes("none")
+          ) {
+            console.log("Applying 50% upcharge for raised print on postcards");
+            price = price * 1.5;
+          }
+        }
+
         return price.toFixed(2);
       }
     }
@@ -1382,6 +1490,28 @@ function ProductDetail({ products }) {
       // Apply 25% markup for Full Color Both Sides
       if (colorOption?.name?.toLowerCase().includes("both")) {
         price = price * 1.25;
+      }
+
+      // Apply 50% upcharge for postcards with Spot UV Coating
+      if (isPostcard) {
+        const coatingOpt = getProductCoatings().find(
+          (c) => c.id === selectedOptions.coating,
+        );
+        if (coatingOpt?.name?.includes("Spot UV")) {
+          console.log("Applying 50% upcharge for Spot UV Coating on postcards");
+          price = price * 1.5;
+        }
+      }
+
+      // Apply 50% upcharge for postcards with raised print
+      if (isPostcard) {
+        const raisedOpt = getProductRaisedPrint().find(
+          (r) => r.id === selectedOptions.raisedPrint,
+        );
+        if (raisedOpt?.name && !raisedOpt.name.toLowerCase().includes("none")) {
+          console.log("Applying 50% upcharge for raised print on postcards");
+          price = price * 1.5;
+        }
       }
 
       return price.toFixed(2);
@@ -1997,12 +2127,25 @@ function ProductDetail({ products }) {
                         id="coating"
                         className="product-detail__select"
                         value={selectedOptions.coating}
-                        onChange={(e) =>
-                          setSelectedOptions({
+                        onChange={(e) => {
+                          const newCoating = getAvailableCoating().find(
+                            (c) => c.id === e.target.value,
+                          );
+                          const updates = {
                             ...selectedOptions,
                             coating: e.target.value,
-                          })
-                        }
+                          };
+                          // If Spot UV is selected, reset raised print to None
+                          if (newCoating?.name?.includes("Spot UV")) {
+                            const noneOption = getAvailableRaisedPrint().find(
+                              (r) => r.name.toLowerCase().includes("none"),
+                            );
+                            if (noneOption) {
+                              updates.raisedPrint = noneOption.id;
+                            }
+                          }
+                          setSelectedOptions(updates);
+                        }}
                       >
                         {getAvailableCoating().map((coating) => (
                           <option key={coating.id} value={coating.id}>
@@ -2029,7 +2172,7 @@ function ProductDetail({ products }) {
                           })
                         }
                       >
-                        {BUSINESS_CARD_RAISED.map((raised) => (
+                        {getAvailableRaisedPrint().map((raised) => (
                           <option key={raised.id} value={raised.id}>
                             {raised.name}
                             {raised.price > 0 ? ` (+$${raised.price})` : ""}
@@ -2281,12 +2424,25 @@ function ProductDetail({ products }) {
                         id="coating"
                         className="product-detail__select"
                         value={selectedOptions.coating}
-                        onChange={(e) =>
-                          setSelectedOptions({
+                        onChange={(e) => {
+                          const newCoating = getFlyerCoatings().find(
+                            (c) => c.id === e.target.value,
+                          );
+                          const updates = {
                             ...selectedOptions,
                             coating: e.target.value,
-                          })
-                        }
+                          };
+                          // If Spot UV is selected, reset raised print to None
+                          if (newCoating?.name?.includes("Spot UV")) {
+                            const noneOption = getAvailableRaisedPrint().find(
+                              (r) => r.name.toLowerCase().includes("none"),
+                            );
+                            if (noneOption) {
+                              updates.raisedPrint = noneOption.id;
+                            }
+                          }
+                          setSelectedOptions(updates);
+                        }}
                       >
                         {getFlyerCoatings().map((coating) => (
                           <option key={coating.id} value={coating.id}>
@@ -2297,7 +2453,7 @@ function ProductDetail({ products }) {
                     </div>
                   )}
 
-                  {getProductRaisedPrint().length > 0 && (
+                  {getAvailableRaisedPrint().length > 0 && (
                     <div className="product-detail__option">
                       <label
                         htmlFor="raisedPrint"
@@ -2316,7 +2472,7 @@ function ProductDetail({ products }) {
                           })
                         }
                       >
-                        {getProductRaisedPrint().map((raised) => (
+                        {getAvailableRaisedPrint().map((raised) => (
                           <option key={raised.id} value={raised.id}>
                             {raised.name}
                           </option>
@@ -2595,12 +2751,25 @@ function ProductDetail({ products }) {
                         id="coating"
                         className="product-detail__select"
                         value={selectedOptions.coating}
-                        onChange={(e) =>
-                          setSelectedOptions({
+                        onChange={(e) => {
+                          const newCoating = getProductCoatings().find(
+                            (c) => c.id === e.target.value,
+                          );
+                          const updates = {
                             ...selectedOptions,
                             coating: e.target.value,
-                          })
-                        }
+                          };
+                          // If Spot UV is selected, reset raised print to None
+                          if (newCoating?.name?.includes("Spot UV")) {
+                            const noneOption = getAvailableRaisedPrint().find(
+                              (r) => r.name.toLowerCase().includes("none"),
+                            );
+                            if (noneOption) {
+                              updates.raisedPrint = noneOption.id;
+                            }
+                          }
+                          setSelectedOptions(updates);
+                        }}
                       >
                         {getProductCoatings().map((coating) => (
                           <option key={coating.id} value={coating.id}>
@@ -2611,7 +2780,7 @@ function ProductDetail({ products }) {
                     </div>
                   )}
 
-                  {getProductRaisedPrint().length > 0 && (
+                  {getAvailableRaisedPrint().length > 0 && (
                     <div className="product-detail__option">
                       <label
                         htmlFor="raisedPrint"
@@ -2630,7 +2799,7 @@ function ProductDetail({ products }) {
                           })
                         }
                       >
-                        {getProductRaisedPrint().map((raised) => (
+                        {getAvailableRaisedPrint().map((raised) => (
                           <option key={raised.id} value={raised.id}>
                             {raised.name}
                           </option>
@@ -3197,7 +3366,8 @@ function ProductDetail({ products }) {
                     <strong>Note:</strong> Prices include processing one set of
                     uploaded files and creating a single proof. You can view the
                     status of your order online 24/7 under "My Account." Files
-                    not built correctly may delay the order. Set up charge may apply to all products.
+                    not built correctly may delay the order. Set up charge may
+                    apply to all products.
                   </p>
                 </div>
               </div>
