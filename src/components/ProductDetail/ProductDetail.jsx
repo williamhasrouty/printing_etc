@@ -44,6 +44,7 @@ function ProductDetail({ products }) {
   const isPostcard = product?.category === "postcards";
   const isDoorHanger = product?.category === "door-hangers";
   const isBanner = product?.category === "banners";
+  const isPoster = product?.category === "posters";
   const isCarMagnet = product?.name === "Car Magnets";
   const isBlueprint = product?.name === "Blueprints/Floor Plans";
 
@@ -1392,15 +1393,16 @@ function ProductDetail({ products }) {
 
       return price.toFixed(2);
     } else {
-      // Special handling for banners/car magnets: size price × quantity + custom options
-      if (isBanner || isCarMagnet) {
+      // Special handling for banners/car magnets/posters: size price × quantity + custom options
+      if (isBanner || isCarMagnet || isPoster) {
         const sizeOption = getProductSizes().find(
           (s) => s.id === selectedOptions.size,
         );
-        const sizePrice = Number(sizeOption?.priceModifier) || 0;
+        const sizePrice =
+          Number(sizeOption?.priceModifier) || product.basePrice || 0;
         const quantity = Number(selectedOptions.quantity) || 1;
 
-        // Add custom option modifiers (materials, grommets, etc.)
+        // Add custom option modifiers (materials, grommets, finishes, paper types, etc.)
         const customOptionModifiers = Object.keys(
           selectedOptions.customOptions || {},
         ).reduce((sum, categoryKey) => {
@@ -1410,15 +1412,38 @@ function ProductDetail({ products }) {
           return sum + (Number(selectedOption?.priceModifier) || 0);
         }, 0);
 
-        const totalPrice = (sizePrice + customOptionModifiers) * quantity;
+        // Add other option modifiers (paper types, finishes) for posters
+        let additionalModifiers = 0;
+        if (isPoster) {
+          const paperOption = getProductPaperTypes().find(
+            (p) => p.id === selectedOptions.paperType,
+          );
+          const finishOption = getProductFinishes().find(
+            (f) => f.id === selectedOptions.finish,
+          );
+          additionalModifiers =
+            (Number(paperOption?.priceModifier) || 0) +
+            (Number(finishOption?.priceModifier) || 0);
+        }
 
-        console.log(isBanner ? "Banner pricing:" : "Car Magnet pricing:", {
-          size: sizeOption?.name,
-          sizePrice,
-          customOptionModifiers,
-          quantity,
-          totalPrice,
-        });
+        const totalPrice =
+          (sizePrice + customOptionModifiers + additionalModifiers) * quantity;
+
+        console.log(
+          isPoster
+            ? "Poster pricing:"
+            : isBanner
+              ? "Banner pricing:"
+              : "Car Magnet pricing:",
+          {
+            size: sizeOption?.name,
+            sizePrice,
+            customOptionModifiers,
+            additionalModifiers,
+            quantity,
+            totalPrice,
+          },
+        );
 
         return totalPrice.toFixed(2);
       }
