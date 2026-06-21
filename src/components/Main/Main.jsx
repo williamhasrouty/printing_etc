@@ -121,7 +121,7 @@ function Main({ products, isLoading }) {
       <p className="main__additional-products">
         We offer a wide range of other printing services including:
         <br />
-        Copies, Labels, Menus, A-Frames, Yard Signs, Booklets, Letterheads,
+        Copies, Labels, Menus, A-Frames, Yard Signs, Work Orders, Booklets, Letterheads,
         Envelopes, Presentation Folders, etc.
         <br />
         <br />

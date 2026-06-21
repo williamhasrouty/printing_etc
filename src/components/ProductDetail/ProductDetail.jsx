@@ -47,6 +47,7 @@ function ProductDetail({ products }) {
   const isPoster = product?.category === "posters";
   const isCarMagnet = product?.name === "Car Magnets";
   const isBlueprint = product?.name === "Blueprints/Floor Plans";
+  const isSticker = product?.category === "stickers";
 
   // Check if product is call-to-order only (no online ordering)
   const isCallToOrderOnly =
@@ -95,7 +96,7 @@ function ProductDetail({ products }) {
   };
 
   // Returns the quantity list for non-business-card products from product options,
-  // falling back to the static QUANTITIES constant.
+  // falling back to pricing variant columns (stickers) or the static QUANTITIES constant.
   const getProductQuantities = () => {
     const saved = getValidNamedOptions(product?.options?.quantities);
     if (saved.length > 0) {
@@ -104,6 +105,23 @@ function ProductDetail({ products }) {
         label: q.name,
         priceModifier: Number(q.priceModifier) || 0,
       }));
+    }
+    // For stickers (and any product with pricing table but no saved quantities),
+    // use the columns from the pricing variant as the quantity options.
+    if (
+      isSticker &&
+      product?.pricingTable?.enabled &&
+      product.pricingTable.variants?.length > 0
+    ) {
+      // Use first variant's columns — all sticker variants share the same columns.
+      const columns = product.pricingTable.variants[0].columns || [];
+      if (columns.length > 0) {
+        return columns.map((q) => ({
+          value: q,
+          label: String(q),
+          priceModifier: 0,
+        }));
+      }
     }
     return QUANTITIES.map((q) => ({
       value: q,
@@ -186,7 +204,37 @@ function ProductDetail({ products }) {
   };
 
   const getProductPaperTypes = () => mapOptionArray("paperTypes", []);
-  const getProductSizes = () => mapOptionArray("sizes", []);
+  // Accepts an optional opts object so callers can pass current state without
+  // touching selectedOptions directly (avoids TDZ during useState initialisation).
+  const getProductSizes = (opts) => {
+    // For stickers: filter sizes to only those belonging to the selected shape variant.
+    // Only filter when opts is explicitly provided (not during initial render).
+    if (
+      opts &&
+      isSticker &&
+      product?.pricingTable?.enabled &&
+      opts.customOptions?.shape
+    ) {
+      const shapeId = opts.customOptions.shape;
+      const shapeOption = getCustomOptionValues("shape").find(
+        (s) => s.id === shapeId,
+      );
+      if (shapeOption) {
+        const variant = product.pricingTable.variants.find(
+          (v) =>
+            v.variantName.toLowerCase() === shapeOption.name.toLowerCase() ||
+            v.variantId === shapeId,
+        );
+        if (variant?.rows) {
+          const allSizes = mapOptionArray("sizes", []);
+          return allSizes.filter((size) =>
+            variant.rows.includes(size.dimensions.toLowerCase()),
+          );
+        }
+      }
+    }
+    return mapOptionArray("sizes", []);
+  };
   const getProductOrientations = () => mapOptionArray("orientations", []);
   const getProductColors = () => mapOptionArray("colors", []);
   const getProductCoatings = () => mapOptionArray("coatings", []);
@@ -406,14 +454,30 @@ function ProductDetail({ products }) {
         initialPaperType = getProductPaperTypes()[0]?.id || PAPER_TYPES[0].id;
       }
 
+      // For stickers, pick the initial size that matches the initial shape
+      let initialSize;
+      if (isBC) {
+        initialSize = getProductSizes()[0]?.id || "2x3.5";
+      } else if (isFly) {
+        initialSize = getFlyerSizes()[0]?.id || "";
+      } else if (
+        isSticker &&
+        product?.pricingTable?.enabled &&
+        initialCustomOptions.shape
+      ) {
+        const initOpts = {
+          customOptions: { shape: initialCustomOptions.shape },
+        };
+        const shapeSizes = getProductSizes(initOpts);
+        initialSize = shapeSizes[0]?.id || getProductSizes()[0]?.id || "";
+      } else {
+        initialSize = getProductSizes()[0]?.id || "";
+      }
+
       setSelectedOptions({
         paperType: initialPaperType,
         quantity: getQty(),
-        size: isBC
-          ? getProductSizes()[0]?.id || "2x3.5"
-          : isFly
-            ? getFlyerSizes()[0]?.id || ""
-            : getProductSizes()[0]?.id || "",
+        size: initialSize,
         orientation: isFly
           ? "horizontal"
           : getProductOrientations()[0]?.id || "horizontal",
@@ -859,6 +923,15 @@ function ProductDetail({ products }) {
           (c) => c.id === selectedOptions.color,
         );
         variantKey = colorOption?.name || selectedOptions.color || "";
+      } else if (isSticker) {
+        // For stickers, use shape from customOptions as variant
+        const shapeId = selectedOptions.customOptions?.shape;
+        if (shapeId) {
+          const shapeOption = getCustomOptionValues("shape").find(
+            (s) => s.id === shapeId,
+          );
+          variantKey = shapeOption?.name || shapeId || "";
+        }
       } else {
         // For other products, use paper type or material as variant
         const paperOption = isFlyer
@@ -1116,11 +1189,9 @@ function ProductDetail({ products }) {
               }
             }
 
-            // For blueprints, multiply per-sheet price by quantity
-            if (isBlueprint) {
-              const quantity = Number(selectedOptions.quantity) || 1;
-              return (finalPrice * quantity).toFixed(2);
-            }
+            // For blueprints with pricing table, price is already total
+            // (quantity is built into the table lookup, e.g., "18x24-2" = $4.50 for 2 copies)
+            // So we DON'T multiply by quantity here
 
             return finalPrice.toFixed(2);
           }
@@ -2531,14 +2602,50 @@ function ProductDetail({ products }) {
                     </select>
                   </div>
 
-                  {getProductSizes().length > 0 &&
+                  {/* Shape selector for stickers — appears after quantity, before size */}
+                  {isSticker && getCustomOptionValues("shape").length > 0 && (
+                    <div className="product-detail__option">
+                      <label htmlFor="shape" className="product-detail__label">
+                        {getCustomOptions().shape?.label || "Shape"}
+                      </label>
+                      <select
+                        id="shape"
+                        className="product-detail__select"
+                        value={selectedOptions.customOptions?.shape || ""}
+                        onChange={(e) => {
+                          const newShapeId = e.target.value;
+                          const newOpts = {
+                            ...selectedOptions,
+                            customOptions: {
+                              ...selectedOptions.customOptions,
+                              shape: newShapeId,
+                            },
+                          };
+                          // Reset size to first available for the new shape
+                          const shapeSizes = getProductSizes(newOpts);
+                          setSelectedOptions({
+                            ...newOpts,
+                            size: shapeSizes[0]?.id || "",
+                          });
+                        }}
+                      >
+                        {getCustomOptionValues("shape").map((shape) => (
+                          <option key={shape.id} value={shape.id}>
+                            {shape.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+
+                  {getProductSizes(selectedOptions).length > 0 &&
                     (needsSizeDistribution() ? (
                       <div className="product-detail__option">
                         <label className="product-detail__label">
                           Size Distribution (Total: {selectedOptions.quantity})
                         </label>
                         <div className="product-detail__size-distribution">
-                          {getProductSizes().map((size) => (
+                          {getProductSizes(selectedOptions).map((size) => (
                             <div
                               key={size.id}
                               className="product-detail__size-row"
@@ -2636,7 +2743,7 @@ function ProductDetail({ products }) {
                             setSelectedOptions(newOptions);
                           }}
                         >
-                          {getProductSizes().map((size) => (
+                          {getProductSizes(selectedOptions).map((size) => (
                             <option key={size.id} value={size.id}>
                               {size.name}
                             </option>
@@ -2860,6 +2967,9 @@ function ProductDetail({ products }) {
 
                   {/* Render custom option categories (e.g., Materials for banners) */}
                   {Object.keys(getCustomOptions()).map((categoryKey) => {
+                    // Stickers: shape is rendered manually above quantity, skip here
+                    if (isSticker && categoryKey === "shape") return null;
+
                     const categoryData = getCustomOptions()[categoryKey];
                     const categoryLabel = categoryData?.label || categoryKey;
                     const options = getCustomOptionValues(categoryKey);
